@@ -8,7 +8,11 @@ var shuffleDeck = function() {
 
   suits.forEach(function(suit) {
     values.forEach(function(value) {
-      deck.push(value + suit);
+      var realValue;
+      if (value === 'A') {
+        realValue = 1;
+      }
+      deck.push(value + suit, );
     });
   });
 
@@ -24,8 +28,8 @@ var shuffleDeck = function() {
 var App = () => {
   var [deck, setDeck] = useState(shuffleDeck());
   var [played, setPlayed] = useState([]);
-  var [computer, setComputer] = useState([]);
-  var [playerOne, setPlayerOne] = useState([]);
+  var [computerHand, setComputerHand] = useState([]);
+  var [playerOneHand, setPlayerOneHand] = useState([]);
   var [started, setStarted] = useState(false);
   var [turn, setTurn] = useState(true);
   var [thinking, setThinking] = useState(false);
@@ -33,29 +37,37 @@ var App = () => {
 
   function playCard(card, player) {
     if (player) {
-      setPlayerOne(playerOne.filter(inHand => inHand !== card).concat(deck.shift()));
       setTurn(false);
+      setPlayerOneHand(playerOneHand.filter(inHand => inHand !== card).concat(deck.shift()));
+      computer();
     } else {
-      setComputer(computer.filter(inHand => inHand !== card).concat(deck.shift()));
+      setComputerHand(computerHand.filter(inHand => inHand !== card).concat(deck.shift()));
       setTurn(true);
     }
     // Check for four special cards
     if (card[0] === '4') {
       // Eventually reverse order of play
+
     } else if (card[0] === '10') {
-      setTotal(total - 10);
+      setTotal(total => total - 10);
+
     } else if (card[0] === '9') {
       // Do nothing. 9 is hold.
+
     } else if (card[0] === 'K') {
-      setTotal(99);
+      setTotal(total => 99);
+
     // Check for Q or J
     } else if (card[0] === 'Q' || card[0] === 'J') {
-      setTotal(total + 10);
+      setTotal(total => total + 10);
+
     } else if (card[0] === 'A') {
-      setTotal(total + 1);
+      setTotal(total => total + 1);
+
     } else {
-      setTotal(total + parseInt(card[0]));
+      setTotal(total => total + parseInt(card[0]));
     }
+
     setPlayed([...played, card]);
   }
 
@@ -69,8 +81,8 @@ var App = () => {
   }
 
   function startGame() {
-    setPlayerOne([deck[0], deck[2], deck[4]]);
-    setComputer([deck[1], deck[3], deck[5]]);
+    setPlayerOneHand([deck[0], deck[2], deck[4]]);
+    setComputerHand([deck[1], deck[3], deck[5]]);
     var deals = 6;
     while (deals) {
       deck.shift();
@@ -91,13 +103,15 @@ var App = () => {
     &nbsp;
     <div>
       <div>Player One:</div>
-    {playerOne.length ? playerOne.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card} >{card}</span>) : null}
+      {playerOneHand.length ?
+      playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card} >{card}</span>)
+      : null}
     </div>
     &nbsp;
     &nbsp;
     <div>
       <div>Computer:</div>
-      {computer.length ? computer.map(card => <span onClick={() => playCard(card)} key={card} >{card}</span>) : null}
+      {computerHand.length ? computerHand.map(card => <span key={card} >{card}</span>) : null}
       {thinking ? <div>Thinking...</div> : null}
     </div>
     </>
