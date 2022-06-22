@@ -23,12 +23,22 @@ var shuffleDeck = function() {
 
 var App = () => {
   var [deck, setDeck] = useState(shuffleDeck());
+  var [played, setPlayed] = useState([]);
+  var [computer, setComputer] = useState([]);
   var [playerOne, setPlayerOne] = useState([]);
   var [started, setStarted] = useState(false);
+  var [turn, setTurn] = useState(true);
+  var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
 
-  function playCard(card) {
-    setPlayerOne(playerOne.filter(inHand => inHand !== card).concat(deck.shift()));
+  function playCard(card, player) {
+    if (player) {
+      setPlayerOne(playerOne.filter(inHand => inHand !== card).concat(deck.shift()));
+      setTurn(false);
+    } else {
+      setComputer(computer.filter(inHand => inHand !== card).concat(deck.shift()));
+      setTurn(true);
+    }
     // Check for four special cards
     if (card[0] === '4') {
       // Eventually reverse order of play
@@ -46,10 +56,26 @@ var App = () => {
     } else {
       setTotal(total + parseInt(card[0]));
     }
+    setPlayed([...played, card]);
+  }
+
+  function computer() {
+    setThinking(true);
+    var thinkingTime = Math.random() * 5000 + 3000;
+    setTimeout(() => {
+
+      setThinking(false)
+    }, thinkingTime);
   }
 
   function startGame() {
-    setPlayerOne([deck.shift(), deck.shift(), deck.shift()]);
+    setPlayerOne([deck[0], deck[2], deck[4]]);
+    setComputer([deck[1], deck[3], deck[5]]);
+    var deals = 6;
+    while (deals) {
+      deck.shift();
+      deals--;
+    }
     setStarted(true);
   }
 
@@ -64,7 +90,15 @@ var App = () => {
     &nbsp;
     &nbsp;
     <div>
-    {playerOne.length ? playerOne.map(card => <span onClick={() => playCard(card)} key={card} >{card}</span>) : null}
+      <div>Player One:</div>
+    {playerOne.length ? playerOne.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card} >{card}</span>) : null}
+    </div>
+    &nbsp;
+    &nbsp;
+    <div>
+      <div>Computer:</div>
+      {computer.length ? computer.map(card => <span onClick={() => playCard(card)} key={card} >{card}</span>) : null}
+      {thinking ? <div>Thinking...</div> : null}
     </div>
     </>
   )
