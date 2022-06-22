@@ -9,7 +9,16 @@ var shuffleDeck = function() {
 
   suits.forEach(function(suit) {
     values.forEach(function(value) {
-      deck.push(value + suit);
+      var realValue = value;
+      if (value === 'A') {
+        realValue = 1;
+      } else if (value === 'J' || value === 'Q') {
+        realValue = 10;
+      } else if (value === 'K') {
+        // K realValue is 0 for sorting purposes
+        realValue = 0;
+      }
+      deck.push([value + suit, realValue]);
     });
   });
 
@@ -37,10 +46,17 @@ var App = () => {
     console.log(total)
     if (player) {
       setTurn(false);
+<<<<<<< HEAD
       setPlayerOneHand(playerOneHand.filter(inHand => inHand !== card).concat(deck.shift()));
       computer();
     } else {
       setComputerHand(computerHand.filter(inHand => inHand !== card).concat(deck.shift()));
+=======
+      setPlayerOneHand(playerOneHand.filter(inHand => inHand[0] !== card).concat(deck.shift()));
+      computer();
+    } else {
+      setComputerHand(computerHand.filter(inHand => inHand[0] !== card).concat(deck.shift()));
+>>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
       setTurn(true);
     }
     // Check for four special cards
@@ -54,7 +70,11 @@ var App = () => {
       // Do nothing. 9 is hold.
 
     } else if (card[0] === 'K') {
+<<<<<<< HEAD
       setTotal(99);
+=======
+      setTotal(total => 99);
+>>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
 
     // Check for Q or J
     } else if (card[0] === 'Q' || card[0] === 'J') {
@@ -95,7 +115,9 @@ var App = () => {
 
   return (
     <>
-    <div>{deck}</div>
+    {deck.length ? <div>
+      {deck.map(card => <span key={card[0]} >{card[0]}</span>)}
+    </div> : null}
     &nbsp;
     &nbsp;
     <div>
@@ -105,13 +127,23 @@ var App = () => {
     &nbsp;
     <div>
       <div>Player One:</div>
+<<<<<<< HEAD
     {playerOneHand.length ? playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card} >{card}</span>) : null}
+=======
+      {playerOneHand.length ?
+      playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card[0], true)}}} key={card[0] + 'p'} >{card[0]}</span>)
+      : null}
+>>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
     </div>
     &nbsp;
     &nbsp;
     <div>
       <div>Computer:</div>
+<<<<<<< HEAD
       {computerHand.length ? computerHand.map(card => <span key={card} >{card}</span>) : null}
+=======
+      {computerHand.length ? computerHand.map(card => <span key={card[0] + 'c'} >{card[0]}</span>) : null}
+>>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
       {thinking ? <div>Thinking...</div> : null}
     </div>
     </>
