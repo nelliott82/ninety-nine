@@ -8,11 +8,16 @@ var shuffleDeck = function() {
 
   suits.forEach(function(suit) {
     values.forEach(function(value) {
-      var realValue;
+      var realValue = value;
       if (value === 'A') {
         realValue = 1;
+      } else if (value === 'J' || value === 'Q') {
+        realValue = 10;
+      } else if (value === 'K') {
+        // K realValue is 0 for sorting purposes
+        realValue = 0;
       }
-      deck.push(value + suit, );
+      deck.push([value + suit, realValue]);
     });
   });
 
@@ -38,10 +43,10 @@ var App = () => {
   function playCard(card, player) {
     if (player) {
       setTurn(false);
-      setPlayerOneHand(playerOneHand.filter(inHand => inHand !== card).concat(deck.shift()));
+      setPlayerOneHand(playerOneHand.filter(inHand => inHand[0] !== card).concat(deck.shift()));
       computer();
     } else {
-      setComputerHand(computerHand.filter(inHand => inHand !== card).concat(deck.shift()));
+      setComputerHand(computerHand.filter(inHand => inHand[0] !== card).concat(deck.shift()));
       setTurn(true);
     }
     // Check for four special cards
@@ -93,7 +98,9 @@ var App = () => {
 
   return (
     <>
-    <div>{deck}</div>
+    {deck.length ? <div>
+      {deck.map(card => <span key={card[0]} >{card[0]}</span>)}
+    </div> : null}
     &nbsp;
     &nbsp;
     <div>
@@ -104,14 +111,14 @@ var App = () => {
     <div>
       <div>Player One:</div>
       {playerOneHand.length ?
-      playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card} >{card}</span>)
+      playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card[0], true)}}} key={card[0] + 'p'} >{card[0]}</span>)
       : null}
     </div>
     &nbsp;
     &nbsp;
     <div>
       <div>Computer:</div>
-      {computerHand.length ? computerHand.map(card => <span key={card} >{card}</span>) : null}
+      {computerHand.length ? computerHand.map(card => <span key={card[0] + 'c'} >{card[0]}</span>) : null}
       {thinking ? <div>Thinking...</div> : null}
     </div>
     </>
