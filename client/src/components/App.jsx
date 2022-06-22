@@ -25,9 +25,27 @@ var App = () => {
   var [deck, setDeck] = useState(shuffleDeck());
   var [playerOne, setPlayerOne] = useState([]);
   var [started, setStarted] = useState(false);
+  var [total, setTotal] = useState(0);
 
-  function playCard() {
-
+  function playCard(card) {
+    setPlayerOne(playerOne.filter(inHand => inHand !== card).concat(deck.shift()));
+    // Check for four special cards
+    if (card[0] === '4') {
+      // Eventually reverse order of play
+    } else if (card[0] === '10') {
+      setTotal(total - 10);
+    } else if (card[0] === '9') {
+      // Do nothing. 9 is hold.
+    } else if (card[0] === 'K') {
+      setTotal(99);
+    // Check for Q or J
+    } else if (card[0] === 'Q' || card[0] === 'J') {
+      setTotal(total + 10);
+    } else if (card[0] === 'A') {
+      setTotal(total + 1);
+    } else {
+      setTotal(total + parseInt(card[0]));
+    }
   }
 
   function startGame() {
@@ -41,12 +59,12 @@ var App = () => {
     &nbsp;
     &nbsp;
     <div>
-    {started ? null : <button onClick={startGame}>Start Game</button>}
+    {started ? <span>Game Total: {total}</span> : <button onClick={startGame}>Start Game</button>}
     </div>
     &nbsp;
     &nbsp;
     <div>
-    {playerOne.length ? playerOne.map(card => <span key={card} >{card}</span>) : null}
+    {playerOne.length ? playerOne.map(card => <span onClick={() => playCard(card)} key={card} >{card}</span>) : null}
     </div>
     </>
   )
