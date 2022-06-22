@@ -40,23 +40,14 @@ var App = () => {
   var [turn, setTurn] = useState(true);
   var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
+  var syncTotal = 0;
 
   function playCard(card, player) {
-    console.log(playerOneHand);
-    console.log(total)
     if (player) {
       setTurn(false);
-<<<<<<< HEAD
-      setPlayerOneHand(playerOneHand.filter(inHand => inHand !== card).concat(deck.shift()));
-      computer();
+      setPlayerOneHand(payerOneHand => [...playerOneHand.filter(inHand => inHand[0] !== card), deck.shift()]);
     } else {
-      setComputerHand(computerHand.filter(inHand => inHand !== card).concat(deck.shift()));
-=======
-      setPlayerOneHand(playerOneHand.filter(inHand => inHand[0] !== card).concat(deck.shift()));
-      computer();
-    } else {
-      setComputerHand(computerHand.filter(inHand => inHand[0] !== card).concat(deck.shift()));
->>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
+      setComputerHand(computerHand => [...computerHand.filter(inHand => inHand[0] !== card), deck.shift()]);
       setTurn(true);
     }
     // Check for four special cards
@@ -65,39 +56,41 @@ var App = () => {
 
     } else if (card[0] === '10') {
       setTotal(total => total - 10);
+      syncTotal = syncTotal - 10;
 
     } else if (card[0] === '9') {
       // Do nothing. 9 is hold.
 
     } else if (card[0] === 'K') {
-<<<<<<< HEAD
-      setTotal(99);
-=======
       setTotal(total => 99);
->>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
+      syncTotal = 99;
 
     // Check for Q or J
     } else if (card[0] === 'Q' || card[0] === 'J') {
       setTotal(total => total + 10);
+      syncTotal = syncTotal + 10;
 
     } else if (card[0] === 'A') {
       setTotal(total => total + 1);
+      syncTotal = syncTotal + 1;
 
     } else {
       setTotal(total => total + parseInt(card[0]));
+      syncTotal = syncTotal + parseInt(card[0]);
+
     }
 
     setPlayed([...played, card]);
-    console.log(total)
+    if (player) {
+      computer();
+    }
   }
 
   function computer() {
     setThinking(true);
-    var thinkingTime = Math.random() * 3000 + 500;
+    var thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 500 :Math.random() * 5000 + 1000 ;
     setTimeout(() => {
-      var cardToPlay = nikkoBot.chooseCard(computerHand, total);
-      console.log(cardToPlay);
-      playCard(cardToPlay);
+      playCard(nikkoBot.chooseCard(computerHand, syncTotal)[0]);
       setThinking(false)
     }, thinkingTime);
   }
@@ -127,23 +120,15 @@ var App = () => {
     &nbsp;
     <div>
       <div>Player One:</div>
-<<<<<<< HEAD
-    {playerOneHand.length ? playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card} >{card}</span>) : null}
-=======
       {playerOneHand.length ?
       playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card[0], true)}}} key={card[0] + 'p'} >{card[0]}</span>)
       : null}
->>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
     </div>
     &nbsp;
     &nbsp;
     <div>
       <div>Computer:</div>
-<<<<<<< HEAD
-      {computerHand.length ? computerHand.map(card => <span key={card} >{card}</span>) : null}
-=======
       {computerHand.length ? computerHand.map(card => <span key={card[0] + 'c'} >{card[0]}</span>) : null}
->>>>>>> e69afc70c9014fc7dc35e14e68e6fe0a6e0a98fe
       {thinking ? <div>Thinking...</div> : null}
     </div>
     </>
