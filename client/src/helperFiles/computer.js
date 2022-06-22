@@ -1,56 +1,69 @@
 const computer = {
   chooseCard: function(hand, total) {
-    console.log(total);
     var values = this.getValueCards(hand);
-    console.log('value cards: ', values);
+    console.log('values: ', values);
     var specials = this.getSpecialCards(hand);
-    console.log('special cards: ', specials);
+    console.log('specials: ', specials);
 
     if (total < 80) {
       if (values.length) {
-        console.log('value played')
         // Play highest card
         return values[values.length - 1];
+
       } else {
-        console.log('special played')
         return specials[0];
+
+      }
+
+    } else {
+      if (values.length && specials.length) {
+        if (values[0] + total > 99) {
+          return specials[0];
+
+        } else if (values[values.length - 1] + total < 99) {
+          return values[values.length - 1];
+
+        }
+      } else if (specials.length) {
+        return specials[0];
+
+      } else {
+        if (values[0] + total > 99) {
+          return values[0];
+
+        } else if (values[values.length - 1] + total < 99) {
+          return values[values.length - 1];
+
+        } else {
+          return values[0];
+
+        }
       }
     }
   },
   getValueCards: function(hand) {
     return hand.filter(card => {
-      if (card[0] !== 'K' && card[0] !== '4' && card[0] !== '9' && card[0] !== '10') {
+      if (card[0][0] !== 'K' &&
+          card[0][0] !== '4' &&
+          card[0][0] !== '9' &&
+          card[0][0] + card[0][1] !== '10') {
         return card;
       }
     }).sort((a, b) => {
-      if (a[0] === 'A') {
-        a[0] = 1;
-      } else if (a[0] === 'Q' || a[0] === 'J') {
-        a[0] = 10;
-      } else {
-        a[0] = parseInt(a[0])
-      }
-
-      if (b[0] === 'A') {
-        b[0] = 1;
-      } else if (b[0] === 'Q' || b[0] === 'J') {
-        b[0] = 10;
-      } else {
-        b[0] = parseInt(b[0])
-      }
-
-      return a - b;
+      return a[1] - b[1];
     })
   },
   getSpecialCards: function(hand) {
     return hand.filter(card => {
-      if (card[0] === 'K' && card[0] === '4' && card[0] === '9' && card[0] === '10') {
+      if (card[0][0] === 'K' ||
+          card[0][0] === '4' ||
+          card[0][0] === '9' ||
+          card[0][0] + card[0][1] === '10') {
         return card;
       }
     }).sort((a, b) => {
-      a = a[0] === 'K' ? 1 : parseInt(a[0]);
-      b = b[0] === 'K' ? 1 : parseInt(b[0]);
-      return a - b;
+
+      return a[1] - b[1];
     })
   }
 }
