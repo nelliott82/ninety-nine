@@ -205,7 +205,6 @@ var App = () => {
         gameOver(player);
         newRound = true;
       } else {
-        console.log(cardObj);
         setTotal(total => total + parseInt(card[0]));
         syncTotal += parseInt(card[0]);
       }
