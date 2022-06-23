@@ -1,10 +1,7 @@
 const computer = {
   chooseCard: function(hand, total) {
-    console.log('total: ', total);
     var values = this.getValueCards(hand);
-    console.log('values: ', values);
     var specials = this.getSpecialCards(hand);
-    console.log('specials: ', specials);
 
     if (total < 80) {
       if (values.length) {
