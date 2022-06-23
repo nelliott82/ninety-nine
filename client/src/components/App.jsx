@@ -121,7 +121,8 @@ const RoundMessage = styled.div`
   animation: ${({message}) => message ? fadeIn : fadeOut} 0.5s linear;
   transition: visibility 0.5s linear;
   color: red;
-  font-size: 5em;
+  font-size: 3em;
+  text-align: center;
 `;
 const OverMessageModal = styled.div`
   z-index: auto;
@@ -139,7 +140,8 @@ const OverMessage = styled.div`
   top: 45%;
   visibility: ${({over}) => over ? 'visible' : 'hidden'};
   color: red;
-  font-size: 5em;
+  font-size: 3em;
+  text-align: center;
 `;
 
 var syncTotal = 0;
@@ -243,12 +245,11 @@ var App = () => {
   }
 
   function gameOver(player) {
-    if (strikes[0] === 2 || strikes[1] === 2) {
-      if (player) {
-        setStrikes(strikes => [3, strikes[1]]);
-      } else {
-        setStrikes(strikes => [strikes[0], 3]);
-      }
+    if (player && strikes[0] === 2) {
+      setStrikes(strikes => [3, strikes[1]]);
+      setOver(true);
+    } else if (strikes[1] === 2) {
+      setStrikes(strikes => [strikes[0], 3]);
       setOver(true);
     } else {
       setRound(round => round + 1);
