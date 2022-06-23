@@ -65,7 +65,7 @@ return (
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
         {thinking ? <Thinking>Thinking...</Thinking> : null}
-        {over ? strikes[0] === 2 ?
+        {over ? strikes[0] === 3 ?
               <FinalMsg>"Better luck next time!"</FinalMsg>
               :
               <FinalMsg>"Nooooooo!!"</FinalMsg>
