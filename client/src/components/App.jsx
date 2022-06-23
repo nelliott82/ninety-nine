@@ -3,10 +3,11 @@ import nikkoBot from '../helperFiles/computer.js';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
+import PlayingArea from './PlayingArea.jsx';
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background: darkgreen;
+    background: #C0DCC0;
   }
 `
 const CardFace = styled.img`
@@ -17,6 +18,7 @@ const CardFace = styled.img`
   &:hover {
     border: 2px solid blue;
     box-shadow: 0 0 10px blue;
+    border-radius: 5%;
     transform: scale(1.1);
   }
 `
@@ -159,19 +161,7 @@ var App = () => {
                        over={over} />
     &nbsp;
     &nbsp;
-    <div>
-    {deck.length ?
-      <img style={{width: 10 + '%'}}
-           src='/assets/cards/back.jpg' />
-     : null}
-    <div>{deck.length}</div>
-    &nbsp;
-    &nbsp;
-    {played.length ?
-      <img style={{width: 10 + '%'}}
-           src={`/assets/cards/${played[played.length - 1][0]}.png`} />
-     : null}
-    </div>
+    <PlayingArea played={played} deck={deck} />
     &nbsp;
     &nbsp;
     <div>
