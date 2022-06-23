@@ -33,6 +33,7 @@ const Holder = styled.div`
 const ComputerCards = styled.img`
   width: 130px;
   height: 195px;
+  margin-top: 3px;
   grid-column: ${({index}) => index};
   grid-row: 2;
 `
