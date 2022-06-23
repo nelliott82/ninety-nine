@@ -1,41 +1,13 @@
 import React, { useState } from 'react';
 import nikkoBot from '../helperFiles/computer.js';
+import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle } from 'styled-components';
 
-function shuffleDeck (deck) {
-  var total = deck.length;
-
-  while (total) {
-    var randomIndex = Math.floor(Math.random() * total--);
-    [deck[randomIndex], deck[total]] = [deck[total], deck[randomIndex]];
+const GlobalStyle = createGlobalStyle`
+  body {
+    background: green;
   }
-  return deck;
-};
-
-function createDeck () {
-  var suits = [ '♥', '♣', '♠', '♦' ];
-  var values = [ 'A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K' ];
-  var deck = [];
-
-  suits.forEach(function(suit) {
-    values.forEach(function(value) {
-      var realValue = value;
-
-      if (value === 'A') {
-        realValue = 1;
-      } else if (value === 'J' || value === 'Q') {
-        realValue = 10;
-      } else if (value === 'K') {
-        // K realValue is 0 for sorting purposes
-        realValue = 0;
-      }
-
-      deck.push([value + suit, realValue]);
-    });
-  });
-
-  return deck;
-}
+`
 
 var syncTotal = 0;
 
@@ -165,15 +137,18 @@ var App = () => {
 
   return (
     <>
-    {deck.length ? <div>
-      {deck.map(card => <img style={{width: 10 + '%'}} src={`/assets/cards/${card[0]}.png`} key={card[0]} />)}
-    </div> : null}
+    <GlobalStyle/>
+    {deck.length ?
+      <img style={{width: 10 + '%'}}
+           src='/assets/cards/back.jpg' />
+     : null}
     <div>{deck.length}</div>
     &nbsp;
     &nbsp;
-    {played.length ? <div>
-      {played.map(card => <span key={card[0]} >{card[0]}</span>)}
-    </div> : null}
+    {played.length ?
+      <img style={{width: 10 + '%'}}
+           src={`/assets/cards/${played[played.length - 1][0]}.png`} />
+     : null}
     &nbsp;
     &nbsp;
     <div>
@@ -183,6 +158,7 @@ var App = () => {
     &nbsp;
     <div>
       <div>Player One:</div>
+      <div>Strikes: {strikes[0]}</div>
       {playerOneHand.length ?
       playerOneHand.map(card => <img style={{width: 10 + '%'}}
                                      src={`/assets/cards/${card[0]}.png`}
@@ -194,6 +170,7 @@ var App = () => {
     &nbsp;
     <div>
       <div>Computer:</div>
+      <div>Strikes: {strikes[1]}</div>
       {computerHand.length ? computerHand.map(card => <img style={{width: 10 + '%'}}
                                                            key={card[0] + 'c'}
                                                            src='/assets/cards/back.jpg' />)
