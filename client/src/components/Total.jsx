@@ -14,6 +14,7 @@ const Container = styled.div`
 const Total = styled.div`
   grid-column: 1;
   grid-row: 1;
+  font-size: 1.5em;
 `
 
 var TotalComponent = ({ total }) => {
