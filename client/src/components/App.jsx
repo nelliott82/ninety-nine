@@ -1,27 +1,7 @@
 import React, { useState } from 'react';
 import nikkoBot from '../helperFiles/computer.js';
 
-var shuffleDeck = function() {
-  // Your code here
-  var suits = [ '♥', '♣', '♠', '♦' ];
-  var values = [ 'A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K' ];
-  var deck = [];
-
-  suits.forEach(function(suit) {
-    values.forEach(function(value) {
-      var realValue = value;
-      if (value === 'A') {
-        realValue = 1;
-      } else if (value === 'J' || value === 'Q') {
-        realValue = 10;
-      } else if (value === 'K') {
-        // K realValue is 0 for sorting purposes
-        realValue = 0;
-      }
-      deck.push([value + suit, realValue]);
-    });
-  });
-
+function shuffleDeck (deck) {
   var total = deck.length;
 
   while (total) {
@@ -31,10 +11,33 @@ var shuffleDeck = function() {
   return deck;
 };
 
+function createDeck () {
+  var suits = [ '♥', '♣', '♠', '♦' ];
+  var values = [ 'A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K' ];
+  var deck = [];
+
+  suits.forEach(function(suit) {
+    values.forEach(function(value) {
+      var realValue = value;
+
+      if (value === 'A') {
+        realValue = 1;
+      } else if (value === 'J' || value === 'Q') {
+        realValue = 10;
+      } else if (value === 'K') {
+        // K realValue is 0 for sorting purposes
+        realValue = 0;
+      }
+
+      deck.push([value + suit, realValue]);
+    });
+  });
+}
+
 var syncTotal = 0;
 
 var App = () => {
-  var [deck, setDeck] = useState(shuffleDeck());
+  var [deck, setDeck] = useState(shuffleDeck(createDeck()));
   var [played, setPlayed] = useState([]);
   var [computerHand, setComputerHand] = useState([]);
   var [playerOneHand, setPlayerOneHand] = useState([]);
@@ -86,6 +89,11 @@ var App = () => {
     setPlayed(played => [...played, cardObj]);
     if (player) {
       computer();
+    }
+    if (!deck.length) {
+      var reUsePlayed = shuffleDeck(played);
+      setDeck(deck => [...reUsePlayed]);
+      setPlayed(played => []);
     }
   }
 
