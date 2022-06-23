@@ -37,6 +37,24 @@ const Attribution = styled.div`
   grid-column: 1;
   grid-row: 2
 `
+const StartModal = styled.div`
+  z-index: auto;
+  display: ${({ started }) => (started ? 'none' : 'block')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width:100vw;
+  background: rgba(250,250,250,0.5);
+`;
+
+const StartButtonContainer = styled.div`
+  background: rgba(250,250,250,0);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+`;
 
 var syncTotal = 0;
 
@@ -168,6 +186,11 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
+    <StartModal started={started} >
+      <StartButtonContainer>
+        <button onClick={startGame}>Start Game</button>
+      </StartButtonContainer>
+    </StartModal>
     <MainContainer>
       <SideBar>
         <SideBarComponent/>
@@ -179,11 +202,7 @@ var App = () => {
                           over={over} />
 
         <PlayingArea played={played} deck={deck} />
-
-        <div>
-        {started ? <span>Game Total: {total}</span> : <button onClick={startGame}>Start Game</button>}
-        </div>
-
+        <span>Game Total: {total}</span>
         <PlayerOneComponent strikes={strikes}
                             playerOneHand={playerOneHand}
                             turn={turn}
