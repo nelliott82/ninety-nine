@@ -33,6 +33,13 @@ const PlayerOneCards = styled.img`
   width: 130px;
   height: 195px;
   margin-top: 3px;
+  cursor: pointer;
+  &:hover {
+    border: 2px solid blue;
+    box-shadow: 0 0 10px blue;
+    border-radius: 5%;
+    transform: scale(1.1);
+  }
   grid-column: ${({index}) => index};
   grid-row: 2;
 `
@@ -42,7 +49,7 @@ PlayerOneCards.defaultProps = {
 
 var placeHolder = [2, 3, 4];
 
-var PlayerOneComponent = ({ strikes, playerOneHand }) => {
+var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard }) => {
 
 return (
     <PlayerOneArea>
@@ -51,6 +58,7 @@ return (
         {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
                                                                 <PlayerOneCards key={card[0] + 'p'}
                                                                                 index={i + 2}
+                                                                                onClick={() => {if (turn) { playCard(card, true) }}}
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
