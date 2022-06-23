@@ -31,6 +31,8 @@ var shuffleDeck = function() {
   return deck;
 };
 
+var syncTotal = 0;
+
 var App = () => {
   var [deck, setDeck] = useState(shuffleDeck());
   var [played, setPlayed] = useState([]);
@@ -40,9 +42,10 @@ var App = () => {
   var [turn, setTurn] = useState(true);
   var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
-  var syncTotal = 0;
 
-  function playCard(card, player) {
+  function playCard(cardObj, player) {
+    var card = cardObj[0];
+
     if (player) {
       setTurn(false);
       setPlayerOneHand(payerOneHand => [...playerOneHand.filter(inHand => inHand[0] !== card), deck.shift()]);
@@ -54,9 +57,9 @@ var App = () => {
     if (card[0] === '4') {
       // Eventually reverse order of play
 
-    } else if (card[0] === '10') {
+    } else if (card[0] + card[1] === '10') {
       setTotal(total => total - 10);
-      syncTotal = syncTotal - 10;
+      syncTotal -= 10;
 
     } else if (card[0] === '9') {
       // Do nothing. 9 is hold.
@@ -68,11 +71,11 @@ var App = () => {
     // Check for Q or J
     } else if (card[0] === 'Q' || card[0] === 'J') {
       setTotal(total => total + 10);
-      syncTotal = syncTotal + 10;
+      syncTotal += 10;
 
     } else if (card[0] === 'A') {
       setTotal(total => total + 1);
-      syncTotal = syncTotal + 1;
+      syncTotal += 1;
 
     } else {
       setTotal(total => total + parseInt(card[0]));
@@ -80,7 +83,7 @@ var App = () => {
 
     }
 
-    setPlayed([...played, card]);
+    setPlayed(played => [...played, cardObj]);
     if (player) {
       computer();
     }
@@ -90,7 +93,7 @@ var App = () => {
     setThinking(true);
     var thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 500 :Math.random() * 5000 + 1000 ;
     setTimeout(() => {
-      playCard(nikkoBot.chooseCard(computerHand, syncTotal)[0]);
+      playCard(nikkoBot.chooseCard(computerHand, syncTotal));
       setThinking(false)
     }, thinkingTime);
   }
@@ -113,6 +116,11 @@ var App = () => {
     </div> : null}
     &nbsp;
     &nbsp;
+    {played.length ? <div>
+      {played.map(card => <span key={card[0]} >{card[0]}</span>)}
+    </div> : null}
+    &nbsp;
+    &nbsp;
     <div>
     {started ? <span>Game Total: {total}</span> : <button onClick={startGame}>Start Game</button>}
     </div>
@@ -121,7 +129,7 @@ var App = () => {
     <div>
       <div>Player One:</div>
       {playerOneHand.length ?
-      playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card[0], true)}}} key={card[0] + 'p'} >{card[0]}</span>)
+      playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card[0] + 'p'} >{card[0]}</span>)
       : null}
     </div>
     &nbsp;
