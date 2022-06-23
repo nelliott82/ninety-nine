@@ -46,10 +46,17 @@ const PlayerOneCards = styled.img`
 PlayerOneCards.defaultProps = {
   src: ''
 }
+const ForfeitButton = styled.button`
+  width: 5rem;
+  height: 2rem;
+  font-size: 1em;
+  grid-column: 5;
+  grid-row: 2;
+`
 
 var placeHolder = [2, 3, 4];
 
-var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard }) => {
+var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, gameOver }) => {
 
 return (
     <PlayerOneArea>
@@ -62,6 +69,7 @@ return (
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
+      <ForfeitButton onClick={() => gameOver(true)} >Forfeit</ForfeitButton>
     </PlayerOneArea>
   )
 }
