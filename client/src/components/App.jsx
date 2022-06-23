@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import nikkoBot from '../helperFiles/computer.js';
+import styled, { createGlobalStyle } from 'styled-components';
 
 function shuffleDeck (deck) {
   var total = deck.length;
@@ -38,9 +39,10 @@ function createDeck () {
 
 var syncTotal = 0;
 
+var deck = shuffleDeck(createDeck());
+var played = [];
+
 var App = () => {
-  var [deck, setDeck] = useState(shuffleDeck(createDeck()));
-  var [played, setPlayed] = useState([]);
   var [computerHand, setComputerHand] = useState([]);
   var [playerOneHand, setPlayerOneHand] = useState([]);
   var [started, setStarted] = useState(false);
@@ -52,14 +54,8 @@ var App = () => {
 
   function playCard(cardObj, player) {
     var card = cardObj[0];
+    var newRound = false;
 
-    if (player) {
-      setTurn(false);
-      setPlayerOneHand(payerOneHand => [...playerOneHand.filter(inHand => inHand[0] !== card), deck.shift()]);
-    } else {
-      setComputerHand(computerHand => [...computerHand.filter(inHand => inHand[0] !== card), deck.shift()]);
-      setTurn(true);
-    }
     // Check for four special cards
     if (card[0] === '4') {
       // Eventually reverse order of play
@@ -79,6 +75,7 @@ var App = () => {
     } else if (card[0] === 'Q' || card[0] === 'J') {
       if (syncTotal + 10 > 99) {
         gameOver();
+        newRound = true;
       } else {
         setTotal(total => total + 10);
         syncTotal += 10;
@@ -87,6 +84,7 @@ var App = () => {
     } else if (card[0] === 'A') {
       if (syncTotal + 1 > 99) {
         gameOver();
+        newRound = true;
       } else {
         setTotal(total => total + 1);
         syncTotal += 1;
@@ -95,6 +93,7 @@ var App = () => {
     } else {
       if (syncTotal + parseInt(card[0]) > 99) {
         gameOver();
+        newRound = true;
       } else {
         setTotal(total => total + parseInt(card[0]));
         syncTotal += parseInt(card[0]);
@@ -102,15 +101,26 @@ var App = () => {
 
     }
 
-    setPlayed(played => [...played, cardObj]);
-    if (player) {
-      computer();
-    }
+    if (!newRound) {
+      if (player) {
+        setTurn(false);
+        setPlayerOneHand(playerOneHand => [...playerOneHand.filter(inHand => inHand[0] !== card), deck.shift()]);
+      } else {
+        setComputerHand(computerHand => [...computerHand.filter(inHand => inHand[0] !== card), deck.shift()]);
+        setTurn(true);
+      }
 
-    if (!deck.length) {
-      var reUsePlayed = shuffleDeck(played);
-      setDeck(deck => [...reUsePlayed]);
-      setPlayed(played => []);
+      played = [...played, cardObj];
+      if (player) {
+        computer();
+      }
+
+      if (!deck.length) {
+        deck = shuffleDeck(played);
+        played = [];
+      }
+    } else {
+      setTurn(true);
     }
   }
 
@@ -132,10 +142,12 @@ var App = () => {
        } else {
         setStrikes(strikes => [strikes[0] + 1, strikes[1]]);
        }
-       setDeck(deck => shuffleDeck(createDeck()));
-       setPlayed(played => []);
+       deck = shuffleDeck(createDeck());
+       played = [];
        setTotal(total => 0);
        syncTotal = 0;
+       setComputerHand(computerHand => []);
+       setPlayerOneHand(playerOneHand => []);
        startGame();
     }
   }
@@ -154,8 +166,9 @@ var App = () => {
   return (
     <>
     {deck.length ? <div>
-      {deck.map(card => <span key={card[0]} >{card[0]}</span>)}
+      {deck.map(card => <img style={{width: 10 + '%'}} src={`/assets/cards/${card[0]}.png`} key={card[0]} />)}
     </div> : null}
+    <div>{deck.length}</div>
     &nbsp;
     &nbsp;
     {played.length ? <div>
@@ -171,14 +184,20 @@ var App = () => {
     <div>
       <div>Player One:</div>
       {playerOneHand.length ?
-      playerOneHand.map(card => <span onClick={() => {if (turn) {playCard(card, true)}}} key={card[0] + 'p'} >{card[0]}</span>)
+      playerOneHand.map(card => <img style={{width: 10 + '%'}}
+                                     src={`/assets/cards/${card[0]}.png`}
+                                     onClick={() => {if (turn) {playCard(card, true)}}}
+                                     key={card[0] + 'p'} />)
       : null}
     </div>
     &nbsp;
     &nbsp;
     <div>
       <div>Computer:</div>
-      {computerHand.length ? computerHand.map(card => <span key={card[0] + 'c'} >{card[0]}</span>) : null}
+      {computerHand.length ? computerHand.map(card => <img style={{width: 10 + '%'}}
+                                                           key={card[0] + 'c'}
+                                                           src='/assets/cards/back.jpg' />)
+                                                      : null}
       {thinking ? <div>Thinking...</div> : null}
     </div>
     &nbsp;
@@ -190,6 +209,7 @@ var App = () => {
             <div>Congrats! You beat the computer!</div>
      : null}
     </div>
+    <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
     </>
   )
 }
