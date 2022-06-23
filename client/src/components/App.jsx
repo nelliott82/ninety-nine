@@ -32,6 +32,8 @@ function createDeck () {
       deck.push([value + suit, realValue]);
     });
   });
+
+  return deck;
 }
 
 var syncTotal = 0;
