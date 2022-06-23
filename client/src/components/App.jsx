@@ -47,6 +47,8 @@ var App = () => {
   var [turn, setTurn] = useState(true);
   var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
+  var [strikes, setStrikes] = useState([0, 0]);
+  var [over, setOver] = useState(false);
 
   function playCard(cardObj, player) {
     var card = cardObj[0];
@@ -75,16 +77,28 @@ var App = () => {
 
     // Check for Q or J
     } else if (card[0] === 'Q' || card[0] === 'J') {
-      setTotal(total => total + 10);
-      syncTotal += 10;
+      if (syncTotal + 10 > 99) {
+        gameOver();
+      } else {
+        setTotal(total => total + 10);
+        syncTotal += 10;
+      }
 
     } else if (card[0] === 'A') {
-      setTotal(total => total + 1);
-      syncTotal += 1;
+      if (syncTotal + 1 > 99) {
+        gameOver();
+      } else {
+        setTotal(total => total + 1);
+        syncTotal += 1;
+      }
 
     } else {
-      setTotal(total => total + parseInt(card[0]));
-      syncTotal = syncTotal + parseInt(card[0]);
+      if (syncTotal + parseInt(card[0]) > 99) {
+        gameOver();
+      } else {
+        setTotal(total => total + parseInt(card[0]));
+        syncTotal += parseInt(card[0]);
+      }
 
     }
 
@@ -92,6 +106,7 @@ var App = () => {
     if (player) {
       computer();
     }
+
     if (!deck.length) {
       var reUsePlayed = shuffleDeck(played);
       setDeck(deck => [...reUsePlayed]);
@@ -106,6 +121,23 @@ var App = () => {
       playCard(nikkoBot.chooseCard(computerHand, syncTotal));
       setThinking(false)
     }, thinkingTime);
+  }
+
+  function gameOver() {
+    if (strikes[0] === 2 || strikes[1] === 2) {
+      setOver(true);
+    } else {
+       if (turn) {
+        setStrikes(strikes => [strikes[0], strikes[1] + 1]);
+       } else {
+        setStrikes(strikes => [strikes[0] + 1, strikes[1]]);
+       }
+       setDeck(deck => shuffleDeck(createDeck()));
+       setPlayed(played => []);
+       setTotal(total => 0);
+       syncTotal = 0;
+       startGame();
+    }
   }
 
   function startGame() {
@@ -148,6 +180,15 @@ var App = () => {
       <div>Computer:</div>
       {computerHand.length ? computerHand.map(card => <span key={card[0] + 'c'} >{card[0]}</span>) : null}
       {thinking ? <div>Thinking...</div> : null}
+    </div>
+    &nbsp;
+    &nbsp;
+    <div>
+     {over ? strikes[0] === 2 ?
+            <div>You lose. Computer wins.</div>
+            :
+            <div>Congrats! You beat the computer!</div>
+     : null}
     </div>
     </>
   )
