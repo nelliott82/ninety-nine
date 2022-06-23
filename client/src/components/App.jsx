@@ -12,6 +12,22 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
+const MainContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 2fr 8fr;
+  grid-template-rows: 500px;
+`
+
+const SideBar = styled.div`
+  grid-column: 1;
+`
+
+const GameArea = styled.div`
+  grid-column: 2;
+`
+
 var syncTotal = 0;
 
 var deck = shuffleDeck(createDeck());
@@ -49,7 +65,7 @@ var App = () => {
     // Check for Q or J
     } else if (card[0] === 'Q' || card[0] === 'J') {
       if (syncTotal + 10 > 99) {
-        gameOver();
+        gameOver(player);
         newRound = true;
       } else {
         setTotal(total => total + 10);
@@ -58,7 +74,7 @@ var App = () => {
 
     } else if (card[0] === 'A') {
       if (syncTotal + 1 > 99) {
-        gameOver();
+        gameOver(player);
         newRound = true;
       } else {
         setTotal(total => total + 1);
@@ -67,9 +83,10 @@ var App = () => {
 
     } else {
       if (syncTotal + parseInt(card[0]) > 99) {
-        gameOver();
+        gameOver(player);
         newRound = true;
       } else {
+        console.log(cardObj);
         setTotal(total => total + parseInt(card[0]));
         syncTotal += parseInt(card[0]);
       }
@@ -108,14 +125,14 @@ var App = () => {
     }, thinkingTime);
   }
 
-  function gameOver() {
+  function gameOver(player) {
     if (strikes[0] === 2 || strikes[1] === 2) {
       setOver(true);
     } else {
-       if (turn) {
-        setStrikes(strikes => [strikes[0], strikes[1] + 1]);
+       if (player) {
+        setStrikes(strikes => [strikes[0]+ 1, strikes[1]]);
        } else {
-        setStrikes(strikes => [strikes[0] + 1, strikes[1]]);
+        setStrikes(strikes => [strikes[0], strikes[1] + 1]);
        }
        deck = shuffleDeck(createDeck());
        played = [];
@@ -141,29 +158,34 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
-    <ComputerComponent strikes={strikes}
-                       computerHand={computerHand}
-                       thinking={thinking}
-                       over={over} />
+    <MainContainer>
+      <SideBar/>
+      <GameArea>
+        <ComputerComponent strikes={strikes}
+                          computerHand={computerHand}
+                          thinking={thinking}
+                          over={over} />
 
-    <PlayingArea played={played} deck={deck} />
+        <PlayingArea played={played} deck={deck} />
 
-    <div>
-    {started ? <span>Game Total: {total}</span> : <button onClick={startGame}>Start Game</button>}
-    </div>
+        <div>
+        {started ? <span>Game Total: {total}</span> : <button onClick={startGame}>Start Game</button>}
+        </div>
 
-    <PlayerOneComponent strikes={strikes}
-                        playerOneHand={playerOneHand}
-                        turn={turn}
-                        playCard={playCard} />
+        <PlayerOneComponent strikes={strikes}
+                            playerOneHand={playerOneHand}
+                            turn={turn}
+                            playCard={playCard} />
 
-    <div>
-     {over ? strikes[0] === 2 ?
-            <div>You lose. Computer wins.</div>
-            :
-            <div>Congrats! You beat the computer!</div>
-     : null}
-    </div>
+        <div>
+        {over ? strikes[0] === 2 ?
+                <div>You lose. Computer wins.</div>
+                :
+                <div>Congrats! You beat the computer!</div>
+        : null}
+        </div>
+      </GameArea>
+    </MainContainer>
     <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
     </>
   )
