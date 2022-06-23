@@ -237,7 +237,7 @@ var App = () => {
 
   function computer() {
     setThinking(true);
-    var thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 500 :Math.random() * 4000 + 1000 ;
+    var thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 1000 :Math.random() * 4000 + 1000 ;
     setTimeout(() => {
       playCard(nikkoBot.chooseCard(computerHand, syncTotal));
       setThinking(false)
