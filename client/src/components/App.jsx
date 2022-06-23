@@ -6,6 +6,7 @@ import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
 import PlayerOneComponent from './PlayerOne.jsx';
 import SideBarComponent from './SideBar.jsx';
+import TotalComponent from './Total.jsx';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -321,7 +322,7 @@ var App = () => {
                           over={over} />
 
         <PlayingArea played={played} deck={deck} />
-        <span>Game Total: {total}</span>
+        <TotalComponent total={total} />
         <PlayerOneComponent strikes={strikes}
                             playerOneHand={playerOneHand}
                             turn={turn}
