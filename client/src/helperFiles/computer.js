@@ -1,5 +1,6 @@
 const computer = {
   chooseCard: function(hand, total) {
+    console.log('total: ', total);
     var values = this.getValueCards(hand);
     console.log('values: ', values);
     var specials = this.getSpecialCards(hand);
@@ -16,28 +17,23 @@ const computer = {
       }
 
     } else {
-      if (values.length && specials.length) {
-        if (values[0] + total > 99) {
-          return specials[0];
+      if (values.length) {
+        if (values[0][1] + total > 99) {
+          if (specials.length) {
+            return specials[0];
+          } else {
+            return values[0];
+          }
 
-        } else if (values[values.length - 1] + total < 99) {
-          return values[values.length - 1];
-
-        }
-      } else if (specials.length) {
-        return specials[0];
-
-      } else {
-        if (values[0] + total > 99) {
-          return values[0];
-
-        } else if (values[values.length - 1] + total < 99) {
+        } else if (values[values.length - 1][1] + total < 99) {
           return values[values.length - 1];
 
         } else {
           return values[0];
-
         }
+      } else if (specials.length) {
+        return specials[0];
+
       }
     }
   },
