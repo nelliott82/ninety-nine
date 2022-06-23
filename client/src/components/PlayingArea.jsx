@@ -9,6 +9,8 @@ const Container = styled.div`
   grid-template-columns: 2fr 1fr 1fr 2fr;
   gap: 10px;
   grid-template-rows: 2fr;
+  justify-items: center;
+  align-items: center;
 `
 
 const DeckContainer = styled.div`
@@ -27,26 +29,14 @@ const CardArea = styled.div`
   border: 2px solid black;
 `
 
-const DeckStack = styled.img`
+const CardStack = styled.img`
   width: 130px;
   height: 195px;
   margin-top: 3px;
   object-fit: cover;
 `
 
-DeckStack.defaultProps = {
-  src: ''
-}
-
-
-const PlayedStack = styled.img`
-  width: 130px;
-  height: 195px;
-  margin-top: 3px;
-  object-fit: cover;
-`
-
-PlayedStack.defaultProps = {
+CardStack.defaultProps = {
   src: ''
 }
 
@@ -57,18 +47,15 @@ return (
           <DeckContainer>
             <CardArea>
           {deck.length ?
-            <DeckStack
+            <CardStack
                 src='/assets/cards/back.jpg' />
           : null}
             </CardArea>
           </DeckContainer>
-          <div>{deck.length}</div>
-          &nbsp;
-          &nbsp;
           <PlayedContainer>
             <CardArea>
           {played.length ?
-            <PlayedStack
+            <CardStack
                 src={`/assets/cards/${played[played.length - 1][0]}.png`} />
           : null}
             </CardArea>
