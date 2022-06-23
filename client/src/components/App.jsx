@@ -160,20 +160,15 @@ var App = () => {
                        computerHand={computerHand}
                        thinking={thinking}
                        over={over} />
-    &nbsp;
-    &nbsp;
+
     <PlayingArea played={played} deck={deck} />
-    &nbsp;
-    &nbsp;
+
     <div>
     {started ? <span>Game Total: {total}</span> : <button onClick={startGame}>Start Game</button>}
     </div>
-    &nbsp;
-    &nbsp;
-    <PlayerOneComponent strikes={strikes}
-                        playerOneHand={playerOneHand}/>
-    &nbsp;
-    &nbsp;
+
+    <PlayerOneComponent strikes={strikes} playerOneHand={playerOneHand}/>
+
     <div>
      {over ? strikes[0] === 2 ?
             <div>You lose. Computer wins.</div>
