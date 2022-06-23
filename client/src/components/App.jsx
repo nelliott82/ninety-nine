@@ -5,9 +5,31 @@ import styled, { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background: green;
+    background: darkgreen;
   }
 `
+const CardFace = styled.img`
+  width: 10%;
+  border: 2px solid transparent;
+  margin: 5px;
+  cursor: pointer;
+  &:hover {
+    border: 2px solid blue;
+    box-shadow: 0 0 10px blue;
+    transform: scale(1.1);
+  }
+`
+CardFace.defaultProps = {
+  src: ''
+}
+
+const ComputerCards = styled.img`
+  width: 10%;
+  margin: 0 7px;
+`
+ComputerCards.defaultProps = {
+  src: ''
+}
 
 var syncTotal = 0;
 
@@ -138,6 +160,22 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
+    <div>
+      <div>Computer:</div>
+      <div>Strikes: {strikes[1]}</div>
+      {computerHand.length ? computerHand.map(card => <ComputerCards key={card[0] + 'c'}
+                                                                     src='/assets/cards/back.jpg' />)
+                                                      : null}
+      {thinking ? <div>Thinking...</div> : null}
+      {over ? strikes[0] === 2 ?
+            <div>"Better luck next time!"</div>
+            :
+            <div>"I'm not feeling well. That's the only reason you won."</div>
+     : null}
+    </div>
+    &nbsp;
+    &nbsp;
+    <div>
     {deck.length ?
       <img style={{width: 10 + '%'}}
            src='/assets/cards/back.jpg' />
@@ -149,6 +187,7 @@ var App = () => {
       <img style={{width: 10 + '%'}}
            src={`/assets/cards/${played[played.length - 1][0]}.png`} />
      : null}
+    </div>
     &nbsp;
     &nbsp;
     <div>
@@ -160,22 +199,11 @@ var App = () => {
       <div>Player One:</div>
       <div>Strikes: {strikes[0]}</div>
       {playerOneHand.length ?
-      playerOneHand.map(card => <img style={{width: 10 + '%'}}
+      playerOneHand.map(card => <CardFace
                                      src={`/assets/cards/${card[0]}.png`}
                                      onClick={() => {if (turn) {playCard(card, true)}}}
                                      key={card[0] + 'p'} />)
       : null}
-    </div>
-    &nbsp;
-    &nbsp;
-    <div>
-      <div>Computer:</div>
-      <div>Strikes: {strikes[1]}</div>
-      {computerHand.length ? computerHand.map(card => <img style={{width: 10 + '%'}}
-                                                           key={card[0] + 'c'}
-                                                           src='/assets/cards/back.jpg' />)
-                                                      : null}
-      {thinking ? <div>Thinking...</div> : null}
     </div>
     &nbsp;
     &nbsp;
