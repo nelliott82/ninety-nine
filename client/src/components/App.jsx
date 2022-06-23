@@ -5,6 +5,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
 import PlayerOneComponent from './PlayerOne.jsx';
+import SideBarComponent from './SideBar.jsx';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -16,7 +17,7 @@ const MainContainer = styled.div`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: 1fr 9fr;
+  grid-template-columns: 2fr 8fr;
   grid-template-rows: 5fr;
   justify-items: center;
   align-items: center;
@@ -168,7 +169,9 @@ var App = () => {
     <>
     <GlobalStyle/>
     <MainContainer>
-      <SideBar/>
+      <SideBar>
+        <SideBarComponent/>
+      </SideBar>
       <GameArea>
         <ComputerComponent strikes={strikes}
                           computerHand={computerHand}
