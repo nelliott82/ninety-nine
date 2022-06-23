@@ -37,6 +37,7 @@ const Attribution = styled.div`
   grid-column: 1;
   grid-row: 2
 `
+
 const StartModal = styled.div`
   z-index: auto;
   display: ${({ started }) => (started ? 'none' : 'block')};
@@ -45,16 +46,21 @@ const StartModal = styled.div`
   left: 0;
   height: 100vh;
   width:100vw;
-  background: rgba(250,250,250,0.5);
+  background: rgba(0,0,0,0.5);
 `;
 
 const StartButtonContainer = styled.div`
-  background: rgba(250,250,250,0);
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
 `;
+
+const StartButton = styled.button`
+  width: 10rem;
+  height: 4rem;
+  font-size: 1.5em;
+`
 
 var syncTotal = 0;
 
@@ -188,7 +194,7 @@ var App = () => {
     <GlobalStyle/>
     <StartModal started={started} >
       <StartButtonContainer>
-        <button onClick={startGame}>Start Game</button>
+        <StartButton onClick={startGame}>Start Game</StartButton>
       </StartButtonContainer>
     </StartModal>
     <MainContainer>
