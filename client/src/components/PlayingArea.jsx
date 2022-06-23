@@ -6,8 +6,9 @@ const Container = styled.div`
   height: 50%;
   display: grid;
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 2fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 2fr;
   gap: 10px;
+  grid-template-rows: 2fr;
 `
 
 const DeckContainer = styled.div`
@@ -16,17 +17,20 @@ const DeckContainer = styled.div`
 `
 
 const PlayedContainer = styled.div`
-  grid-column: 4;
+  grid-column: 3;
   grid-row: 1;
 `
 
 const CardArea = styled.div`
-  width: 100%;
+  width: 130px;
+  height: 200px;
   border: 2px solid black;
 `
 
 const DeckStack = styled.img`
-  width: 45%;
+  width: 130px;
+  height: 195px;
+  margin-top: 3px;
   object-fit: cover;
 `
 
@@ -36,7 +40,9 @@ DeckStack.defaultProps = {
 
 
 const PlayedStack = styled.img`
-  width: 50%;
+  width: 130px;
+  height: 195px;
+  margin-top: 3px;
   object-fit: cover;
 `
 
