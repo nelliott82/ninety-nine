@@ -4,6 +4,7 @@ import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
+import PlayerOneComponent from './PlayerOne.jsx';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -169,16 +170,8 @@ var App = () => {
     </div>
     &nbsp;
     &nbsp;
-    <div>
-      <div>Player One:</div>
-      <div>Strikes: {strikes[0]}</div>
-      {playerOneHand.length ?
-      playerOneHand.map(card => <CardFace
-                                     src={`/assets/cards/${card[0]}.png`}
-                                     onClick={() => {if (turn) {playCard(card, true)}}}
-                                     key={card[0] + 'p'} />)
-      : null}
-    </div>
+    <PlayerOneComponent strikes={strikes}
+                        playerOneHand={playerOneHand}/>
     &nbsp;
     &nbsp;
     <div>
