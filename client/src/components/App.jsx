@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import nikkoBot from '../helperFiles/computer.js';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle } from 'styled-components';
+import ComputerComponent from './Computer.jsx';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -20,14 +21,6 @@ const CardFace = styled.img`
   }
 `
 CardFace.defaultProps = {
-  src: ''
-}
-
-const ComputerCards = styled.img`
-  width: 10%;
-  margin: 0 7px;
-`
-ComputerCards.defaultProps = {
   src: ''
 }
 
@@ -160,19 +153,10 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
-    <div>
-      <div>Computer:</div>
-      <div>Strikes: {strikes[1]}</div>
-      {computerHand.length ? computerHand.map(card => <ComputerCards key={card[0] + 'c'}
-                                                                     src='/assets/cards/back.jpg' />)
-                                                      : null}
-      {thinking ? <div>Thinking...</div> : null}
-      {over ? strikes[0] === 2 ?
-            <div>"Better luck next time!"</div>
-            :
-            <div>"I'm not feeling well. That's the only reason you won."</div>
-     : null}
-    </div>
+    <ComputerComponent strikes={strikes}
+                       computerHand={computerHand}
+                       thinking={thinking}
+                       over={over} />
     &nbsp;
     &nbsp;
     <div>
