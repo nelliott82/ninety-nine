@@ -7,20 +7,27 @@ const Container = styled.div`
   display: grid;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 2fr;
-  gap: 10px;
-  grid-template-rows: 2fr;
+  grid-template-rows: 0.2fr 2fr;
   justify-items: center;
   align-items: center;
+`
+const DeckName = styled.div`
+  grid-column: 2;
+  grid-row: 1;
+`
+const DiscardName = styled.div`
+  grid-column: 3;
+  grid-row: 1;
 `
 
 const DeckContainer = styled.div`
   grid-column: 2;
-  grid-row: 1;
+  grid-row: 2;
 `
 
 const PlayedContainer = styled.div`
   grid-column: 3;
-  grid-row: 1;
+  grid-row: 2;
 `
 
 const CardArea = styled.div`
@@ -44,6 +51,7 @@ var PlayingArea = ({ played, deck }) => {
 
 return (
     <Container>
+          <DeckName>Deck:</DeckName>
           <DeckContainer>
             <CardArea>
           {deck.length ?
@@ -52,6 +60,7 @@ return (
           : null}
             </CardArea>
           </DeckContainer>
+          <DiscardName>Discard Pile:</DiscardName>
           <PlayedContainer>
             <CardArea>
           {played.length ?
