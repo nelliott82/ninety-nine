@@ -7,8 +7,7 @@ const PlayerOneArea = styled.div`
   display: grid;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 2fr;
-  gap: 10px;
-  grid-template-rows: 0.5fr 2fr;
+  grid-template-rows: 0.2fr 2fr;
   justify-items: center;
   align-items: center;
 `
