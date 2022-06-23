@@ -16,16 +16,25 @@ const MainContainer = styled.div`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: 2fr 8fr;
-  grid-template-rows: 500px;
+  grid-template-columns: 1fr 9fr;
+  grid-template-rows: 5fr;
+  justify-items: center;
+  align-items: center;
 `
 
 const SideBar = styled.div`
   grid-column: 1;
+  grid-row: 1;
 `
 
 const GameArea = styled.div`
   grid-column: 2;
+  grid-row: 1;
+`
+
+const Attribution = styled.div`
+  grid-column: 1;
+  grid-row: 2
 `
 
 var syncTotal = 0;
@@ -185,8 +194,10 @@ var App = () => {
         : null}
         </div>
       </GameArea>
+      <Attribution>
+        <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
+      </Attribution>
     </MainContainer>
-    <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
     </>
   )
 }
