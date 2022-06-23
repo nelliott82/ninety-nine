@@ -11,21 +11,6 @@ const GlobalStyle = createGlobalStyle`
     background: #C0DCC0;
   }
 `
-const CardFace = styled.img`
-  width: 10%;
-  border: 2px solid transparent;
-  margin: 5px;
-  cursor: pointer;
-  &:hover {
-    border: 2px solid blue;
-    box-shadow: 0 0 10px blue;
-    border-radius: 5%;
-    transform: scale(1.1);
-  }
-`
-CardFace.defaultProps = {
-  src: ''
-}
 
 var syncTotal = 0;
 
@@ -167,7 +152,10 @@ var App = () => {
     {started ? <span>Game Total: {total}</span> : <button onClick={startGame}>Start Game</button>}
     </div>
 
-    <PlayerOneComponent strikes={strikes} playerOneHand={playerOneHand}/>
+    <PlayerOneComponent strikes={strikes}
+                        playerOneHand={playerOneHand}
+                        turn={turn}
+                        playCard={playCard} />
 
     <div>
      {over ? strikes[0] === 2 ?
