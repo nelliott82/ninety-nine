@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const PlayerOnerea = styled.div`
+const PlayerOneArea = styled.div`
   width: 100%;
   height: 50%;
   display: grid;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 2fr;
   gap: 10px;
-  grid-template-rows: 0.2fr 2fr 0.5fr;
+  grid-template-rows: 0.5fr 2fr;
   justify-items: center;
   align-items: center;
 `
@@ -43,25 +43,19 @@ PlayerOneCards.defaultProps = {
 
 var placeHolder = [2, 3, 4];
 
-var PlayerOneComponent = ({ strikes, computerHand, thinking, over }) => {
+var PlayerOneComponent = ({ strikes, playerOneHand }) => {
 
 return (
-    <ComputerArea>
-      <Name>Computer:</Name>
-      <Strikes>Strikes: {strikes[1]}</Strikes>
-        {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>
-                                                                <ComputerCards key={card[0] + 'c'}
-                                                                               index={i + 2}
-                                                                               src='/assets/cards/back.jpg' />
+    <PlayerOneArea>
+      <Name>PlayerOne:</Name>
+      <Strikes>Strikes: {strikes[0]}</Strikes>
+        {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
+                                                                <PlayerOneCards key={card[0] + 'p'}
+                                                                                index={i + 2}
+                                                                                src={`/assets/cards/${card[0]}.png`} />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-        {thinking ? <Thinking>Thinking...</Thinking> : null}
-        {over ? strikes[0] === 2 ?
-              <FinalMsg>"Better luck next time!"</FinalMsg>
-              :
-              <FinalMsg>"Nooooooo!!"</FinalMsg>
-        : null}
-    </ComputerArea>
+    </PlayerOneArea>
   )
 }
 
