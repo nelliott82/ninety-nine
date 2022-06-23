@@ -325,6 +325,7 @@ var App = () => {
         <TotalComponent total={total} />
         <PlayerOneComponent strikes={strikes}
                             playerOneHand={playerOneHand}
+                            gameOver={gameOver}
                             turn={turn}
                             playCard={playCard} />
       </GameArea>
