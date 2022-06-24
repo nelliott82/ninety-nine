@@ -148,6 +148,7 @@ const OverMessage = styled.div`
 var syncTotal = 0;
 
 var roundMessage = ['Begin!', 'Computer won! New round!', 'You won! New round!']
+var winner = 0;
 var deck = shuffleDeck(createDeck());
 var played = [];
 
@@ -248,17 +249,19 @@ var App = () => {
     if (player && strikes[0] === 2) {
       setStrikes(strikes => [3, strikes[1]]);
       setOver(true);
-    } else if (strikes[1] === 2) {
+    } else if (!player && strikes[1] === 2) {
       setStrikes(strikes => [strikes[0], 3]);
       setOver(true);
     } else {
       setRound(round => round + 1);
-      displayMessage();
       if (player) {
+        winner = 1;
         setStrikes(strikes => [strikes[0]+ 1, strikes[1]]);
       } else {
+        winner = 0;
         setStrikes(strikes => [strikes[0], strikes[1] + 1]);
       }
+      displayMessage();
       deck = shuffleDeck(createDeck());
       played = [];
       setTotal(total => 0);
@@ -299,7 +302,7 @@ var App = () => {
     <RoundMessageModal message={message} />
     <RoundMessage message={message} >
         {round ?
-          strikes[0] > strikes[1] ?
+          winner ?
           roundMessage[1] :
           roundMessage[2]
         : roundMessage[0]}
