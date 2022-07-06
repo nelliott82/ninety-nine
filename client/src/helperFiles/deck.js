@@ -21,9 +21,13 @@ function createDeck () {
         realValue = 1;
       } else if (value === 'J' || value === 'Q') {
         realValue = 10;
+      } else if (value === 10) {
+        realValue = -10;
+      } else if (value === 9 || value === 4) {
+        realValue = 0;
       } else if (value === 'K') {
         // K realValue is 0 for sorting purposes
-        realValue = 0;
+        realValue = -1;
       }
 
       deck.push([value + suit, realValue]);
