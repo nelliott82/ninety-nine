@@ -172,43 +172,17 @@ var App = () => {
     if (card[0] === '4') {
       // Eventually reverse order of play
 
-    } else if (card[0] + card[1] === '10') {
-      setTotal(total => total - 10);
-      syncTotal -= 10;
-
-    } else if (card[0] === '9') {
-      // Do nothing. 9 is hold.
-
     } else if (card[0] === 'K') {
       setTotal(total => 99);
       syncTotal = 99;
 
-    // Check for Q or J
-    } else if (card[0] === 'Q' || card[0] === 'J') {
-      if (syncTotal + 10 > 99) {
-        gameOver(player);
-        newRound = true;
-      } else {
-        setTotal(total => total + 10);
-        syncTotal += 10;
-      }
-
-    } else if (card[0] === 'A') {
-      if (syncTotal + 1 > 99) {
-        gameOver(player);
-        newRound = true;
-      } else {
-        setTotal(total => total + 1);
-        syncTotal += 1;
-      }
-
     } else {
-      if (syncTotal + parseInt(card[0]) > 99) {
+      if (syncTotal + card[0][1] > 99) {
         gameOver(player);
         newRound = true;
       } else {
-        setTotal(total => total + parseInt(card[0]));
-        syncTotal += parseInt(card[0]);
+        setTotal(total => total + card[0][1]);
+        syncTotal += card[0][1];
       }
 
     }
