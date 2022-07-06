@@ -2,37 +2,26 @@ const computer = {
   chooseCard: function(hand, total) {
     var values = this.getValueCards(hand);
     var specials = this.getSpecialCards(hand);
+    console.log('values: ', values);
+    console.log('specials: ', specials);
 
-    if (total < 80) {
-      if (values.length) {
-        // Play highest card
-        return values[values.length - 1];
-
-      } else {
-        return specials[0];
-
-      }
-
-    } else {
-      if (values.length) {
-        if (values[0][1] + total > 99) {
-          if (specials.length) {
-            return specials[0];
-          } else {
-            return values[0];
-          }
-
-        } else if (values[values.length - 1][1] + total < 99) {
-          return values[values.length - 1];
-
-        } else {
-          return values[0];
+    if (values.length) {
+      for (let i = values.length - 1; i >= 0; i--) {
+        if (values[i][1] + total < 99) {
+          return values[i];
         }
-      } else if (specials.length) {
-        return specials[0];
-
       }
+      if (specials.length) {
+        return specials[0];
+      } else {
+        return values[0];
+      }
+
+    } else if (specials.length) {
+      return specials[0];
+
     }
+
   },
   getValueCards: function(hand) {
     return hand.filter(card => {
