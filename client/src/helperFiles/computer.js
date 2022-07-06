@@ -2,8 +2,6 @@ const computer = {
   chooseCard: function(hand, total) {
     var values = this.getValueCards(hand);
     var specials = this.getSpecialCards(hand);
-    console.log('values: ', values);
-    console.log('specials: ', specials);
 
     if (values.length) {
       for (let i = values.length - 1; i >= 0; i--) {
