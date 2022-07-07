@@ -116,7 +116,7 @@ const RoundMessageModal = styled.div`
 `;
 const RoundMessage = styled.div`
   position: absolute;
-  left: 45%;
+  left: 35%;
   top: 45%;
   visibility: ${({message}) => message ? 'visible' : 'hidden'};
   animation: ${({message}) => message ? fadeIn : fadeOut} 0.5s linear;
@@ -137,7 +137,7 @@ const OverMessageModal = styled.div`
 `;
 const OverMessage = styled.div`
   position: absolute;
-  left: 45%;
+  left: 35%;
   top: 45%;
   visibility: ${({over}) => over ? 'visible' : 'hidden'};
   color: red;
@@ -165,24 +165,23 @@ var App = () => {
   var [round, setRound] = useState(0);
 
   function playCard(cardObj, player) {
-    var card = cardObj[0];
     var newRound = false;
 
     // Check for four special cards
-    if (card[0] === '4') {
+    if (cardObj[0][0] === '4') {
       // Eventually reverse order of play
 
-    } else if (card[0] === 'K') {
+    } else if (cardObj[0][0] === 'K') {
       setTotal(total => 99);
       syncTotal = 99;
 
     } else {
-      if (syncTotal + card[0][1] > 99) {
+      if (syncTotal + cardObj[1] > 99) {
         gameOver(player);
         newRound = true;
       } else {
-        setTotal(total => total + card[0][1]);
-        syncTotal += card[0][1];
+        setTotal(total => total += cardObj[1]);
+        syncTotal += cardObj[1];
       }
 
     }
@@ -190,9 +189,9 @@ var App = () => {
     if (!newRound) {
       if (player) {
         setTurn(false);
-        setPlayerOneHand(playerOneHand => [...playerOneHand.filter(inHand => inHand[0] !== card), deck.shift()]);
+        setPlayerOneHand(playerOneHand => [...playerOneHand.filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]);
       } else {
-        setComputerHand(computerHand => [...computerHand.filter(inHand => inHand[0] !== card), deck.shift()]);
+        setComputerHand(computerHand => [...computerHand.filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]);
         setTurn(true);
       }
 
@@ -275,11 +274,11 @@ var App = () => {
     </StartModal>
     <RoundMessageModal message={message} />
     <RoundMessage message={message} >
-        {round ?
+       <div>{round ?
           winner ?
           roundMessage[1] :
           roundMessage[2]
-        : roundMessage[0]}
+        : roundMessage[0]}</div>
     </RoundMessage>
     <OverMessageModal over={over} />
     <OverMessage over={over}>
