@@ -16,6 +16,7 @@ function createDeck () {
   suits.forEach(function(suit) {
     values.forEach(function(value) {
       var realValue = value;
+      var specialValue;
 
       if (value === 'A') {
         realValue = 1;
@@ -23,14 +24,17 @@ function createDeck () {
         realValue = 10;
       } else if (value === 10) {
         realValue = -10;
+        specialValue = 10
       } else if (value === 9 || value === 4) {
         realValue = 0;
+        specialValue = 5;
       } else if (value === 'K') {
         // K realValue is 0 for sorting purposes
-        realValue = -1;
+        realValue = 99;
+        specialValue = 1;
       }
 
-      deck.push([value + suit, realValue]);
+      deck.push([value + suit, realValue, specialValue]);
     });
   });
 
