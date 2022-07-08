@@ -293,9 +293,10 @@ var App = () => {
       </SideBar>
       <GameArea>
         <ComputerComponent strikes={strikes}
-                          computerHand={computerHand}
-                          thinking={thinking}
-                          over={over} />
+                           computerHand={computerHand}
+                           thinking={thinking}
+                           over={over}
+                           turn={turn} />
 
         <PlayingArea played={played} deck={deck} />
         <TotalComponent total={total} />
