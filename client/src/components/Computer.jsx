@@ -10,6 +10,9 @@ const ComputerArea = styled.div`
   grid-template-rows: 0.1fr 2fr 0.2fr;
   justify-items: center;
   align-items: center;
+  border: ${({turn}) => turn ? '2px solid transparent' : '2px solid blue' };
+  box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
+  border-radius: ${({turn}) => turn ? '5%' : '5%' };
 `
 
 const Name = styled.div`
@@ -52,10 +55,10 @@ const FinalMsg = styled.div`
 
 var placeHolder = [2, 3, 4];
 
-var ComputerComponent = ({ strikes, computerHand, thinking, over }) => {
+var ComputerComponent = ({ strikes, computerHand, thinking, over, turn }) => {
 
 return (
-    <ComputerArea>
+    <ComputerArea turn={turn} >
       <Name>Computer:</Name>
       <Strikes>Strikes: {strikes[1]}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>
