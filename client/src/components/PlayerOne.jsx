@@ -1,5 +1,28 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const fadeIn = keyframes`
+  from {
+    border: 2px solid transparent;
+    box-shadow: 0 0 10px transparent;
+  }
+
+  to {
+    border: 2px solid blue;
+    box-shadow: 0 0 10px blue;
+  }
+`;
+const fadeOut = keyframes`
+  from {
+    border: 2px solid blue;
+    box-shadow: 0 0 10px blue;
+  }
+
+  to {
+    border: 2px solid transparent;
+    box-shadow: 0 0 10px transparent;
+  }
+`;
 
 const PlayerOneArea = styled.div`
   width: 100%;
@@ -10,9 +33,11 @@ const PlayerOneArea = styled.div`
   grid-template-rows: 0.1fr 2fr;
   justify-items: center;
   align-items: center;
+  animation: ${({turn}) => turn ? fadeIn : fadeOut} 0.5s linear;
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
-  border-radius: ${({turn}) => turn ? '5%' : '5%' };
+  border-radius: ${({turn}) => turn ? '25%/50%' : '25%/50%' };
+  transition: border 0.5s linear;
 `
 
 const Name = styled.div`
