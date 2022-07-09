@@ -1,5 +1,28 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
+
+const fadeIn = keyframes`
+  from {
+    border: 2px solid transparent;
+    box-shadow: 0 0 10px transparent;
+  }
+
+  to {
+    border: 2px solid blue;
+    box-shadow: 0 0 10px blue;
+  }
+`;
+const fadeOut = keyframes`
+  from {
+    border: 2px solid blue;
+    box-shadow: 0 0 10px blue;
+  }
+
+  to {
+    border: 2px solid transparent;
+    box-shadow: 0 0 10px transparent;
+  }
+`;
 
 const ComputerArea = styled.div`
   width: 100%;
@@ -10,9 +33,11 @@ const ComputerArea = styled.div`
   grid-template-rows: 0.1fr 2fr 0.2fr;
   justify-items: center;
   align-items: center;
+  animation: ${({turn}) => turn ? fadeOut : fadeIn} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   border: ${({turn}) => turn ? '2px solid transparent' : '2px solid blue' };
   box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
-  border-radius: ${({turn}) => turn ? '5%' : '5%' };
+  border-radius: ${({turn}) => turn ? '25%/50%' : '25%/50%' };
+  transition: border 0.5s linear;
 `
 
 const Name = styled.div`
@@ -56,9 +81,14 @@ const FinalMsg = styled.div`
 var placeHolder = [2, 3, 4];
 
 var ComputerComponent = ({ strikes, computerHand, thinking, over, turn }) => {
+  var [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setAnimate(true), 500);
+  }, []);
 
 return (
-    <ComputerArea turn={turn} >
+    <ComputerArea turn={turn} animate={animate} >
       <Name>Computer:</Name>
       <Strikes>Strikes: {strikes[1]}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>
