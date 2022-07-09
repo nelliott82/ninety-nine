@@ -116,7 +116,7 @@ const RoundMessageModal = styled.div`
 `;
 const RoundMessage = styled.div`
   position: absolute;
-  left: 35%;
+  left: 45%;
   top: 45%;
   visibility: ${({message}) => message ? 'visible' : 'hidden'};
   animation: ${({message}) => message ? fadeIn : fadeOut} 0.5s linear;
@@ -137,7 +137,7 @@ const OverMessageModal = styled.div`
 `;
 const OverMessage = styled.div`
   position: absolute;
-  left: 35%;
+  left: 45%;
   top: 45%;
   visibility: ${({over}) => over ? 'visible' : 'hidden'};
   color: red;
