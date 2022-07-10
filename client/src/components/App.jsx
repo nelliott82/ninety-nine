@@ -12,7 +12,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     background: #C0DCC0;
   }
-`
+`;
 
 const MainContainer = styled.div`
   width: 100%;
@@ -22,22 +22,34 @@ const MainContainer = styled.div`
   grid-template-rows: 5fr;
   justify-items: center;
   align-items: center;
-`
+`;
 
 const SideBar = styled.div`
   grid-column: 1;
   grid-row: 1;
-`
+`;
 
 const GameArea = styled.div`
   grid-column: 2;
   grid-row: 1;
-`
+`;
+
+const OpponentsArea = styled.div`
+  display: grid;
+  grid-template-columns: ${({bots}) => ('1fr ').repeat(bots).trim()};
+  grid-template-rows: 1fr;
+  gap: 5px;
+`;
+
+const Opponent = styled.div`
+  grid-column: ${({column}) => column};
+  grid-row: 1;
+`;
 
 const Attribution = styled.div`
   grid-column: 1;
   grid-row: 2
-`
+`;
 
 const StartModal = styled.div`
   z-index: auto;
@@ -50,18 +62,26 @@ const StartModal = styled.div`
   background: rgba(0,0,0,0.5);
 `;
 
-const StartButtonContainer = styled.div`
+const StartContainer = styled.div`
   position: absolute;
+
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+`;
+
+const BotsDropDown = styled.select`
+  width: 5rem;
+  height: 2rem;
+  font-size: 1.5em;
 `;
 
 const StartButton = styled.button`
   width: 10rem;
   height: 4rem;
   font-size: 1.5em;
-`
+`;
+
 const fadeIn = keyframes`
   from {
     transform: scale(1);
@@ -73,6 +93,7 @@ const fadeIn = keyframes`
     opacity: 1;
   }
 `;
+
 const fadeOut = keyframes`
   from {
     transform: scale(1);
@@ -84,6 +105,7 @@ const fadeOut = keyframes`
     opacity: 0;
   }
 `;
+
 const fadeInModal = keyframes`
   from {
     opacity: 1;
@@ -93,6 +115,7 @@ const fadeInModal = keyframes`
     opacity: 1;
   }
 `;
+
 const fadeOutModal = keyframes`
   from {
     opacity: 1;
@@ -102,6 +125,7 @@ const fadeOutModal = keyframes`
     opacity: 0;
   }
 `;
+
 const RoundMessageModal = styled.div`
   z-index: auto;
   visibility: ${({message}) => message ? 'visible' : 'hidden'};
@@ -114,6 +138,7 @@ const RoundMessageModal = styled.div`
   width:100vw;
   background: rgba(0,0,0,0.5);
 `;
+
 const RoundMessage = styled.div`
   position: absolute;
   left: 45%;
@@ -125,6 +150,7 @@ const RoundMessage = styled.div`
   font-size: 3em;
   text-align: center;
 `;
+
 const OverMessageModal = styled.div`
   z-index: auto;
   visibility: ${({over}) => over ? 'visible' : 'hidden'};
@@ -135,6 +161,7 @@ const OverMessageModal = styled.div`
   width:100vw;
   background: rgba(0,0,0,0.5);
 `;
+
 const OverMessage = styled.div`
   position: absolute;
   left: 45%;
@@ -163,11 +190,11 @@ var App = () => {
   var [over, setOver] = useState(false);
   var [message, setMessage] = useState(false);
   var [round, setRound] = useState(0);
+  var [botsArray, setBotsArray] = useState([1]);
 
   function playCard(cardObj, player) {
     var newRound = false;
 
-    // Check for four special cards
     if (cardObj[0][0] === '4') {
       // Eventually reverse order of play
 
@@ -257,6 +284,10 @@ var App = () => {
     setStarted(true);
   }
 
+  function selectBots(e) {
+    setBotsArray(botsArray => [...Array(parseInt(e.target.value)).fill(1)]);
+  }
+
   function displayMessage() {
     setMessage(message => true);
     setTimeout(() => {
@@ -268,9 +299,14 @@ var App = () => {
     <>
     <GlobalStyle/>
     <StartModal started={started} >
-      <StartButtonContainer>
+      <StartContainer>
+        <BotsDropDown onChange={(e) => selectBots(e)}>
+          <option value='1' >1</option>
+          <option value='2' >2</option>
+          <option value='3' >3</option>
+        </BotsDropDown>
         <StartButton onClick={startGame}>Start Game</StartButton>
-      </StartButtonContainer>
+      </StartContainer>
     </StartModal>
     <RoundMessageModal message={message} />
     <RoundMessage message={message} >
@@ -292,11 +328,20 @@ var App = () => {
         <SideBarComponent/>
       </SideBar>
       <GameArea>
-        <ComputerComponent strikes={strikes}
-                           computerHand={computerHand}
-                           thinking={thinking}
-                           over={over}
-                           turn={turn} />
+        <OpponentsArea bots={botsArray.length}>
+          {botsArray.length
+            ? botsArray.map((bot, i) =>
+                  (
+                    <Opponent column={i + 1}>
+                      <ComputerComponent strikes={strikes}
+                                        computerHand={computerHand}
+                                        thinking={thinking}
+                                        over={over}
+                                        turn={turn} />
+                    </Opponent>
+                  ))
+            : null}
+        </OpponentsArea>
 
         <PlayingArea played={played} deck={deck} />
         <TotalComponent total={total} />
