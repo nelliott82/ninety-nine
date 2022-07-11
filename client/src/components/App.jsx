@@ -42,6 +42,8 @@ const OpponentsArea = styled.div`
 `;
 
 const Opponent = styled.div`
+  width: 100%;
+  height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
 `;
