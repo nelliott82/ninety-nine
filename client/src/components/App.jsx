@@ -319,6 +319,7 @@ var App = () => {
     <GlobalStyle/>
     <StartModal started={started} >
       <StartContainer>
+        <div>Select number of computer opponents: </div>
         <BotsDropDown onChange={(e) => selectBots(e)}>
           <option value='1' >1</option>
           <option value='2' >2</option>
