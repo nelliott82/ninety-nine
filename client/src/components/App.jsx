@@ -66,7 +66,7 @@ const StartModal = styled.div`
 
 const StartContainer = styled.div`
   position: absolute;
-
+  display: grid;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
