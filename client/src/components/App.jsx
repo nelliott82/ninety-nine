@@ -197,26 +197,27 @@ var played = [];
 var reverse = false;
 
 var App = () => {
-  var [computerOneHand, setComputerOneHand] = useState([]);
-  var [computerTwoHand, setComputerTwoHand] = useState([]);
-  var [computerThreeHand, setComputerThreeHand] = useState([]);
-  var [playerOneHand, setPlayerOneHand] = useState([]);
+  var [hands, setHands] = useState({
+    0: [],
+    1: [],
+    2: [],
+    3: []
+  })
   var [started, setStarted] = useState(false);
-  var [turn, setTurn] = useState(true);
+  var [turn, setTurn] = useState(0);
   var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
   var [strikes, setStrikes] = useState([0, 0]);
   var [over, setOver] = useState(false);
   var [message, setMessage] = useState(false);
   var [round, setRound] = useState(0);
-  var [players, setPlayers] = useState([0]);
+  var [players, setPlayers] = useState([0, 1]);
   var [botsArray, setBotsArray] = useState([1]);
 
   function playCard(cardObj, player) {
     var newRound = false;
 
     if (cardObj[0][0] === '4') {
-      // Eventually reverse order of play
       reverse = !reverse;
 
     } else if (cardObj[0][0] === 'K') {
@@ -237,25 +238,27 @@ var App = () => {
     if (!newRound) {
       if (player === 0) {
         setTurn(player => reverse ? players.length - 1 : player + 1);
-        setPlayerOneHand(playerOneHand => [...playerOneHand.filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]);
-      } else if (player === 1) {
-        setComputerOneHand(computerOneHand => [...computerOneHand.filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]);
-        if (players.length === 2) {
-          setTurn(player => reverse ? player + 1 : player - 1);
-        }
-      } else if (player === 2) {
-        setComputerTwoHand(computerTwoHand => [...computerTwoHand.filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]);
-        if (players.length === 3) {
-          setTurn(player => reverse ? player + 1 : player - 1);
-        }
+
+      } else if (players.length > player + 1) {
+        setTurn(player => reverse ? player - 1 : player + 1);
+
       } else {
-        setComputerThreeHand(computerThreeHand => [...computerThreeHand.filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]);
         setTurn(player => reverse ? player - 1 : 0);
+
       }
 
+      let tempHands = hands;
+      tempHands[player] = [...hands[player].filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]
+      setHands(hands => tempHands);
+
       played = [...played, cardObj];
-      if (player) {
-        computer();
+
+      if (player === 0) {
+        computer(reverse ? players[players.length - 1] : 1);
+      } else if (player > 0 && player < players.length - 1 && !reverse) {
+        computer(player + 1);
+      } else if (player > 1 && player < players.length && reverse) {
+        computer(player - 1);
       }
 
       if (!deck.length) {
@@ -263,16 +266,23 @@ var App = () => {
         played = [];
       }
     } else {
-      setTurn(true);
+      if (player === 0) {
+        setTurn(player => reverse ? players.length - 1 : player + 1);
+
+      } else if (player.length > player + 1) {
+        setTurn(player => reverse ? player - 1 : player + 1);
+
+      } else {
+        setTurn(player => reverse ? player - 1 : 0);
+
+      }
     }
   }
 
-  function computer() {
-    setThinking(true);
+  function computer(bot) {
     var thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 1000 : Math.random() * 4000 + 1000;
     setTimeout(() => {
-      playCard(nikkoBot.chooseCard(computerHand, syncTotal));
-      setThinking(false);
+      playCard(nikkoBot.chooseCard(hands[bot], syncTotal), bot);
     }, thinkingTime);
   }
 
@@ -304,12 +314,15 @@ var App = () => {
   }
 
   function startGame() {
-    setPlayerOneHand([deck[0], deck[2], deck[4]]);
-    setComputerHand([deck[1], deck[3], deck[5]]);
     displayMessage();
-    var deals = 6;
+    var deals = 3;
     while (deals) {
-      deck.shift();
+      console.log(players)
+      players.forEach(player => {
+        let tempHands = hands;
+        tempHands[player] = [...hands[player], deck.shift()]
+        setHands(hands => tempHands);
+      })
       deals--;
     }
     setStarted(true);
@@ -368,11 +381,11 @@ var App = () => {
                   (
                     <Opponent column={i + 1}>
                       <ComputerComponent strikes={strikes}
-                                         computerHand={computerHand}
+                                         computerHand={hands[i + 1]}
                                          thinking={thinking}
                                          over={over}
-                                         turn={bot + 1}
-                                         player={bot + 1} />
+                                         turn={turn}
+                                         player={i + 1} />
                     </Opponent>
                   ))
             : null}
@@ -381,10 +394,9 @@ var App = () => {
         <PlayingArea played={played} deck={deck} />
         <TotalComponent total={total} />
         <PlayerOneComponent strikes={strikes}
-                            playerOneHand={playerOneHand}
+                            playerOneHand={hands[0]}
                             gameOver={gameOver}
-                            turn={0}
-                            player={0}
+                            turn={turn}
                             playCard={playCard} />
       </GameArea>
       <Attribution>
