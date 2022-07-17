@@ -80,7 +80,7 @@ const FinalMsg = styled.div`
 
 var placeHolder = [2, 3, 4];
 
-var ComputerComponent = ({ strikes, computerHand, thinking, over, turn }) => {
+var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player }) => {
   var [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -88,8 +88,8 @@ var ComputerComponent = ({ strikes, computerHand, thinking, over, turn }) => {
   }, []);
 
 return (
-    <ComputerArea turn={turn} animate={animate} >
-      <Name>Computer:</Name>
+    <ComputerArea turn={turn !== player} animate={animate} >
+      <Name>Computer: {player}</Name>
       <Strikes>Strikes: {strikes[1]}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>
                                                                 <ComputerCards key={card[0] + 'c'}
@@ -97,7 +97,7 @@ return (
                                                                                src='/assets/cards/back.jpg' />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-        {thinking ? <Thinking>Thinking...</Thinking> : null}
+        {turn === player ? <Thinking>Thinking...</Thinking> : null}
         {over ? strikes[0] === 3 ?
               <FinalMsg>"Better luck next time!"</FinalMsg>
               :
