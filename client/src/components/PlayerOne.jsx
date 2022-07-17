@@ -87,17 +87,17 @@ var placeHolder = [2, 3, 4];
 var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, gameOver }) => {
 
 return (
-    <PlayerOneArea turn={turn} >
+    <PlayerOneArea turn={turn === 0} >
       <Name>PlayerOne:</Name>
       <Strikes>Strikes: {strikes[0]}</Strikes>
         {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
                                                                 <PlayerOneCards key={card[0] + 'p'}
                                                                                 index={i + 2}
-                                                                                onClick={() => {if (turn) { playCard(card, true) }}}
+                                                                                onClick={() => {if (turn === 0) { playCard(card, 0) }}}
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                                </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-      <ForfeitButton onClick={() => {if (turn) { gameOver(true) }}} >Forfeit</ForfeitButton>
+      <ForfeitButton onClick={() => {if (turn === 0) { gameOver(true) }}} >Forfeit</ForfeitButton>
     </PlayerOneArea>
   )
 }
