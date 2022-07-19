@@ -103,6 +103,9 @@ return (
               :
               <FinalMsg>"Nooooooo!!"</FinalMsg>
         : null}
+        {!over === strikes[player] === 3 ?
+              <FinalMsg>"Nooooooo!!"</FinalMsg>
+        : null}
     </ComputerArea>
   )
 }
