@@ -207,7 +207,7 @@ var App = () => {
   var [turn, setTurn] = useState(0);
   var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
-  var [strikes, setStrikes] = useState([0, 0]);
+  var [strikes, setStrikes] = useState([0, 0, 0, 0]);
   var [over, setOver] = useState(false);
   var [message, setMessage] = useState(false);
   var [round, setRound] = useState(0);
