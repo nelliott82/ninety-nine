@@ -286,32 +286,6 @@ var App = () => {
     }, thinkingTime);
   }
 
-  function gameOver(player) {
-    if (strikes[player] === 2) {
-      let tempStrikes = strikes;
-      tempStrikes[player] = 3;
-      setStrikes(strikes => [...tempStrikes]);
-      setOver(true);
-    } else {
-      setRound(round => round + 1);
-      if (player) {
-        winner = 1;
-        setStrikes(strikes => [strikes[0]+ 1, strikes[1]]);
-      } else {
-        winner = 0;
-        setStrikes(strikes => [strikes[0], strikes[1] + 1]);
-      }
-      displayMessage();
-      deck = shuffleDeck(createDeck());
-      played = [];
-      setTotal(total => 0);
-      syncTotal = 0;
-      setComputerHand(computerHand => []);
-      setPlayerOneHand(playerOneHand => []);
-      startGame();
-    }
-  }
-
   function startGame() {
     displayMessage();
     var deals = 3;
@@ -325,6 +299,44 @@ var App = () => {
       deals--;
     }
     setStarted(true);
+  }
+
+  function gameOver(player) {
+    let tempStrikes = strikes;
+    let countDone = 0;
+
+    if (strikes[player] === 2) {
+      tempStrikes[player] = 3;
+      setStrikes(strikes => [...tempStrikes]);
+      for (let i = 1; i < tempStrikes.length; i++) {
+        if (tempStrikes[i] === 3) {
+          countDone++;
+        }
+      }
+    }
+
+    if (countDone === players.length - 1 || tempStrikes[1] === 3) {
+      setOver(true);
+    } else {
+
+      // FIX THIS LATER
+      setRound(round => round + 1);
+      tempStrikes[player] += 1;
+      setStrikes(strikes => [...tempStrikes]);
+      if (player === 0) {
+        winner = 1;
+      } else {
+        winner = 0;
+      }
+      displayMessage();
+      deck = shuffleDeck(createDeck());
+      played = [];
+      setTotal(total => 0);
+      syncTotal = 0;
+      setComputerHand(computerHand => []);
+      setPlayerOneHand(playerOneHand => []);
+      startGame();
+    }
   }
 
   function selectBots(e) {
