@@ -287,11 +287,10 @@ var App = () => {
   }
 
   function gameOver(player) {
-    if (player && strikes[0] === 2) {
-      setStrikes(strikes => [3, strikes[1]]);
-      setOver(true);
-    } else if (!player && strikes[1] === 2) {
-      setStrikes(strikes => [strikes[0], 3]);
+    if (strikes[player] === 2) {
+      let tempStrikes = strikes;
+      tempStrikes[player] = 3;
+      setStrikes(strikes => [...tempStrikes]);
       setOver(true);
     } else {
       setRound(round => round + 1);
