@@ -90,7 +90,7 @@ var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player }
 return (
     <ComputerArea turn={turn !== player} animate={animate} >
       <Name>Computer {player}</Name>
-      <Strikes>Strikes: {strikes[1]}</Strikes>
+      <Strikes>Strikes: {strikes[player]}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>
                                                                 <ComputerCards key={card[0] + 'c'}
                                                                                index={i + 2}
