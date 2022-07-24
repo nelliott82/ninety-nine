@@ -286,18 +286,32 @@ var App = () => {
     }, thinkingTime);
   }
 
-  function startGame() {
-    displayMessage();
+  function deal(strikesArr = strikes) {
     var deals = 3;
     while (deals) {
-      console.log(players)
       players.forEach(player => {
-        let tempHands = hands;
-        tempHands[player] = [...hands[player], deck.shift()]
-        setHands(hands => tempHands);
+        if (strikesArr[player] < 3) {
+          let tempHands = hands;
+          tempHands[player] = [...hands[player], deck.shift()]
+          setHands(hands => tempHands);
+        }
       })
       deals--;
     }
+  }
+
+  function startGame() {
+    displayMessage();
+    deal();
+    // var deals = 3;
+    // while (deals) {
+    //   players.forEach(player => {
+    //     let tempHands = hands;
+    //     tempHands[player] = [...hands[player], deck.shift()]
+    //     setHands(hands => tempHands);
+    //   })
+    //   deals--;
+    // }
     setStarted(true);
   }
 
@@ -323,18 +337,23 @@ var App = () => {
       setRound(round => round + 1);
       tempStrikes[player] += 1;
       setStrikes(strikes => [...tempStrikes]);
+
       if (player === 0) {
         winner = 1;
       } else {
         winner = 0;
       }
+
       displayMessage();
       deck = shuffleDeck(createDeck());
       played = [];
       setTotal(total => 0);
       syncTotal = 0;
-      setComputerHand(computerHand => []);
-      setPlayerOneHand(playerOneHand => []);
+
+      deal(tempStrikes);
+
+      // setComputerHand(computerHand => []);
+      // setPlayerOneHand(playerOneHand => []);
       startGame();
     }
   }
