@@ -288,11 +288,17 @@ var App = () => {
 
   function deal(strikesArr = strikes) {
     var deals = 3;
+    console.log('strikes in deal: ', strikesArr);
+    let tempHands = {
+      0: [],
+      1: [],
+      2: [],
+      3: []
+    };
     while (deals) {
       players.forEach(player => {
         if (strikesArr[player] < 3) {
-          let tempHands = hands;
-          tempHands[player] = [...hands[player], deck.shift()]
+          tempHands[player] = [...tempHands[player], deck.shift()]
           setHands(hands => tempHands);
         }
       })
@@ -349,7 +355,12 @@ var App = () => {
       played = [];
       setTotal(total => 0);
       syncTotal = 0;
-
+      setHands(hands => ({
+        0: [],
+        1: [],
+        2: [],
+        3: []
+      }));
       deal(tempStrikes);
 
       // setComputerHand(computerHand => []);
