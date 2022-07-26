@@ -255,10 +255,13 @@ var App = () => {
 
       if (player === 0) {
         computer(reverse ? players[players.length - 1] : 1);
+
       } else if (player > 0 && player < players.length - 1 && !reverse) {
         computer(player + 1);
+
       } else if (player > 1 && player < players.length && reverse) {
         computer(player - 1);
+
       }
 
       if (!deck.length) {
@@ -288,7 +291,6 @@ var App = () => {
 
   function deal(strikesArr = strikes) {
     var deals = 3;
-    console.log('strikes in deal: ', strikesArr);
     let tempHands = {
       0: [],
       1: [],
@@ -309,19 +311,11 @@ var App = () => {
   function startGame() {
     displayMessage();
     deal();
-    // var deals = 3;
-    // while (deals) {
-    //   players.forEach(player => {
-    //     let tempHands = hands;
-    //     tempHands[player] = [...hands[player], deck.shift()]
-    //     setHands(hands => tempHands);
-    //   })
-    //   deals--;
-    // }
     setStarted(true);
   }
 
   function gameOver(player) {
+    console.log(player);
     let tempStrikes = strikes;
     let countDone = 0;
 
@@ -355,16 +349,15 @@ var App = () => {
       played = [];
       setTotal(total => 0);
       syncTotal = 0;
-      setHands(hands => ({
-        0: [],
-        1: [],
-        2: [],
-        3: []
-      }));
+      // setHands(hands => ({
+      //   0: [],
+      //   1: [],
+      //   2: [],
+      //   3: []
+      // }));
+
       deal(tempStrikes);
 
-      // setComputerHand(computerHand => []);
-      // setPlayerOneHand(playerOneHand => []);
       startGame();
     }
   }
