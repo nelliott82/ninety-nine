@@ -315,7 +315,6 @@ var App = () => {
   }
 
   function gameOver(player) {
-    console.log(player);
     let tempStrikes = strikes;
     let countDone = 0;
 
@@ -333,7 +332,6 @@ var App = () => {
       setOver(true);
     } else {
 
-      // FIX THIS LATER
       setRound(round => round + 1);
       tempStrikes[player] += 1;
       setStrikes(strikes => [...tempStrikes]);
@@ -344,17 +342,11 @@ var App = () => {
         winner = 0;
       }
 
-      displayMessage();
+      displayMessage(player);
       deck = shuffleDeck(createDeck());
       played = [];
       setTotal(total => 0);
       syncTotal = 0;
-      // setHands(hands => ({
-      //   0: [],
-      //   1: [],
-      //   2: [],
-      //   3: []
-      // }));
 
       deal(tempStrikes);
 
@@ -368,7 +360,8 @@ var App = () => {
     setPlayers(players => [...Array(num + 1).keys()]);
   }
 
-  function displayMessage() {
+  function displayMessage(player) {
+
     setMessage(message => true);
     setTimeout(() => {
       setMessage(message => false);
