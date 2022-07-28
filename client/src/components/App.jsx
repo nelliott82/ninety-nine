@@ -383,7 +383,7 @@ var App = () => {
       </StartContainer>
     </StartModal>
     <RoundMessageModal message={message} />
-    <RoundMessage disaplyMessage={displayMessage} >
+    <RoundMessage displayMessage={displayMessage} >
        <div>{round ?
           winner ?
           roundMessage[1] :
