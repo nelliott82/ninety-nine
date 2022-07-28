@@ -209,7 +209,7 @@ var App = () => {
   var [total, setTotal] = useState(0);
   var [strikes, setStrikes] = useState([0, 0, 0, 0]);
   var [over, setOver] = useState(false);
-  var [message, setMessage] = useState(false);
+  var [displayMessage, setDisplayMessage] = useState(false);
   var [round, setRound] = useState(0);
   var [players, setPlayers] = useState([0, 1]);
   var [botsArray, setBotsArray] = useState([1]);
@@ -342,7 +342,7 @@ var App = () => {
         winner = 0;
       }
 
-      displayMessage(player);
+      setAndDisplayMessage(player);
       deck = shuffleDeck(createDeck());
       played = [];
       setTotal(total => 0);
@@ -360,11 +360,11 @@ var App = () => {
     setPlayers(players => [...Array(num + 1).keys()]);
   }
 
-  function displayMessage(player) {
+  function setAndDisplayMessage(player) {
 
-    setMessage(message => true);
+    setDisplayMessage(displayMessage => true);
     setTimeout(() => {
-      setMessage(message => false);
+      setDisplayMessage(displayMessage => false);
     }, 2000)
   }
 
@@ -383,7 +383,7 @@ var App = () => {
       </StartContainer>
     </StartModal>
     <RoundMessageModal message={message} />
-    <RoundMessage message={message} >
+    <RoundMessage disaplyMessage={displayMessage} >
        <div>{round ?
           winner ?
           roundMessage[1] :
