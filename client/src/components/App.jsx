@@ -210,6 +210,7 @@ var App = () => {
   var [strikes, setStrikes] = useState([0, 0, 0, 0]);
   var [over, setOver] = useState(false);
   var [displayMessage, setDisplayMessage] = useState(false);
+  var [message, setMessage] = useState('');
   var [round, setRound] = useState(0);
   var [players, setPlayers] = useState([0, 1]);
   var [botsArray, setBotsArray] = useState([1]);
@@ -361,7 +362,7 @@ var App = () => {
   }
 
   function setAndDisplayMessage(player) {
-
+    setMessage();
     setDisplayMessage(displayMessage => true);
     setTimeout(() => {
       setDisplayMessage(displayMessage => false);
