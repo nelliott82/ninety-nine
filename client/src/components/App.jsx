@@ -361,8 +361,12 @@ var App = () => {
     setPlayers(players => [...Array(num + 1).keys()]);
   }
 
-  function setAndDisplayMessage(player) {
-    setMessage();
+  function setAndDisplayMessage(player = false) {
+    if (player) {
+      setMessage();
+    } else {
+      setMessage('Begin!')
+    }
     setDisplayMessage(displayMessage => true);
     setTimeout(() => {
       setDisplayMessage(displayMessage => false);
