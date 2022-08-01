@@ -400,9 +400,9 @@ var App = () => {
     <OverMessageModal over={over} />
     <OverMessage over={over}>
       {strikes[0] === 3 ?
-      <div>You lose. Computer wins.</div>
+      <div>You lose.</div>
       :
-      <div>Congrats! You beat the computer!</div>}
+      <div>Congrats! You win!</div>}
     </OverMessage>
     <MainContainer>
       <SideBar>
