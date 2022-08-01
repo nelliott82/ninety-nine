@@ -362,10 +362,12 @@ var App = () => {
   }
 
   function setAndDisplayMessage(player = false) {
-    if (player) {
-      setMessage();
+    if (player === 0) {
+      setMessage(message => `You lost! New round!`);
+    } else if (player) {
+      setMessage(message => `Computer ${player} lost! New round!`)
     } else {
-      setMessage('Begin!')
+      setMessage(message => 'Begin!')
     }
     setDisplayMessage(displayMessage => true);
     setTimeout(() => {
