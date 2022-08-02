@@ -144,8 +144,8 @@ const fadeOutModal = keyframes`
 
 const RoundMessageModal = styled.div`
   z-index: auto;
-  visibility: ${({message}) => message ? 'visible' : 'hidden'};
-  animation: ${({message}) => message ? fadeInModal : fadeOutModal} 0.5s linear;
+  visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
+  animation: ${({displayMessage}) => displayMessage ? fadeInModal : fadeOutModal} 0.5s linear;
   transition: visibility 0.5s linear;
   position: fixed;
   top: 0;
@@ -159,8 +159,8 @@ const RoundMessage = styled.div`
   position: absolute;
   left: 45%;
   top: 45%;
-  visibility: ${({message}) => message ? 'visible' : 'hidden'};
-  animation: ${({message}) => message ? fadeIn : fadeOut} 0.5s linear;
+  visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
+  animation: ${({displayMessage}) => displayMessage ? fadeIn : fadeOut} 0.5s linear;
   transition: visibility 0.5s linear;
   color: red;
   font-size: 3em;
@@ -310,7 +310,7 @@ var App = () => {
   }
 
   function startGame() {
-    displayMessage();
+    setAndDisplayMessage();
     deal();
     setStarted(true);
   }
@@ -389,13 +389,9 @@ var App = () => {
         <StartButton onClick={startGame}>Start Game</StartButton>
       </StartContainer>
     </StartModal>
-    <RoundMessageModal message={message} />
+    <RoundMessageModal displayMessage={displayMessage} />
     <RoundMessage displayMessage={displayMessage} >
-       <div>{round ?
-          winner ?
-          roundMessage[1] :
-          roundMessage[2]
-        : roundMessage[0]}</div>
+       <div>{message}</div>
     </RoundMessage>
     <OverMessageModal over={over} />
     <OverMessage over={over}>
