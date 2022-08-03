@@ -97,7 +97,7 @@ return (
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                                </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-      <ForfeitButton onClick={() => {if (turn === 0) { gameOver(true) }}} >Forfeit</ForfeitButton>
+      <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
     </PlayerOneArea>
   )
 }

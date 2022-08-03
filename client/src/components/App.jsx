@@ -190,7 +190,8 @@ const OverMessage = styled.div`
 
 var syncTotal = 0;
 
-var roundMessage = ['Begin!', 'Computer won! New round!', 'You won! New round!']
+var roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
+var message;
 var winner = 0;
 var deck = shuffleDeck(createDeck());
 var played = [];
@@ -210,7 +211,6 @@ var App = () => {
   var [strikes, setStrikes] = useState([0, 0, 0, 0]);
   var [over, setOver] = useState(false);
   var [displayMessage, setDisplayMessage] = useState(false);
-  var [message, setMessage] = useState('');
   var [round, setRound] = useState(0);
   var [players, setPlayers] = useState([0, 1]);
   var [botsArray, setBotsArray] = useState([1]);
@@ -309,8 +309,8 @@ var App = () => {
     }
   }
 
-  function startGame() {
-    setAndDisplayMessage();
+  function startGame(player = undefined) {
+    setAndDisplayMessage(player);
     deal();
     setStarted(true);
   }
@@ -329,7 +329,7 @@ var App = () => {
       }
     }
 
-    if (countDone === players.length - 1 || tempStrikes[1] === 3) {
+    if (countDone === players.length - 1 || tempStrikes[0] === 3) {
       setOver(true);
     } else {
 
@@ -343,15 +343,16 @@ var App = () => {
         winner = 0;
       }
 
-      setAndDisplayMessage(player);
+      // setAndDisplayMessage(player);
       deck = shuffleDeck(createDeck());
       played = [];
       setTotal(total => 0);
       syncTotal = 0;
 
+      setTurn(turn => turn = 0);
       deal(tempStrikes);
 
-      startGame();
+      startGame(player);
     }
   }
 
@@ -361,13 +362,14 @@ var App = () => {
     setPlayers(players => [...Array(num + 1).keys()]);
   }
 
-  function setAndDisplayMessage(player = false) {
+  function setAndDisplayMessage(player = undefined) {
+    console.log('yo: ',  player)
     if (player === 0) {
-      setMessage(message => `You lost! New round!`);
+      message = `You lost! New round!`;
     } else if (player) {
-      setMessage(message => `Computer ${player} lost! New round!`)
+      message = `Computer ${player} lost! New round!`;
     } else {
-      setMessage(message => 'Begin!')
+      message = 'Begin!';
     }
     setDisplayMessage(displayMessage => true);
     setTimeout(() => {
@@ -386,7 +388,7 @@ var App = () => {
           <option value='2' >2</option>
           <option value='3' >3</option>
         </BotsDropDown>
-        <StartButton onClick={startGame}>Start Game</StartButton>
+        <StartButton onClick={() => startGame()}>Start Game</StartButton>
       </StartContainer>
     </StartModal>
     <RoundMessageModal displayMessage={displayMessage} />
