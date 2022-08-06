@@ -189,6 +189,7 @@ const OverMessage = styled.div`
 `;
 
 var syncTotal = 0;
+// var syncTurn = 0;
 
 var roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
 var message;
@@ -217,7 +218,7 @@ var App = () => {
 
   function playCard(cardObj, player) {
     var newRound = false;
-
+    console.log('card played: ', cardObj[0]);
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
 
@@ -239,12 +240,15 @@ var App = () => {
     if (!newRound) {
       if (player === 0) {
         setTurn(player => reverse ? players.length - 1 : player + 1);
+        // syncTurn = reverse ? players.length - 1 : player + 1;
 
       } else if (players.length > player + 1) {
         setTurn(player => reverse ? player - 1 : player + 1);
+        // syncTurn = reverse ? player - 1 : player + 1;
 
       } else {
         setTurn(player => reverse ? player - 1 : 0);
+        // syncTurn = reverse ? player - 1 : 0;
 
       }
 
@@ -268,17 +272,6 @@ var App = () => {
       if (!deck.length) {
         deck = shuffleDeck(played);
         played = [];
-      }
-    } else {
-      if (player === 0) {
-        setTurn(player => reverse ? players.length - 1 : player + 1);
-
-      } else if (player.length > player + 1) {
-        setTurn(player => reverse ? player - 1 : player + 1);
-
-      } else {
-        setTurn(player => reverse ? player - 1 : 0);
-
       }
     }
   }
@@ -309,9 +302,9 @@ var App = () => {
     }
   }
 
-  function startGame(player = undefined) {
+  function startGame(player = undefined, strikesArr = strikes) {
     setAndDisplayMessage(player);
-    deal();
+    deal(strikesArr);
     setStarted(true);
   }
 
@@ -330,6 +323,9 @@ var App = () => {
     }
 
     if (countDone === players.length - 1 || tempStrikes[0] === 3) {
+      console.log('tempStrikes: ', tempStrikes);
+      console.log('countDone: ', countDone);
+      console.log('players.length - 1: ', players.length - 1);
       setOver(true);
     } else {
 
@@ -343,16 +339,16 @@ var App = () => {
         winner = 0;
       }
 
-      // setAndDisplayMessage(player);
       deck = shuffleDeck(createDeck());
       played = [];
+
       setTotal(total => 0);
       syncTotal = 0;
 
       setTurn(turn => turn = 0);
-      deal(tempStrikes);
+      // syncTurn = 0;
 
-      startGame(player);
+      startGame(player, tempStrikes);
     }
   }
 
@@ -363,7 +359,6 @@ var App = () => {
   }
 
   function setAndDisplayMessage(player = undefined) {
-    console.log('yo: ',  player)
     if (player === 0) {
       message = `You lost! New round!`;
     } else if (player) {
