@@ -189,7 +189,6 @@ const OverMessage = styled.div`
 `;
 
 var syncTotal = 0;
-// var syncTurn = 0;
 
 var roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
 var message;
@@ -238,19 +237,7 @@ var App = () => {
     }
 
     if (!newRound) {
-      if (player === 0) {
-        setTurn(player => reverse ? players.length - 1 : player + 1);
-        // syncTurn = reverse ? players.length - 1 : player + 1;
-
-      } else if (players.length > player + 1) {
-        setTurn(player => reverse ? player - 1 : player + 1);
-        // syncTurn = reverse ? player - 1 : player + 1;
-
-      } else {
-        setTurn(player => reverse ? player - 1 : 0);
-        // syncTurn = reverse ? player - 1 : 0;
-
-      }
+      calculateNextPlayer(player);
 
       let tempHands = hands;
       tempHands[player] = [...hands[player].filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]
@@ -258,21 +245,49 @@ var App = () => {
 
       played = [...played, cardObj];
 
-      if (player === 0) {
-        computer(reverse ? players[players.length - 1] : 1);
+      // if (player === 0) {
+      //   computer(reverse ? players[players.length - 1] : 1);
 
-      } else if (player > 0 && player < players.length - 1 && !reverse) {
-        computer(player + 1);
+      // } else if (player > 0 && player < players.length - 1 && !reverse) {
+      //   computer(player + 1);
 
-      } else if (player > 1 && player < players.length && reverse) {
-        computer(player - 1);
+      // } else if (player > 1 && player < players.length && reverse) {
+      //   computer(player - 1);
 
-      }
+      // }
 
       if (!deck.length) {
         deck = shuffleDeck(played);
         played = [];
       }
+    }
+  }
+
+  function calculateNextPlayer (player) {
+    let nextPlayer = player;
+    let moveOn = true;
+
+    while (moveOn) {
+      if (nextPlayer === 0) {
+        nextPlayer = reverse ? players.length - 1 : nextPlayer + 1;
+
+      } else if (players.length > player + 1) {
+        nextPlayer = reverse ? nextPlayer - 1 : nextPlayer + 1;
+
+      } else {
+        nextPlayer = reverse ? nextPlayer - 1 : 0;
+
+      }
+      if (strikes[nextPlayer] !== 3) {
+        moveOn = false;
+      }
+    }
+
+    setTurn(turn => nextPlayer);
+
+    if (nextPlayer !== 0) {
+      computer(nextPlayer);
+
     }
   }
 
@@ -330,7 +345,11 @@ var App = () => {
     } else {
 
       setRound(round => round + 1);
-      tempStrikes[player] += 1;
+
+      if (tempStrikes[player] < 3) {
+        tempStrikes[player] += 1;
+      }
+
       setStrikes(strikes => [...tempStrikes]);
 
       if (player === 0) {
@@ -346,7 +365,6 @@ var App = () => {
       syncTotal = 0;
 
       setTurn(turn => turn = 0);
-      // syncTurn = 0;
 
       startGame(player, tempStrikes);
     }
