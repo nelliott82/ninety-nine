@@ -245,17 +245,6 @@ var App = () => {
 
       played = [...played, cardObj];
 
-      // if (player === 0) {
-      //   computer(reverse ? players[players.length - 1] : 1);
-
-      // } else if (player > 0 && player < players.length - 1 && !reverse) {
-      //   computer(player + 1);
-
-      // } else if (player > 1 && player < players.length && reverse) {
-      //   computer(player - 1);
-
-      // }
-
       if (!deck.length) {
         deck = shuffleDeck(played);
         played = [];
