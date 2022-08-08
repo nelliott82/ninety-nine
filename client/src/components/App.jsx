@@ -217,7 +217,7 @@ var App = () => {
 
   function playCard(cardObj, player) {
     var newRound = false;
-    console.log('card played: ', cardObj[0]);
+    // console.log('card played: ', cardObj[0]);
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
 
@@ -260,7 +260,7 @@ var App = () => {
       if (nextPlayer === 0) {
         nextPlayer = reverse ? players.length - 1 : nextPlayer + 1;
 
-      } else if (players.length > player + 1) {
+      } else if (players.length > nextPlayer + 1) {
         nextPlayer = reverse ? nextPlayer - 1 : nextPlayer + 1;
 
       } else {
@@ -413,7 +413,7 @@ var App = () => {
           {botsArray.length
             ? botsArray.map((bot, i) =>
                   (
-                    <Opponent column={i + 1}>
+                    <Opponent key={'bot' + i} column={i + 1}>
                       <ComputerComponent strikes={strikes}
                                          computerHand={hands[i + 1]}
                                          thinking={thinking}
