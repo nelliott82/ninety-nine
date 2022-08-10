@@ -19,8 +19,18 @@ const TopDropDown = styled.div`
   width: 100%;
   height: 20rem;
   background-color: grey;
-  top: ${({showMenu}) => showMenu ? `0` : `-19rem`};
+  top: ${({showMenu}) => showMenu ? `0` : `-19.5rem`};
   left: 0;
+  position: fixed;
+`
+
+const RulesTab = styled.div`
+  z-index: 101;
+  width: 5rem;
+  height: 1rem;
+  background-color: grey;
+  top: ${({showMenu}) => showMenu ? `20rem` : `0.5rem`};
+  left: 3rem;
   position: fixed;
 `
 
@@ -394,7 +404,8 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
-    <TopDropDown showMenu={showMenu} onClick={handleMenuClick} />
+    <TopDropDown showMenu={showMenu} />
+    <RulesTab showMenu={showMenu} onClick={handleMenuClick} />
     <StartModal started={started} >
       <StartContainer>
         <BotsDropDownLabel>Select number of computer opponents: </BotsDropDownLabel>
