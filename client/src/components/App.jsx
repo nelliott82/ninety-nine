@@ -14,6 +14,16 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const TopDropDown = styled.div`
+  z-index: 101;
+  width: 100%;
+  height: 20rem;
+  background-color: grey;
+  top: ${({showMenu}) => showMenu ? `0` : `-19rem`};
+  left: 0;
+  position: fixed;
+`
+
 const MainContainer = styled.div`
   width: 100%;
   height: 100%;
@@ -54,7 +64,7 @@ const Attribution = styled.div`
 `;
 
 const StartModal = styled.div`
-  z-index: auto;
+  z-index: 100;
   display: ${({ started }) => (started ? 'none' : 'block')};
   position: fixed;
   top: 0;
@@ -214,10 +224,15 @@ var App = () => {
   var [round, setRound] = useState(0);
   var [players, setPlayers] = useState([0, 1]);
   var [botsArray, setBotsArray] = useState([1]);
+  var [showMenu, setShowMenu] = useState(false);
+
+  function handleMenuClick() {
+    setShowMenu(showMenu => !showMenu);
+  }
 
   function playCard(cardObj, player) {
     var newRound = false;
-    // console.log('card played: ', cardObj[0]);
+
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
 
@@ -379,6 +394,7 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
+    <TopDropDown showMenu={showMenu} onClick={handleMenuClick} />
     <StartModal started={started} >
       <StartContainer>
         <BotsDropDownLabel>Select number of computer opponents: </BotsDropDownLabel>
