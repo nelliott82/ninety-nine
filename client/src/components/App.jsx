@@ -327,9 +327,6 @@ var App = () => {
     }
 
     if (countDone === players.length - 1 || tempStrikes[0] === 3) {
-      console.log('tempStrikes: ', tempStrikes);
-      console.log('countDone: ', countDone);
-      console.log('players.length - 1: ', players.length - 1);
       setOver(true);
     } else {
 
