@@ -81,7 +81,7 @@ const MainContainer = styled.div`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: 2fr 8fr;
+  grid-template-columns: 1fr;
   grid-template-rows: 5fr;
   justify-items: center;
   align-items: center;
@@ -93,7 +93,7 @@ const SideBar = styled.div`
 `;
 
 const GameArea = styled.div`
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 1;
 `;
 
@@ -113,7 +113,8 @@ const Opponent = styled.div`
 
 const Attribution = styled.div`
   grid-column: 1;
-  grid-row: 2
+  grid-row: 2;
+  justify-self: start;
 `;
 
 const StartModal = styled.div`
@@ -480,9 +481,6 @@ var App = () => {
       <div>Congrats! You win!</div>}
     </OverMessage>
     <MainContainer>
-      {/* <SideBar>
-        <SideBarComponent/>
-      </SideBar> */}
       <GameArea>
         <OpponentsArea bots={botsArray.length}>
           {botsArray.length
