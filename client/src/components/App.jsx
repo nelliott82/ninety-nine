@@ -5,7 +5,7 @@ import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
 import PlayerOneComponent from './PlayerOne.jsx';
-import SideBarComponent from './SideBar.jsx';
+import RulesComponent from './Rules.jsx';
 import TotalComponent from './Total.jsx';
 
 const GlobalStyle = createGlobalStyle`
@@ -436,10 +436,11 @@ var App = () => {
   }
 
   function setAndDisplayMessage(player = undefined) {
+    let strikeOrLost = strikes[player] < 3 ? 'got a strike' : 'lost';
     if (player === 0) {
-      message = `You lost! New round!`;
+      message = `You ${strikeOrLost}! New round!`;
     } else if (player) {
-      message = `Computer ${player} lost! New round!`;
+      message = `Computer ${player} ${strikeOrLost}! New round!`;
     } else {
       message = 'Begin!';
     }
@@ -452,7 +453,9 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
-    <TopDropDown showMenu={showMenu} animate={animate} />
+    <TopDropDown showMenu={showMenu} animate={animate} >
+      <RulesComponent/>
+    </TopDropDown>
     <RulesTab showMenu={showMenu} animate={animate} onClick={handleMenuClick}>Da Rules</RulesTab>
     <StartModal started={started} >
       <StartContainer>
@@ -477,9 +480,9 @@ var App = () => {
       <div>Congrats! You win!</div>}
     </OverMessage>
     <MainContainer>
-      <SideBar>
+      {/* <SideBar>
         <SideBarComponent/>
-      </SideBar>
+      </SideBar> */}
       <GameArea>
         <OpponentsArea bots={botsArray.length}>
           {botsArray.length
