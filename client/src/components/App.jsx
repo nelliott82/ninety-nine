@@ -5,7 +5,7 @@ import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
 import PlayerOneComponent from './PlayerOne.jsx';
-import RulesComponent from './Rules.jsx';
+import DropDownComponent from './DropDown.jsx';
 import TotalComponent from './Total.jsx';
 
 const GlobalStyle = createGlobalStyle`
@@ -13,69 +13,6 @@ const GlobalStyle = createGlobalStyle`
     background: #C0DCC0;
   }
 `;
-
-const MoveUp = keyframes`
-  from {
-    top: -19.5rem;
-  }
-
-  to {
-    top: 0rem;
-  }
-`;
-
-const MoveDown = keyframes`
-  from {
-    top: 0rem;
-  }
-
-  to {
-    top: -19.5rem;
-  }
-`;
-
-const TopDropDown = styled.div`
-  z-index: 101;
-  width: 100%;
-  height: 20rem;
-  background-color: grey;
-  top: ${({showMenu}) => showMenu ? `0` : `-19.5rem`};
-  animation: ${({showMenu}) => showMenu ? MoveUp : MoveDown} ${({animate}) => animate ? '0.5s' : '0s' } linear;
-  left: 0;
-  position: fixed;
-`
-const MoveUpTab = keyframes`
-  from {
-    top: 0.5rem;
-  }
-
-  to {
-    top: 20rem;
-  }
-`;
-
-const MoveDownTab = keyframes`
-  from {
-    top: 20rem;
-  }
-
-  to {
-    top: 0.5rem;
-  }
-`;
-
-const RulesTab = styled.div`
-  z-index: 101;
-  width: 5rem;
-  height: 1.5rem;
-  text-align: center;
-  background-color: grey;
-  top: ${({showMenu}) => showMenu ? `20rem` : `0.5rem`};
-  animation: ${({showMenu}) => showMenu ? MoveUpTab : MoveDownTab} ${({animate}) => animate ? '0.5s' : '0s' } linear;
-  left: 3rem;
-  position: fixed;
-  border-radius: 0 0 40% 40%;
-`
 
 const MainContainer = styled.div`
   width: 100%;
@@ -278,16 +215,16 @@ var App = () => {
   var [round, setRound] = useState(0);
   var [players, setPlayers] = useState([0, 1]);
   var [botsArray, setBotsArray] = useState([1]);
-  var [showMenu, setShowMenu] = useState(false);
-  var [animate, setAnimate] = useState(false);
+  // var [showMenu, setShowMenu] = useState(false);
+  // var [animate, setAnimate] = useState(false);
 
-  useEffect(() => {
-    setTimeout(() => setAnimate(true), 500);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => setAnimate(true), 500);
+  // }, []);
 
-  function handleMenuClick() {
-    setShowMenu(showMenu => !showMenu);
-  }
+  // function handleMenuClick() {
+  //   setShowMenu(showMenu => !showMenu);
+  // }
 
   function playCard(cardObj, player) {
     var newRound = false;
@@ -454,10 +391,7 @@ var App = () => {
   return (
     <>
     <GlobalStyle/>
-    <TopDropDown showMenu={showMenu} animate={animate} >
-      <RulesComponent/>
-    </TopDropDown>
-    <RulesTab showMenu={showMenu} animate={animate} onClick={handleMenuClick}>Da Rules</RulesTab>
+    <DropDownComponent/>
     <StartModal started={started} >
       <StartContainer>
         <BotsDropDownLabel>Select number of computer opponents: </BotsDropDownLabel>
