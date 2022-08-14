@@ -24,11 +24,6 @@ const MainContainer = styled.div`
   align-items: center;
 `;
 
-const SideBar = styled.div`
-  grid-column: 1;
-  grid-row: 1;
-`;
-
 const GameArea = styled.div`
   grid-column: 1;
   grid-row: 1;
@@ -215,16 +210,6 @@ var App = () => {
   var [round, setRound] = useState(0);
   var [players, setPlayers] = useState([0, 1]);
   var [botsArray, setBotsArray] = useState([1]);
-  // var [showMenu, setShowMenu] = useState(false);
-  // var [animate, setAnimate] = useState(false);
-
-  // useEffect(() => {
-  //   setTimeout(() => setAnimate(true), 500);
-  // }, []);
-
-  // function handleMenuClick() {
-  //   setShowMenu(showMenu => !showMenu);
-  // }
 
   function playCard(cardObj, player) {
     var newRound = false;
