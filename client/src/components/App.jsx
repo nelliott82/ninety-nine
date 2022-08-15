@@ -6,6 +6,7 @@ import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
 import PlayerOneComponent from './PlayerOne.jsx';
 import DropDownComponent from './DropDown.jsx';
+import StartComponent from './Start.jsx';
 import TotalComponent from './Total.jsx';
 
 const GlobalStyle = createGlobalStyle`
@@ -58,40 +59,6 @@ const StartModal = styled.div`
   height: 100vh;
   width:100vw;
   background: rgba(0,0,0,0.5);
-`;
-
-const StartContainer = styled.div`
-  position: absolute;
-  background-color: white;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  justify-items: center;
-  align-items: center;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`;
-
-const BotsDropDownLabel = styled.div`
-  grid-row: 1;
-  width: 5rem;
-  height: 2rem;
-  font-size: 1.5em;
-`;
-
-const BotsDropDown = styled.select`
-  grid-row: 2;
-  width: 5rem;
-  height: 2rem;
-  font-size: 1.5em;
-`;
-
-const StartButton = styled.button`
-  grid-row: 3;
-  width: 10rem;
-  height: 4rem;
-  font-size: 1.5em;
 `;
 
 const fadeIn = keyframes`
@@ -378,15 +345,7 @@ var App = () => {
     <GlobalStyle/>
     <DropDownComponent/>
     <StartModal started={started} >
-      <StartContainer>
-        <BotsDropDownLabel>Select number of computer opponents: </BotsDropDownLabel>
-        <BotsDropDown onChange={(e) => selectBots(e)}>
-          <option value='1' >1</option>
-          <option value='2' >2</option>
-          <option value='3' >3</option>
-        </BotsDropDown>
-        <StartButton onClick={() => startGame()}>Start Game</StartButton>
-      </StartContainer>
+      <StartComponent startGame={startGame} selectBots={selectBots} />
     </StartModal>
     <RoundMessageModal displayMessage={displayMessage} />
     <RoundMessage displayMessage={displayMessage} >
