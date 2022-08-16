@@ -19,9 +19,27 @@ const Rules = styled.div`
   grid-column: 2;
   grid-row: 1;
 `
-const Specials = styled.div`
+const SpecialsContainer = styled.div`
   grid-column: 3;
   grid-row: 1;
+`
+const Specials = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 0.2fr 1fr;
+  gap: 5px;
+  justify-items: center;
+  align-items: center;
+`
+
+const SpecialsHeader = styled.h3`
+  grid-column: 1;
+  grid-row: 1;
+`
+
+const SpecialHolder = styled.span`
+  grid-column: ${({ column }) => column };
+  grid-row: ${({ row }) => row };
 `
 
 var RulesComponent = () => {
@@ -39,13 +57,31 @@ return (
         <p>Strikes one and two start a new round.</p>
         <p>Three strikes and you're out. Game is over.</p>
       </Rules>
-      <Specials>
-        <h3>Specialty Cards:</h3>
-        <p>King: Puts the total at 99, or, holds it there.</p>
-        <p>10: Negative 10. Subtracts 10 from the total.</p>
-        <p>9: Holds the total wherever it's at. Think of it as 0.</p>
-        <p>4: Reverse order of play. With two players, this amounts to a hold.</p>
-      </Specials>
+      <SpecialsContainer>
+        <Specials>
+          <SpecialsHeader>Specialty Cards:</SpecialsHeader>
+          <SpecialHolder column={'1'} row={'2'}>
+              <SpecialCardComponent name={'King'}
+                                    card={'K♥'}
+                                    behavior={'Puts the total at 99, or, holds it there.'} />
+          </SpecialHolder>
+          <SpecialHolder column={'2'} row={'2'} >
+              <SpecialCardComponent name={'Four'}
+                                    card={'4♠'}
+                                    behavior={'Reverses the order of play.'} />
+          </SpecialHolder>
+          <SpecialHolder column={'3'} row={'2'} >
+              <SpecialCardComponent name={'Nine'}
+                                    card={'9♦'}
+                                    behavior={'Holds the total wherever it\'s at. Think of it as 0.'} />
+          </SpecialHolder>
+          <SpecialHolder column={'4'} row={'2'} >
+              <SpecialCardComponent name={'Ten'}
+                                    card={'10♣'}
+                                    behavior={'Negative 10. Subtracts 10 from the total.'} />
+          </SpecialHolder>
+        </Specials>
+      </SpecialsContainer>
     </RulesDropDown>
   )
 }

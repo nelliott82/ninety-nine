@@ -7,7 +7,7 @@ const SpecialCardDiv = styled.div`
   border: 1px solid black;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 0.5r 1fr 0.5fr;
+  grid-template-rows: 0.9r 1fr 0.5fr;
   justify-items: center;
   align-items: center;
 `
@@ -32,13 +32,13 @@ const CardBehavior = styled.div`
   text-align: center;
 `
 
-var SpecialCardComponent = () => {
+var SpecialCardComponent = ({ name, card, behavior}) => {
 
 return (
     <SpecialCardDiv>
-      <CardName>King</CardName>
-      <CardImage src='assets/cards/K♥.png' />
-      <CardBehavior>Puts the total at 99, or, keeps it there</CardBehavior>
+      <CardName>{name}</CardName>
+      <CardImage src={`assets/cards/${card}.png`} />
+      <CardBehavior>{behavior}</CardBehavior>
     </SpecialCardDiv>
   )
 }
