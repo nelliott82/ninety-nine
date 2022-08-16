@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import SpecialCardComponent from './SpecialCard.jsx';
 
 const RulesDropDown = styled.div`
   width: 100%;
