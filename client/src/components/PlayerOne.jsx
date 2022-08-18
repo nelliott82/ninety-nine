@@ -36,7 +36,6 @@ const PlayerOneArea = styled.div`
   animation: ${({turn}) => turn ? fadeIn : fadeOut} 0.5s linear;
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
-  border-radius: ${({turn}) => turn ? '25%/50%' : '25%/50%' };
   transition: border 0.5s linear;
 `
 
@@ -97,7 +96,6 @@ return (
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                                </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-      <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
     </PlayerOneArea>
   )
 }

@@ -36,7 +36,6 @@ const ComputerArea = styled.div`
   animation: ${({turn}) => turn ? fadeOut : fadeIn} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   border: ${({turn}) => turn ? '2px solid transparent' : '2px solid blue' };
   box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
-  border-radius: ${({turn}) => turn ? '25%/50%' : '25%/50%' };
   transition: border 0.5s linear;
 `
 

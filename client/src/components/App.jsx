@@ -30,19 +30,44 @@ const GameArea = styled.div`
   grid-row: 1;
 `;
 
-const OpponentsArea = styled.div`
+const PlayerArea = styled.div`
   display: grid;
-  grid-template-columns: ${({bots}) => ('1fr ').repeat(bots).trim()};
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   gap: 5px;
 `;
 
-const Opponent = styled.div`
+const Player = styled.div`
+  width: 100%;
+  height: 195%;
+  grid-column: 2;
+  grid-row: 1;
+`;
+
+const ForfeitButton = styled.button`
+  width: 5rem;
+  height: 2rem;
+  font-size: 1em;
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: left;
+  align-self: center;
+`
+
+const CenterRowArea = styled.div`
+  width: 100%;
+  height: 15rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+`;
+
+const OpponentOrDeckArea = styled.div`
   width: 100%;
   height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
-`;
+`
 
 const Attribution = styled.div`
   grid-column: 1;
@@ -360,31 +385,59 @@ var App = () => {
     </OverMessage>
     <MainContainer>
       <GameArea>
-        <OpponentsArea bots={botsArray.length}>
-          {botsArray.length
-            ? botsArray.map((bot, i) =>
-                  (
-                    <Opponent key={'bot' + i} column={i + 1}>
-                      <ComputerComponent strikes={strikes}
-                                         computerHand={hands[i + 1]}
-                                         thinking={thinking}
-                                         over={over}
-                                         turn={turn}
-                                         player={i + 1} />
-                    </Opponent>
-                  ))
-            : null}
-        </OpponentsArea>
-        {/*Bot one*/}
-        {/*Bot two*/}
-        <PlayingArea played={played} deck={deck} />
-        {/*Bot three*/}
+        <PlayerArea>
+          <Player>
+          {botsArray.length > 1 ?
+              <ComputerComponent strikes={strikes}
+                                 computerHand={hands[2]}
+                                 thinking={thinking}
+                                 over={over}
+                                 turn={turn}
+                                 player={2} /> :
+              <ComputerComponent strikes={strikes}
+                                 computerHand={hands[1]}
+                                 thinking={thinking}
+                                 over={over}
+                                 turn={turn}
+                                 player={1} /> }
+          </Player>
+        </PlayerArea>
+        <CenterRowArea>
+          <OpponentOrDeckArea column={1}>
+            {botsArray.length > 1 ?
+              <ComputerComponent strikes={strikes}
+                                 computerHand={hands[1]}
+                                 thinking={thinking}
+                                 over={over}
+                                 turn={turn}
+                                 player={1} /> :
+                                 null}
+          </OpponentOrDeckArea>
+          <OpponentOrDeckArea column={2}>
+            <PlayingArea played={played} deck={deck} />
+          </OpponentOrDeckArea>
+          <OpponentOrDeckArea column={3}>
+            {botsArray.length > 2 ?
+                <ComputerComponent strikes={strikes}
+                                  computerHand={hands[3]}
+                                  thinking={thinking}
+                                  over={over}
+                                  turn={turn}
+                                  player={3} /> :
+                                  null}
+          </OpponentOrDeckArea>
+        </CenterRowArea>
         <TotalComponent total={total} />
-        <PlayerOneComponent strikes={strikes}
-                            playerOneHand={hands[0]}
-                            gameOver={gameOver}
-                            turn={turn}
-                            playCard={playCard} />
+        <PlayerArea>
+          <Player>
+            <PlayerOneComponent strikes={strikes}
+                                playerOneHand={hands[0]}
+                                gameOver={gameOver}
+                                turn={turn}
+                                playCard={playCard} />
+          </Player>
+          <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
+        </PlayerArea>
       </GameArea>
       <Attribution>
         <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
