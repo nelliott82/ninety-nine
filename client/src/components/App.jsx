@@ -375,8 +375,10 @@ var App = () => {
                   ))
             : null}
         </OpponentsArea>
-
+        {/*Bot one*/}
+        {/*Bot two*/}
         <PlayingArea played={played} deck={deck} />
+        {/*Bot three*/}
         <TotalComponent total={total} />
         <PlayerOneComponent strikes={strikes}
                             playerOneHand={hands[0]}
