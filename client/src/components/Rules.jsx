@@ -12,6 +12,7 @@ const RulesDropDown = styled.div`
   align-items: center;
 `
 const Title = styled.h1`
+  justify-self: center;
   grid-column: 1;
   grid-row: 1;
 `
@@ -26,7 +27,7 @@ const SpecialsContainer = styled.div`
 const Specials = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 0.2fr 1fr;
+  grid-template-rows: 2rem 1fr;
   gap: 5px;
   justify-items: center;
   align-items: center;
@@ -42,6 +43,19 @@ const SpecialHolder = styled.span`
   grid-row: ${({ row }) => row };
 `
 
+const specialCards = [{ name: 'King' , card: 'K♥', behavior: 'Puts the total at 99, or, holds it there.' },
+                      { name: 'Four' , card: '4♠', behavior: 'Reverses the order of play.' },
+                      { name: 'Nine' , card: '9♦', behavior: 'Holds the total wherever it\'s at. Think of it as 0.' },
+                      { name: 'Ten' , card: '10♣', behavior: 'Negative 10. Subtracts 10 from the total.' }]
+
+const rules = ['Take turns playing a card. Player One (you) always starts.',
+               'All cards are face value, except specialty cards, and add to the total.',
+               'Aces are worth 1, and Queens and Jacks are worth 10.',
+               'The object of the game is to keep the total at, or, below 99.',
+               'First player unable to keep the total at, or, below 99 gets a strike.',
+               'Strikes one and two start a new round.',
+               'Three strikes and that player is out. Game ends if you lose.']
+
 var RulesComponent = () => {
 
 return (
@@ -49,37 +63,23 @@ return (
       <Title>99</Title>
       <Rules>
         <h3>How to Play:</h3>
-        <p>Take turns playing a card. Player One always starts.</p>
-        <p>All cards are face value, except specialty cards, and add to the total.</p>
-        <p>Aces are worth 1, and Queens and Jacks are worth 10.</p>
-        <p>The object of the game is to keep the total at, or, below 99.</p>
-        <p>First player unable to keep the total at, or, below 99 gets a strike.</p>
-        <p>Strikes one and two start a new round.</p>
-        <p>Three strikes and you're out. Game is over.</p>
+        {rules.map(rule => <p>{rule}</p>)}
       </Rules>
       <SpecialsContainer>
         <Specials>
           <SpecialsHeader>Specialty Cards:</SpecialsHeader>
-          <SpecialHolder column={'1'} row={'2'}>
-              <SpecialCardComponent name={'King'}
-                                    card={'K♥'}
-                                    behavior={'Puts the total at 99, or, holds it there.'} />
-          </SpecialHolder>
-          <SpecialHolder column={'2'} row={'2'} >
-              <SpecialCardComponent name={'Four'}
-                                    card={'4♠'}
-                                    behavior={'Reverses the order of play.'} />
-          </SpecialHolder>
-          <SpecialHolder column={'3'} row={'2'} >
-              <SpecialCardComponent name={'Nine'}
-                                    card={'9♦'}
-                                    behavior={'Holds the total wherever it\'s at. Think of it as 0.'} />
-          </SpecialHolder>
-          <SpecialHolder column={'4'} row={'2'} >
-              <SpecialCardComponent name={'Ten'}
-                                    card={'10♣'}
-                                    behavior={'Negative 10. Subtracts 10 from the total.'} />
-          </SpecialHolder>
+          {specialCards.map((cardObject, i) => {
+
+            var { name, card, behavior } = cardObject;
+
+            return (
+              <SpecialHolder column={i + 1} row={2}>
+                <SpecialCardComponent name={name}
+                                      card={card}
+                                      behavior={behavior} />
+              </SpecialHolder>
+              )
+          })}
         </Specials>
       </SpecialsContainer>
     </RulesDropDown>
