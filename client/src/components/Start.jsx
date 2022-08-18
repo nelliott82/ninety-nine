@@ -3,10 +3,12 @@ import styled from 'styled-components';
 
 const StartContainer = styled.div`
   position: absolute;
+  width: 11rem;
+  height: 14rem;
   background-color: white;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 0.5fr 0.7fr;
   justify-items: center;
   align-items: center;
   left: 50%;
@@ -16,9 +18,10 @@ const StartContainer = styled.div`
 
 const BotsDropDownLabel = styled.div`
   grid-row: 1;
-  width: 5rem;
-  height: 2rem;
+  width: 7rem;
+  height: 4rem;
   font-size: 1.5em;
+  text-align: center;
 `;
 
 const BotsDropDown = styled.select`
@@ -39,7 +42,7 @@ var StartComponent = ({ selectBots, startGame }) => {
 
   return (
     <StartContainer>
-      <BotsDropDownLabel>Select number of computer opponents: </BotsDropDownLabel>
+      <BotsDropDownLabel>Set # Of Computer Opponents:</BotsDropDownLabel>
       <BotsDropDown onChange={(e) => selectBots(e)}>
         <option value='1' >1</option>
         <option value='2' >2</option>
