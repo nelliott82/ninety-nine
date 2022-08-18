@@ -36,7 +36,6 @@ const ComputerArea = styled.div`
   animation: ${({turn}) => turn ? fadeOut : fadeIn} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   border: ${({turn}) => turn ? '2px solid transparent' : '2px solid blue' };
   box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
-  border-radius: ${({turn}) => turn ? '25%/50%' : '25%/50%' };
   transition: border 0.5s linear;
 `
 
@@ -80,7 +79,7 @@ const FinalMsg = styled.div`
 
 var placeHolder = [2, 3, 4];
 
-var ComputerComponent = ({ strikes, computerHand, thinking, over, turn }) => {
+var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player }) => {
   var [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -88,21 +87,24 @@ var ComputerComponent = ({ strikes, computerHand, thinking, over, turn }) => {
   }, []);
 
 return (
-    <ComputerArea turn={turn} animate={animate} >
-      <Name>Computer:</Name>
-      <Strikes>Strikes: {strikes[1]}</Strikes>
+    <ComputerArea turn={turn !== player} animate={animate} strikes={strikes} >
+      <Name>Computer {player}</Name>
+      <Strikes>Strikes: {strikes[player]}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>
                                                                 <ComputerCards key={card[0] + 'c'}
                                                                                index={i + 2}
                                                                                src='/assets/cards/back.jpg' />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-        {thinking ? <Thinking>Thinking...</Thinking> : null}
-        {over ? strikes[0] === 3 ?
+        {turn === player ? <Thinking>Thinking...</Thinking> : null}
+        {/* {over ? strikes[player] < 3 ?
               <FinalMsg>"Better luck next time!"</FinalMsg>
               :
               <FinalMsg>"Nooooooo!!"</FinalMsg>
         : null}
+        {!over === strikes[player] === 3 ?
+              <FinalMsg>"Nooooooo!!"</FinalMsg>
+        : null} */}
     </ComputerArea>
   )
 }

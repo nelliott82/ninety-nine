@@ -36,7 +36,6 @@ const PlayerOneArea = styled.div`
   animation: ${({turn}) => turn ? fadeIn : fadeOut} 0.5s linear;
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
-  border-radius: ${({turn}) => turn ? '25%/50%' : '25%/50%' };
   transition: border 0.5s linear;
 `
 
@@ -87,17 +86,16 @@ var placeHolder = [2, 3, 4];
 var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, gameOver }) => {
 
 return (
-    <PlayerOneArea turn={turn} >
-      <Name>PlayerOne:</Name>
+    <PlayerOneArea turn={turn === 0} >
+      <Name>Player One</Name>
       <Strikes>Strikes: {strikes[0]}</Strikes>
         {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
                                                                 <PlayerOneCards key={card[0] + 'p'}
                                                                                 index={i + 2}
-                                                                                onClick={() => {if (turn) { playCard(card, true) }}}
+                                                                                onClick={() => {if (turn === 0) { playCard(card, 0) }}}
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                                </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-      <ForfeitButton onClick={() => {if (turn) { gameOver(true) }}} >Forfeit</ForfeitButton>
     </PlayerOneArea>
   )
 }
