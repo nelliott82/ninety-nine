@@ -51,7 +51,7 @@ var PlayingArea = ({ played, deck }) => {
 
 return (
     <Container>
-          <DeckName>Deck:</DeckName>
+          <DeckName>Deck</DeckName>
           <DeckContainer>
             <CardArea>
           {deck.length ?
@@ -60,7 +60,7 @@ return (
           : null}
             </CardArea>
           </DeckContainer>
-          <DiscardName>Discard Pile:</DiscardName>
+          <DiscardName>Discard Pile</DiscardName>
           <PlayedContainer>
             <CardArea>
           {played.length ?
