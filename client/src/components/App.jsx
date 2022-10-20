@@ -88,24 +88,24 @@ const StartModal = styled.div`
 
 const fadeIn = keyframes`
   from {
-    transform: scale(1);
+    transform: scale(1) translate(-50%);;
     opacity: 1;
   }
 
   to {
-    transform: scale(1);
+    transform: scale(1) translate(-50%);;
     opacity: 1;
   }
 `;
 
 const fadeOut = keyframes`
   from {
-    transform: scale(1);
+    transform: scale(1) translate(-50%);;
     opacity: 1;
   }
 
   to {
-    transform: scale(.25);
+    transform: scale(.25) translate(-50%);;
     opacity: 0;
   }
 `;
@@ -139,20 +139,20 @@ const RoundMessageModal = styled.div`
   top: 0;
   left: 0;
   height: 100vh;
-  width:100vw;
+  width: 100vw;
   background: rgba(0,0,0,0.5);
 `;
 
 const RoundMessage = styled.div`
   position: absolute;
-  left: 45%;
-  top: 45%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%);
   visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
   animation: ${({displayMessage}) => displayMessage ? fadeIn : fadeOut} 0.5s linear;
   transition: visibility 0.5s linear;
   color: red;
   font-size: 3em;
-  text-align: center;
 `;
 
 const OverMessageModal = styled.div`
@@ -168,8 +168,9 @@ const OverMessageModal = styled.div`
 
 const OverMessage = styled.div`
   position: absolute;
-  left: 45%;
-  top: 45%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%);
   visibility: ${({over}) => over ? 'visible' : 'hidden'};
   color: red;
   font-size: 3em;
@@ -374,7 +375,7 @@ var App = () => {
     </StartModal>
     <RoundMessageModal displayMessage={displayMessage} />
     <RoundMessage displayMessage={displayMessage} >
-       <div>{message}</div>
+      {message}
     </RoundMessage>
     <OverMessageModal over={over} />
     <OverMessage over={over}>
