@@ -36,9 +36,10 @@ const TopDropDown = styled.div`
   }
   @media (max-width: 1220px) {
     height: 60rem;
-    top: ${({showMenu}) => showMenu ? `0` : `-59.5rem`};
+    top: ${({showMenu}) => showMenu ? `-0.5rem` : `-59.5rem`};
     animation: ${({showMenu}) => showMenu ? MoveUp('-59.5rem', '0rem') : MoveDown('0rem', '-59.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
-
+    left: -0.5rem;
+    overflow-y: scroll;
   }
 `
 const MoveUpTab = (from, to) => keyframes`
