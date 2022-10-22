@@ -35,9 +35,9 @@ const TopDropDown = styled.div`
     cursor: pointer;
   }
   @media (max-width: 1220px) {
-    height: 50rem;
-    top: ${({showMenu}) => showMenu ? `0` : `-49.5rem`};
-    animation: ${({showMenu}) => showMenu ? MoveUp('-49.5rem', '0rem') : MoveDown('0rem', '-49.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+    height: 60rem;
+    top: ${({showMenu}) => showMenu ? `0` : `-59.5rem`};
+    animation: ${({showMenu}) => showMenu ? MoveUp('-59.5rem', '0rem') : MoveDown('0rem', '-59.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
 
   }
 `
@@ -76,8 +76,8 @@ const RulesTab = styled.div`
     cursor: pointer;
   }
   @media (max-width: 1220px) {
-    top: ${({showMenu}) => showMenu ? `50rem` : `0.5rem`};
-    animation: ${({showMenu}) => showMenu ? MoveUpTab('0.5rem', '50rem') : MoveDownTab('50rem', '0.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+    top: ${({showMenu}) => showMenu ? `60rem` : `0.5rem`};
+    animation: ${({showMenu}) => showMenu ? MoveUpTab('0.5rem', '60rem') : MoveDownTab('60rem', '0.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   }
 `
 

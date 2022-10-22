@@ -11,7 +11,7 @@ const RulesDropDown = styled.div`
   justify-items: left;
   align-items: center;
   @media (max-width: 1220px) {
-    height: 50rem;
+    height: 60rem;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr 1fr;
@@ -24,7 +24,7 @@ const Title = styled.h1`
   grid-column: 1;
   grid-row: 1;
   @media (max-width: 1220px) {
-    justify-self: center;
+    justify-self: left;
     grid-column: 1;
     grid-row: 3;
   }
@@ -33,7 +33,6 @@ const Rules = styled.div`
   grid-column: 2;
   grid-row: 1;
   @media (max-width: 1220px) {
-    justify-self: center;
     grid-column: 1;
     grid-row: 1;
   }
@@ -42,7 +41,6 @@ const SpecialsContainer = styled.div`
   grid-column: 3;
   grid-row: 1;
   @media (max-width: 1220px) {
-    justify-self: center;
     grid-column: 1;
     grid-row: 2;
   }
@@ -54,6 +52,10 @@ const Specials = styled.div`
   gap: 5px;
   justify-items: center;
   align-items: center;
+  @media (max-width: 1220px) {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 2rem 1fr 1fr;
+  }
 `
 
 const SpecialsHeader = styled.h3`
@@ -64,6 +66,20 @@ const SpecialsHeader = styled.h3`
 const SpecialHolder = styled.span`
   grid-column: ${({ column }) => column };
   grid-row: ${({ row }) => row };
+  @media (max-width: 1220px) {
+    grid-column: ${({ column }) => {
+      if (column < 3) {
+        return column;
+      }
+      return column - 2;
+    }};
+    grid-row: ${({ column }) => {
+      if (column < 3) {
+        return 2;
+      }
+      return 3;
+    }};
+  }
 `
 
 const specialCards = [{ name: 'King' , card: 'K♥', behavior: 'Puts the total at 99, or, holds it there.' },
