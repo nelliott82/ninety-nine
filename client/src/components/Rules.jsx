@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SpecialCardComponent from './SpecialCard.jsx';
 
 const RulesDropDown = styled.div`
+  margin-left: 0.5rem;
   width: 100vw;
   height: 320px;
   display: grid;
@@ -27,7 +28,7 @@ const Title = styled.h1`
   @media (max-width: 1220px) {
     justify-self: left;
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 1;
   }
 `
 const Rules = styled.div`
@@ -35,7 +36,7 @@ const Rules = styled.div`
   grid-row: 1;
   @media (max-width: 1220px) {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
   }
 `
 const SpecialsContainer = styled.div`
@@ -43,7 +44,7 @@ const SpecialsContainer = styled.div`
   grid-row: 1;
   @media (max-width: 1220px) {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
   }
 `
 const Specials = styled.div`
@@ -66,7 +67,7 @@ const SpecialsHeader = styled.h3`
 
 const SpecialHolder = styled.span`
   grid-column: ${({ column }) => column };
-  grid-row: ${({ row }) => row };
+  grid-row: 2;
   @media (max-width: 1220px) {
     grid-column: ${({ column }) => {
       if (column < 3) {
@@ -113,7 +114,7 @@ return (
             var { name, card, behavior } = cardObject;
 
             return (
-              <SpecialHolder column={i + 1} row={2}>
+              <SpecialHolder column={i + 1} >
                 <SpecialCardComponent name={name}
                                       card={card}
                                       behavior={behavior} />

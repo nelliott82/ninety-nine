@@ -16,8 +16,8 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const MainContainer = styled.div`
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 5fr;
@@ -82,7 +82,7 @@ const StartModal = styled.div`
   top: 0;
   left: 0;
   height: 100vh;
-  width:100vw;
+  width: 100vw;
   background: rgba(0,0,0,0.5);
 `;
 
@@ -162,7 +162,7 @@ const OverMessageModal = styled.div`
   top: 0;
   left: 0;
   height: 100vh;
-  width:100vw;
+  width: 100vw;
   background: rgba(0,0,0,0.5);
 `;
 
