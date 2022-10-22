@@ -23,23 +23,24 @@ const MoveDown = (from, to) => keyframes`
 `;
 
 const TopDropDown = styled.div`
+  box-sizing: border-box;
   z-index: 101;
-  width: 100%;
-  height: 20rem;
+  width: 100vw;
+  height: 320px;
+  border-bottom: 8px solid rgb(245,245,245);
   background-color: rgb(245,245,245);
-  top: ${({showMenu}) => showMenu ? `0` : `-19.5rem`};
-  animation: ${({showMenu}) => showMenu ? MoveUp('-19.5rem', '0rem') : MoveDown('0rem', '-19.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+  top: ${({showMenu}) => showMenu ? `0` : `-312px`};
+  animation: ${({showMenu}) => showMenu ? MoveUp('-312px', '0px') : MoveDown('0px', '-312px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   left: 0;
   position: fixed;
   :hover {
     cursor: pointer;
   }
-  @media (max-width: 1220px) {
-    height: 60rem;
-    top: ${({showMenu}) => showMenu ? `-0.5rem` : `-59.5rem`};
-    animation: ${({showMenu}) => showMenu ? MoveUp('-59.5rem', '0rem') : MoveDown('0rem', '-59.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
-    left: -0.5rem;
-    overflow-y: scroll;
+  @media (max-width: 1285px) {
+    height: 500px;
+    top: ${({showMenu}) => showMenu ? `-0px` : `-492px`};
+    animation: ${({showMenu}) => showMenu ? MoveUp('-492px', '0px') : MoveDown('0px', '-492px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+    overflow-y: auto;
   }
 `
 const MoveUpTab = (from, to) => keyframes`
@@ -77,8 +78,8 @@ const RulesTab = styled.div`
     cursor: pointer;
   }
   @media (max-width: 1220px) {
-    top: ${({showMenu}) => showMenu ? `60rem` : `0.5rem`};
-    animation: ${({showMenu}) => showMenu ? MoveUpTab('0.5rem', '60rem') : MoveDownTab('60rem', '0.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+    top: ${({showMenu}) => showMenu ? `500px` : `8px`};
+    animation: ${({showMenu}) => showMenu ? MoveUpTab('8px', '500px') : MoveDownTab('500px', '8px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   }
 `
 

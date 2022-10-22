@@ -3,20 +3,21 @@ import styled from 'styled-components';
 import SpecialCardComponent from './SpecialCard.jsx';
 
 const RulesDropDown = styled.div`
-  width: 100%;
-  height: 20rem;
+  width: 100vw;
+  height: 320px;
   display: grid;
   grid-template-columns: 0.5fr 1fr 1.5fr;
   grid-template-rows: 1fr;
   justify-items: left;
   align-items: center;
-  @media (max-width: 1220px) {
-    height: 60rem;
+  @media (max-width: 1285px) {
+    height: 960px;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     justify-items: left;
     align-items: center;
+    overflow-y: auto;
   }
 `
 const Title = styled.h1`
