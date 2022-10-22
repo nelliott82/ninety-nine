@@ -2,23 +2,23 @@ import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import RulesComponent from './Rules.jsx';
 
-const MoveUp = keyframes`
+const MoveUp = (from, to) => keyframes`
   from {
-    top: -19.5rem;
+    top: ${from};
   }
 
   to {
-    top: 0rem;
+    top: ${to};
   }
 `;
 
-const MoveDown = keyframes`
+const MoveDown = (from, to) => keyframes`
   from {
-    top: 0rem;
+    top: ${from};
   }
 
   to {
-    top: -19.5rem;
+    top: ${to};
   }
 `;
 
@@ -28,30 +28,36 @@ const TopDropDown = styled.div`
   height: 20rem;
   background-color: rgb(245,245,245);
   top: ${({showMenu}) => showMenu ? `0` : `-19.5rem`};
-  animation: ${({showMenu}) => showMenu ? MoveUp : MoveDown} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+  animation: ${({showMenu}) => showMenu ? MoveUp('-19.5rem', '0rem') : MoveDown('0rem', '-19.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   left: 0;
   position: fixed;
   :hover {
     cursor: pointer;
   }
+  @media (max-width: 1220px) {
+    height: 50rem;
+    top: ${({showMenu}) => showMenu ? `0` : `-49.5rem`};
+    animation: ${({showMenu}) => showMenu ? MoveUp('-49.5rem', '0rem') : MoveDown('0rem', '-49.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+
+  }
 `
-const MoveUpTab = keyframes`
+const MoveUpTab = (from, to) => keyframes`
   from {
-    top: 0.5rem;
+    top: ${from};
   }
 
   to {
-    top: 20rem;
+    top: ${to};
   }
 `;
 
-const MoveDownTab = keyframes`
+const MoveDownTab = (from, to) => keyframes`
   from {
-    top: 20rem;
+    top: ${from};
   }
 
   to {
-    top: 0.5rem;
+    top: ${to};
   }
 `;
 
@@ -62,12 +68,16 @@ const RulesTab = styled.div`
   text-align: center;
   background-color: rgb(245,245,245);
   top: ${({showMenu}) => showMenu ? `20rem` : `0.5rem`};
-  animation: ${({showMenu}) => showMenu ? MoveUpTab : MoveDownTab} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+  animation: ${({showMenu}) => showMenu ? MoveUpTab('0.5rem', '20rem') : MoveDownTab('20rem', '0.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   left: 3rem;
   position: fixed;
   border-radius: 0 0 40% 40%;
   :hover {
     cursor: pointer;
+  }
+  @media (max-width: 1220px) {
+    top: ${({showMenu}) => showMenu ? `50rem` : `0.5rem`};
+    animation: ${({showMenu}) => showMenu ? MoveUpTab('0.5rem', '50rem') : MoveDownTab('50rem', '0.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   }
 `
 

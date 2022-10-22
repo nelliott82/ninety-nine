@@ -10,19 +10,42 @@ const RulesDropDown = styled.div`
   grid-template-rows: 1fr;
   justify-items: left;
   align-items: center;
+  @media (max-width: 1220px) {
+    height: 50rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    justify-items: left;
+    align-items: center;
+  }
 `
 const Title = styled.h1`
   justify-self: center;
   grid-column: 1;
   grid-row: 1;
+  @media (max-width: 1220px) {
+    justify-self: center;
+    grid-column: 1;
+    grid-row: 3;
+  }
 `
 const Rules = styled.div`
   grid-column: 2;
   grid-row: 1;
+  @media (max-width: 1220px) {
+    justify-self: center;
+    grid-column: 1;
+    grid-row: 1;
+  }
 `
 const SpecialsContainer = styled.div`
   grid-column: 3;
   grid-row: 1;
+  @media (max-width: 1220px) {
+    justify-self: center;
+    grid-column: 1;
+    grid-row: 2;
+  }
 `
 const Specials = styled.div`
   display: grid;
