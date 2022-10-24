@@ -37,6 +37,23 @@ const ComputerArea = styled.div`
   border: ${({turn}) => turn ? '2px solid transparent' : '2px solid blue' };
   box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
   transition: border 0.5s linear;
+  @media (max-width: 1285px) {
+    width: 100vw;
+    height: ${({botsCount}) => {
+      if (botsCount) {
+        return '30px';
+      } else {
+        return '50%';
+      }
+    }};
+    grid-template-rows: ${({botsCount}) => {
+      if (botsCount) {
+        return '0.1fr 1fr 0.2fr;';
+      } else {
+        return '0.1fr 2fr 0.2fr;';
+      }
+    }};
+  }
 `
 
 const Name = styled.div`
@@ -54,6 +71,22 @@ const Holder = styled.div`
   width: 130px;
   height: 200px;
   border: 2px solid black;
+  @media (max-width: 1285px) {
+    width: ${({botsCount}) => {
+      if (botsCount) {
+        return '17px';
+      } else {
+        return '130px';
+      }
+    }};
+    height: ${({botsCount}) => {
+      if (botsCount) {
+        return '30px';
+      } else {
+        return '200px';
+      }
+    }};
+  }
 `
 
 const ComputerCards = styled.img`
@@ -62,6 +95,22 @@ const ComputerCards = styled.img`
   margin-top: 3px;
   grid-column: ${({index}) => index};
   grid-row: 2;
+  @media (max-width: 1285px) {
+    width: ${({botsCount}) => {
+      if (botsCount) {
+        return '17px';
+      } else {
+        return '130px';
+      }
+    }};
+    height: ${({botsCount}) => {
+      if (botsCount) {
+        return '27px';
+      } else {
+        return '195px';
+      }
+    }};
+  }
 `
 ComputerCards.defaultProps = {
   src: ''
@@ -79,15 +128,15 @@ const FinalMsg = styled.div`
 
 var placeHolder = [2, 3, 4];
 
-var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player }) => {
+var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, botsCount }) => {
   var [animate, setAnimate] = useState(false);
-
+  console.log(botsCount);
   useEffect(() => {
     setTimeout(() => setAnimate(true), 500);
   }, []);
 
 return (
-    <ComputerArea turn={turn !== player} animate={animate} strikes={strikes} >
+    <ComputerArea turn={turn !== player} animate={animate} strikes={strikes} botsCount={botsCount} >
       <Name>Computer {player}</Name>
       <Strikes>Strikes: {strikes[player]}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>

@@ -37,15 +37,27 @@ const PlayerOneArea = styled.div`
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
+  @media (max-width: 1285px) {
+    width: 100vw;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 `
 
 const Name = styled.div`
   grid-column: 2;
   grid-row: 1;
+  @media (max-width: 1285px) {
+    grid-column: 1;
+    grid-row: 1;
+  }
 `
 const Strikes = styled.div`
   grid-column: 4;
   grid-row: 1;
+  @media (max-width: 1285px) {
+    grid-column: 3;
+    grid-row: 1;
+  }
 `
 
 const Holder = styled.div`
@@ -54,6 +66,11 @@ const Holder = styled.div`
   width: 130px;
   height: 200px;
   border: 2px solid black;
+  @media (max-width: 1285px) {
+    width: 120px;
+    grid-column: ${({index}) => index - 1};
+    grid-row: 2;
+  }
 `
 
 const PlayerOneCards = styled.img`
@@ -61,25 +78,23 @@ const PlayerOneCards = styled.img`
   height: 195px;
   margin-top: 3px;
   cursor: pointer;
+  grid-column: ${({index}) => index};
+  grid-row: 2;
   &:hover {
     border: 2px solid blue;
     box-shadow: 0 0 10px blue;
     border-radius: 5%;
     transform: scale(1.1);
   }
-  grid-column: ${({index}) => index};
-  grid-row: 2;
+  @media (max-width: 1285px) {
+    width: 120px;
+    grid-column: ${({index}) => index - 1};
+    grid-row: 2;
+  }
 `
 PlayerOneCards.defaultProps = {
   src: ''
 }
-const ForfeitButton = styled.button`
-  width: 5rem;
-  height: 2rem;
-  font-size: 1em;
-  grid-column: 5;
-  grid-row: 2;
-`
 
 var placeHolder = [2, 3, 4];
 

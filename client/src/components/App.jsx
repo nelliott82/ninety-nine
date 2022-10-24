@@ -30,11 +30,57 @@ const GameArea = styled.div`
   grid-row: 1;
 `;
 
-const PlayerArea = styled.div`
+const PlayerArea1 = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   gap: 5px;
+`;
+
+const PlayerArea2 = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 5px;
+  @media (max-width: 1285px) {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 0.1fr;
+  }
+`;
+
+const Opponent = styled.div`
+  width: 100%;
+  height: 195%;
+  grid-column: 2;
+  grid-row: 1;
+  @media (max-width: 1285px) {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-rows: ${({botsCount}) => {
+      if (botsCount > 1) {
+        return '1fr '.repeat(botsCount).trim();
+      } else {
+        return '1fr';
+      }
+    }};
+  }
+`;
+
+const BotAreaMobile = styled.div`
+  display: none;
+  @media (max-width: 1285px) {
+    display: unset;
+    width: 100%;
+    height: 60%;
+    grid-column: 1;
+    grid-row: ${({row}) => row};
+  }
+`;
+const BotArea = styled.div`
+  @media (max-width: 1285px) {
+    display: none;
+  }
 `;
 
 const Player = styled.div`
@@ -42,6 +88,9 @@ const Player = styled.div`
   height: 195%;
   grid-column: 2;
   grid-row: 1;
+  @media (max-width: 1285px) {
+    width: 100vw;
+  }
 `;
 
 const ForfeitButton = styled.button`
@@ -50,8 +99,12 @@ const ForfeitButton = styled.button`
   font-size: 1em;
   grid-column: 3;
   grid-row: 1;
-  justify-self: left;
+  justify-self: center;
   align-self: center;
+  @media (max-width: 1285px) {
+    grid-column: 2;
+    grid-row: 2;
+  }
 `
 
 const CenterRowArea = styled.div`
@@ -60,13 +113,23 @@ const CenterRowArea = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
-`;
+`
 
-const OpponentOrDeckArea = styled.div`
+const DeckArea = styled.div`
   width: 100%;
   height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
+`
+
+const OpponentArea = styled.div`
+  width: 100%;
+  height: 195%;
+  grid-column: ${({column}) => column};
+  grid-row: 1;
+  @media (max-width: 1285px) {
+    display: none;
+  }
 `
 
 const Attribution = styled.div`
@@ -386,26 +449,42 @@ var App = () => {
     </OverMessage>
     <MainContainer>
       <GameArea>
-        <PlayerArea>
-          <Player>
-          {botsArray.length > 1 ?
-              <ComputerComponent strikes={strikes}
-                                 computerHand={hands[2]}
-                                 thinking={thinking}
-                                 over={over}
-                                 turn={turn}
-                                 player={2} /> :
+        <PlayerArea1>
+          <Opponent botsCount={botsArray.length} >
+          {botsArray[1] ?
+              <>
+              {botsArray.map((bot, i) =>
+                <BotAreaMobile row={i + 1}>
+                  <ComputerComponent strikes={strikes}
+                                     computerHand={hands[2]}
+                                     thinking={thinking}
+                                     over={over}
+                                     turn={turn}
+                                     player={i + 1}
+                                     botsCount={botsArray.length} />
+                </BotAreaMobile>
+              )}
+              <BotArea>
+                <ComputerComponent strikes={strikes}
+                                  computerHand={hands[1]}
+                                  thinking={thinking}
+                                  over={over}
+                                  turn={turn}
+                                  player={2} />
+              </BotArea>
+              </>
+              :
               <ComputerComponent strikes={strikes}
                                  computerHand={hands[1]}
                                  thinking={thinking}
                                  over={over}
                                  turn={turn}
                                  player={1} /> }
-          </Player>
-        </PlayerArea>
+          </Opponent>
+        </PlayerArea1>
         <CenterRowArea>
-          <OpponentOrDeckArea column={1}>
-            {botsArray.length > 1 ?
+          <OpponentArea column={1}>
+            {botsArray[1] ?
               <ComputerComponent strikes={strikes}
                                  computerHand={hands[1]}
                                  thinking={thinking}
@@ -413,23 +492,23 @@ var App = () => {
                                  turn={turn}
                                  player={1} /> :
                                  null}
-          </OpponentOrDeckArea>
-          <OpponentOrDeckArea column={2}>
+          </OpponentArea>
+          <DeckArea column={2}>
             <PlayingArea played={played} deck={deck} />
-          </OpponentOrDeckArea>
-          <OpponentOrDeckArea column={3}>
-            {botsArray.length > 2 ?
+          </DeckArea>
+          <OpponentArea column={3}>
+            {botsArray[2] ?
                 <ComputerComponent strikes={strikes}
-                                  computerHand={hands[3]}
-                                  thinking={thinking}
-                                  over={over}
-                                  turn={turn}
-                                  player={3} /> :
-                                  null}
-          </OpponentOrDeckArea>
+                                   computerHand={hands[3]}
+                                   thinking={thinking}
+                                   over={over}
+                                   turn={turn}
+                                   player={3} /> :
+                                   null}
+          </OpponentArea>
         </CenterRowArea>
         <TotalComponent total={total} />
-        <PlayerArea>
+        <PlayerArea2>
           <Player>
             <PlayerOneComponent strikes={strikes}
                                 playerOneHand={hands[0]}
@@ -438,7 +517,7 @@ var App = () => {
                                 playCard={playCard} />
           </Player>
           <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
-        </PlayerArea>
+        </PlayerArea2>
       </GameArea>
       <Attribution>
         <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
