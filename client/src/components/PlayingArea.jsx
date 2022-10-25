@@ -34,13 +34,22 @@ const CardArea = styled.div`
   width: 130px;
   height: 200px;
   border: 2px solid black;
+  @media (max-width: 1000px) {
+    width: 90px;
+    height: 150px;
+    grid-row: 2;
+  }
 `
 
 const CardStack = styled.img`
   width: 130px;
   height: 195px;
   margin-top: 3px;
-  object-fit: cover;
+  @media (max-width: 1000px) {
+    margin-top: 2.25px;
+    width: 88px;
+    height: 146.5px;
+  }
 `
 
 CardStack.defaultProps = {
@@ -54,19 +63,19 @@ return (
           <DeckName>Deck</DeckName>
           <DeckContainer>
             <CardArea>
-          {deck.length ?
-            <CardStack
-                src='/assets/cards/back.jpg' />
-          : null}
+            {deck.length ?
+              <CardStack
+                  src='/assets/cards/back.jpg' />
+            : null}
             </CardArea>
           </DeckContainer>
           <DiscardName>Discard Pile</DiscardName>
           <PlayedContainer>
             <CardArea>
-          {played.length ?
-            <CardStack
-                src={`/assets/cards/${played[played.length - 1][0]}.png`} />
-          : null}
+            {played.length ?
+              <CardStack
+                  src={`/assets/cards/${played[played.length - 1][0]}.png`} />
+            : null}
             </CardArea>
           </PlayedContainer>
     </Container>
