@@ -42,7 +42,7 @@ const PlayerArea2 = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   gap: 5px;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 0.1fr;
   }
@@ -53,32 +53,39 @@ const Opponent = styled.div`
   height: 195%;
   grid-column: 2;
   grid-row: 1;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
+    width: 100%;
+    height: 1%;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     grid-template-rows: ${({botsCount}) => {
       if (botsCount > 1) {
-        return '1fr '.repeat(botsCount).trim();
+        return '0.5fr '.repeat(botsCount).trim();
       } else {
         return '1fr';
       }
     }};
+    ${({botsCount}) => {
+      if (botsCount) {
+        return 'margin-top: 20px; margin-bottom: -5px;';
+      }
+    }}
   }
 `;
 
 const BotAreaMobile = styled.div`
   display: none;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
     display: unset;
-    width: 100%;
+    width: 100vw;
     height: 60%;
     grid-column: 1;
     grid-row: ${({row}) => row};
   }
 `;
 const BotArea = styled.div`
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
     display: none;
   }
 `;
@@ -88,7 +95,7 @@ const Player = styled.div`
   height: 195%;
   grid-column: 2;
   grid-row: 1;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
     width: 100vw;
   }
 `;
@@ -99,9 +106,10 @@ const ForfeitButton = styled.button`
   font-size: 1em;
   grid-column: 3;
   grid-row: 1;
-  justify-self: center;
+  justify-self: left;
   align-self: center;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
+    justify-self: center;
     grid-column: 2;
     grid-row: 2;
   }
@@ -113,6 +121,10 @@ const CenterRowArea = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
+  @media (max-width: 1000px) {
+    height: 11.5rem;
+    margin-top: 5px;
+  }
 `
 
 const DeckArea = styled.div`
@@ -127,7 +139,7 @@ const OpponentArea = styled.div`
   height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
     display: none;
   }
 `

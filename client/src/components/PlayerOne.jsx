@@ -37,27 +37,18 @@ const PlayerOneArea = styled.div`
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
-  @media (max-width: 1285px) {
+  @media (max-width: 1000px) {
     width: 100vw;
-    grid-template-columns: 1fr 1fr 1fr;
   }
 `
 
 const Name = styled.div`
   grid-column: 2;
   grid-row: 1;
-  @media (max-width: 1285px) {
-    grid-column: 1;
-    grid-row: 1;
-  }
 `
 const Strikes = styled.div`
   grid-column: 4;
   grid-row: 1;
-  @media (max-width: 1285px) {
-    grid-column: 3;
-    grid-row: 1;
-  }
 `
 
 const Holder = styled.div`
@@ -66,9 +57,9 @@ const Holder = styled.div`
   width: 130px;
   height: 200px;
   border: 2px solid black;
-  @media (max-width: 1285px) {
-    width: 120px;
-    grid-column: ${({index}) => index - 1};
+  @media (max-width: 1000px) {
+    width: 90px;
+    height: 150px;
     grid-row: 2;
   }
 `
@@ -86,9 +77,10 @@ const PlayerOneCards = styled.img`
     border-radius: 5%;
     transform: scale(1.1);
   }
-  @media (max-width: 1285px) {
-    width: 120px;
-    grid-column: ${({index}) => index - 1};
+  @media (max-width: 1000px) {
+    margin-top: 2.25px;
+    width: 88px;
+    height: 146.5px;
     grid-row: 2;
   }
 `

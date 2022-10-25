@@ -30,27 +30,32 @@ const ComputerArea = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 5px;
-  grid-template-rows: 0.1fr 2fr 0.2fr;
+  grid-template-rows: 0.1fr 2fr 0.3fr;
   justify-items: center;
   align-items: center;
   animation: ${({turn}) => turn ? fadeOut : fadeIn} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   border: ${({turn}) => turn ? '2px solid transparent' : '2px solid blue' };
   box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
   transition: border 0.5s linear;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
     width: 100vw;
     height: ${({botsCount}) => {
       if (botsCount) {
-        return '30px';
+        return '120px';
       } else {
-        return '50%';
+        return '100%';
       }
     }};
+    ${({botsCount}) => {
+      if (botsCount) {
+        return 'grid-template-columns: 1fr 1fr 1fr;';
+      }
+    }}
     grid-template-rows: ${({botsCount}) => {
       if (botsCount) {
-        return '0.1fr 1fr 0.2fr;';
+        return '0.1fr 1fr 0.2fr';
       } else {
-        return '0.1fr 2fr 0.2fr;';
+        return '0.1fr 2fr 0.3fr';
       }
     }};
   }
@@ -59,10 +64,24 @@ const ComputerArea = styled.div`
 const Name = styled.div`
   grid-column: 2;
   grid-row: 1;
+  @media (max-width: 1170px) {
+    ${({botsCount}) => {
+      if (botsCount) {
+        return 'grid-column: 1;';
+      }
+    }}
+  }
 `
 const Strikes = styled.div`
   grid-column: 4;
   grid-row: 1;
+  @media (max-width: 1170px) {
+    ${({botsCount}) => {
+      if (botsCount) {
+        return 'grid-column: 3;';
+      }
+    }}
+  }
 `
 
 const Holder = styled.div`
@@ -71,19 +90,38 @@ const Holder = styled.div`
   width: 130px;
   height: 200px;
   border: 2px solid black;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
+    ${({botsCount, index}) => {
+      if (botsCount) {
+        return `grid-column: ${index - 1};`;
+      }
+    }}
     width: ${({botsCount}) => {
       if (botsCount) {
-        return '17px';
+        return '40px';
       } else {
-        return '130px';
+        return '90px';
       }
     }};
     height: ${({botsCount}) => {
       if (botsCount) {
-        return '30px';
+        return '61.5px';
       } else {
-        return '200px';
+        return '150px';
+      }
+    }};
+    justify-self: ${({botsCount, index}) => {
+      if (botsCount) {
+        if (index === 2) {
+          return 'right';
+        } else if (index === 3) {
+          return 'center';
+        } else {
+          return 'left';
+        }
+        return '52px';
+      } else {
+        return 'center';
       }
     }};
   }
@@ -95,19 +133,39 @@ const ComputerCards = styled.img`
   margin-top: 3px;
   grid-column: ${({index}) => index};
   grid-row: 2;
-  @media (max-width: 1285px) {
+  @media (max-width: 1170px) {
+    margin-top: 1px;
+    ${({botsCount, index}) => {
+      if (botsCount) {
+        return `grid-column: ${index - 1};`;
+      }
+    }}
     width: ${({botsCount}) => {
       if (botsCount) {
-        return '17px';
+        return '39px';
       } else {
-        return '130px';
+        return '88px';
       }
     }};
     height: ${({botsCount}) => {
       if (botsCount) {
-        return '27px';
+        return '60px';
       } else {
-        return '195px';
+        return '146.5px';
+      }
+    }};
+    justify-self: ${({botsCount, index}) => {
+      if (botsCount) {
+        if (index === 2) {
+          return 'right';
+        } else if (index === 3) {
+          return 'center';
+        } else {
+          return 'left';
+        }
+        return '52px';
+      } else {
+        return 'center';
       }
     }};
   }
@@ -119,6 +177,19 @@ ComputerCards.defaultProps = {
 const Thinking = styled.div`
   grid-column: 3;
   grid-row: 3;
+  @media (max-width: 1170px) {
+    ${({botsCount}) => {
+      if (botsCount) {
+        return 'grid-column: 2;';
+      }
+    }}
+    font-size: 0.7em;
+  }
+`
+const ThinkingNull = styled.div`
+  grid-column: 3;
+  grid-row: 3;
+  height: 1rem;
 `
 
 const FinalMsg = styled.div`
@@ -130,22 +201,23 @@ var placeHolder = [2, 3, 4];
 
 var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, botsCount }) => {
   var [animate, setAnimate] = useState(false);
-  console.log(botsCount);
+
   useEffect(() => {
     setTimeout(() => setAnimate(true), 500);
   }, []);
 
 return (
     <ComputerArea turn={turn !== player} animate={animate} strikes={strikes} botsCount={botsCount} >
-      <Name>Computer {player}</Name>
-      <Strikes>Strikes: {strikes[player]}</Strikes>
-        {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2}>
+      <Name botsCount={botsCount}>Computer {player}</Name>
+      <Strikes botsCount={botsCount}>Strikes: {strikes[player]}</Strikes>
+        {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2} botsCount={botsCount}>
                                                                 <ComputerCards key={card[0] + 'c'}
                                                                                index={i + 2}
+                                                                               botsCount={botsCount}
                                                                                src='/assets/cards/back.jpg' />
                                                              </Holder>)
-                             : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
-        {turn === player ? <Thinking>Thinking...</Thinking> : null}
+                             : placeHolder.map(holder => <Holder key={holder} index={holder} botsCount={botsCount}/>)}
+        {turn === player ? <Thinking botsCount={botsCount}>Thinking...</Thinking> : <ThinkingNull/>}
         {/* {over ? strikes[player] < 3 ?
               <FinalMsg>"Better luck next time!"</FinalMsg>
               :
