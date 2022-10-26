@@ -468,7 +468,7 @@ var App = () => {
               {botsArray.map((bot, i) =>
                 <BotAreaMobile row={i + 1}>
                   <ComputerComponent strikes={strikes}
-                                     computerHand={hands[2]}
+                                     computerHand={hands[i + 1]}
                                      thinking={thinking}
                                      over={over}
                                      turn={turn}
@@ -478,7 +478,7 @@ var App = () => {
               )}
               <BotArea>
                 <ComputerComponent strikes={strikes}
-                                  computerHand={hands[1]}
+                                  computerHand={hands[2]}
                                   thinking={thinking}
                                   over={over}
                                   turn={turn}
