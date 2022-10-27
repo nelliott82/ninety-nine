@@ -36,7 +36,7 @@ const TopDropDown = styled.div`
   :hover {
     cursor: pointer;
   }
-  @media (max-width: 1285px) {
+  @media (max-width: 1220px) {
     height: 500px;
     top: ${({showMenu}) => showMenu ? `-0px` : `-492px`};
     animation: ${({showMenu}) => showMenu ? MoveUp('-492px', '0px') : MoveDown('0px', '-492px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
