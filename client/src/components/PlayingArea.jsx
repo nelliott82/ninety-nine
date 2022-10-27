@@ -5,28 +5,29 @@ const Container = styled.div`
   width: 100%;
   height: 50%;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr;
+  grid-template-columns: 1fr 1fr;
   gap: 5px;
-  grid-template-rows: 0.1fr 2fr 0.2fr;
+  grid-template-rows: 0.1fr 2fr 0.3fr;
   justify-items: center;
   align-items: center;
+  box-sizing: border-box;
 `
 const DeckName = styled.div`
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 1;
 `
 const DiscardName = styled.div`
-  grid-column: 3;
+  grid-column: 2;
   grid-row: 1;
 `
 
 const DeckContainer = styled.div`
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 2;
 `
 
 const PlayedContainer = styled.div`
-  grid-column: 3;
+  grid-column: 2;
   grid-row: 2;
 `
 
