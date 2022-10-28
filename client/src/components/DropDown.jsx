@@ -33,6 +33,7 @@ const TopDropDown = styled.div`
   animation: ${({showMenu}) => showMenu ? MoveUp('-312px', '0px') : MoveDown('0px', '-312px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   left: 0;
   position: fixed;
+  overflow-y: auto;
   :hover {
     cursor: pointer;
   }
@@ -40,7 +41,6 @@ const TopDropDown = styled.div`
     height: 500px;
     top: ${({showMenu}) => showMenu ? `-0px` : `-492px`};
     animation: ${({showMenu}) => showMenu ? MoveUp('-492px', '0px') : MoveDown('0px', '-492px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
-    overflow-y: auto;
   }
 `
 const MoveUpTab = (from, to) => keyframes`

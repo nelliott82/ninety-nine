@@ -4,14 +4,14 @@ import SpecialCardComponent from './SpecialCard.jsx';
 
 const RulesDropDown = styled.div`
   margin-left: 0.5rem;
-  width: 100vw;
-  height: 320px;
+  width: 98vw;
+  height: 310px;
   display: grid;
   grid-template-columns: 0.5fr 1fr 1.5fr;
   grid-template-rows: 1fr;
   justify-items: left;
   align-items: center;
-  @media (max-width: 1285px) {
+  @media (max-width: 1220px) {
     height: 960px;
     display: grid;
     grid-template-columns: 1fr;

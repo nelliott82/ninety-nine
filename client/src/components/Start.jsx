@@ -38,11 +38,11 @@ const StartButton = styled.button`
   font-size: 1.5em;
 `;
 
-var StartComponent = ({ selectBots, startGame }) => {
+var StartComponent = ({ selectBots, startGame, opponents }) => {
 
   return (
     <StartContainer>
-      <BotsDropDownLabel>Set # Of Computer Opponents:</BotsDropDownLabel>
+      <BotsDropDownLabel>Set # Of {opponents} Opponents:</BotsDropDownLabel>
       <BotsDropDown onChange={(e) => selectBots(e)}>
         <option value='1' >1</option>
         <option value='2' >2</option>
