@@ -466,7 +466,7 @@ var App = () => {
           {botsArray[1] ?
               <>
               {botsArray.map((bot, i) =>
-                <BotAreaMobile row={i + 1}>
+                <BotAreaMobile row={i + 1} key={hands[i + 1]}>
                   <ComputerComponent strikes={strikes}
                                      computerHand={hands[i + 1]}
                                      thinking={thinking}
