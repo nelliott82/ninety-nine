@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
+import RoomComponent from './Room.jsx';
 import DropDownComponent from './DropDown.jsx';
 import ChooseOpponents from './Opponents.jsx';
 
@@ -13,7 +14,7 @@ const GlobalStyle = createGlobalStyle`
 
 const ChooseModal = styled.div`
   z-index: 100;
-  display: ${({ chose }) => (chose ? 'none' : 'block')};
+  display: ${({ started }) => started ? 'none' : 'block'};
   position: fixed;
   top: 0;
   left: 0;
@@ -22,32 +23,38 @@ const ChooseModal = styled.div`
   background: rgba(0,0,0,0.5);
 `;
 
-var App = () => {
-  var [tempChoice, setTempChoice] = useState('');
-  var [opponents, setOpponents] = useState(tempChoice);
-  var [chose, setChose] = useState(false);
+const App = () => {
+  const [tempChoice, setTempChoice] = useState('');
+  const [opponents, setOpponents] = useState(tempChoice);
+  const [joining, setJoining] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [started, setStarted] = useState(false);
 
-  function chooseOpponents() {
-    if (tempChoice) {
-      setChose(true);
-      setOpponents(tempChoice);
-    }
-  }
-
-  function selectOpponents(e) {
-    let opponentsChoice = e.target.value;
-    setTempChoice(opponentsChoice);
-    console.log(e.target.value);
+  function chooseOpponents(opponentsChoice) {
+    setOpponents(opponentsChoice);
   }
 
   return (
     <>
       <GlobalStyle/>
       <DropDownComponent/>
-      <ChooseModal chose={chose} >
-        <ChooseOpponents chooseOpponents={chooseOpponents} selectOpponents={selectOpponents} />
+      <ChooseModal started={started} >
+
+        <ChooseOpponents chooseOpponents={chooseOpponents} />
+
+        {opponents === 'humans' ?
+          <RoomComponent setJoining={setJoining} setReady={setReady} /> :
+          null}
+
       </ChooseModal>
-      {opponents === 'humans' ? <AppHumans/> : opponents === 'computers' ? <AppBots/> : null}
+
+      {opponents === 'humans' && ready ?
+        <AppHumans setStarted={setStarted} joining={joining} /> :
+        null
+      }
+      {opponents === 'computers' ?
+        <AppBots setStarted={setStarted}/> :
+        null}
     </>
   )
 }

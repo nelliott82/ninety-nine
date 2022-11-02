@@ -79,7 +79,7 @@ const PlayerOneCards = styled.img`
   }
   @media (max-width: 1000px) {
     margin-top: 2.25px;
-    width: 88px;
+    width: 90px;
     height: 146.5px;
     grid-row: 2;
   }

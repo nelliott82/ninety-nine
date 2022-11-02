@@ -142,9 +142,9 @@ const ComputerCards = styled.img`
     }}
     width: ${({botsCount}) => {
       if (botsCount) {
-        return '39px';
+        return '40px';
       } else {
-        return '88px';
+        return '90px';
       }
     }};
     height: ${({botsCount}) => {

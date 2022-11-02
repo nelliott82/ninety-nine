@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import nikkoBot from '../helperFiles/computer.js';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
 import PlayerOneComponent from './PlayerOne.jsx';
 import DropDownComponent from './DropDown.jsx';
+import UsernameComponent from './Username.jsx';
 import StartComponent from './Start.jsx';
 import TotalComponent from './Total.jsx';
 
@@ -261,14 +261,13 @@ var deck = shuffleDeck(createDeck());
 var played = [];
 var reverse = false;
 
-var AppHumans = () => {
+var AppHumans = ({ joining, setStarted }) => {
   var [hands, setHands] = useState({
     0: [],
     1: [],
     2: [],
     3: []
   })
-  var [started, setStarted] = useState(false);
   var [turn, setTurn] = useState(0);
   var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
@@ -277,7 +276,10 @@ var AppHumans = () => {
   var [displayMessage, setDisplayMessage] = useState(false);
   var [round, setRound] = useState(0);
   var [players, setPlayers] = useState([0, 1]);
-  var [botsArray, setBotsArray] = useState([1]);
+  var [opponentsArray, setOpponentsArray] = useState([1]);
+
+  const [usernameChoice, setUsernameChoice] = useState(true);
+  const [start, setStart] = useState(false);
 
   function playCard(cardObj, player) {
     var newRound = false;
@@ -342,13 +344,6 @@ var AppHumans = () => {
       computer(nextPlayer);
 
     }
-  }
-
-  function computer(bot) {
-    var thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 1000 : Math.random() * 4000 + 1000;
-    setTimeout(() => {
-      playCard(nikkoBot.chooseCard(hands[bot], syncTotal), bot);
-    }, thinkingTime);
   }
 
   function deal(strikesArr = strikes) {
@@ -422,7 +417,7 @@ var AppHumans = () => {
 
   function selectBots(e) {
     let num = parseInt(e.target.value);
-    setBotsArray(botsArray => [...Array(num).keys()]);
+    setOpponentsArray(opponentsArray => [...Array(num).keys()]);
     setPlayers(players => [...Array(num + 1).keys()]);
   }
 
@@ -441,13 +436,22 @@ var AppHumans = () => {
     }, 2000)
   }
 
+  function saveUsername (username) {
+    if (joining) {
+      setStarted(true);
+    }
+    setUsernameChoice(false);
+    setStart(true);
+  }
+
   return (
     <>
-    <GlobalStyle/>
-    <DropDownComponent/>
-    <StartModal started={started} >
-      <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Human'} />
-    </StartModal>
+    {usernameChoice ?
+      <UsernameComponent saveUsername={saveUsername} /> :
+      start && !joining ?
+        <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Human'} /> :
+        null
+    }
     <RoundMessageModal displayMessage={displayMessage} />
     <RoundMessage displayMessage={displayMessage} >
       {message}
@@ -462,10 +466,10 @@ var AppHumans = () => {
     <MainContainer>
       <GameArea>
         <PlayerArea1>
-          <Opponent botsCount={botsArray.length} >
-          {botsArray[1] ?
+          <Opponent botsCount={opponentsArray.length} >
+          {opponentsArray[1] ?
               <>
-              {botsArray.map((bot, i) =>
+              {opponentsArray.map((bot, i) =>
                 <BotAreaMobile row={i + 1} key={hands[i + 1]}>
                   <ComputerComponent strikes={strikes}
                                      computerHand={hands[i + 1]}
@@ -473,7 +477,7 @@ var AppHumans = () => {
                                      over={over}
                                      turn={turn}
                                      player={i + 1}
-                                     botsCount={botsArray.length} />
+                                     botsCount={opponentsArray.length} />
                 </BotAreaMobile>
               )}
               <BotArea>
@@ -496,7 +500,7 @@ var AppHumans = () => {
         </PlayerArea1>
         <CenterRowArea>
           <OpponentArea column={1}>
-            {botsArray[1] ?
+            {opponentsArray[1] ?
               <ComputerComponent strikes={strikes}
                                  computerHand={hands[1]}
                                  thinking={thinking}
@@ -509,7 +513,7 @@ var AppHumans = () => {
             <PlayingArea played={played} deck={deck} />
           </DeckArea>
           <OpponentArea column={3}>
-            {botsArray[2] ?
+            {opponentsArray[2] ?
                 <ComputerComponent strikes={strikes}
                                    computerHand={hands[3]}
                                    thinking={thinking}

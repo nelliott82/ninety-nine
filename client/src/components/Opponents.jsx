@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const ChooseContainer = styled.div`
@@ -6,7 +6,7 @@ const ChooseContainer = styled.div`
   width: 15rem;
   height: 14rem;
   background-color: white;
-  display: grid;
+  display: ${({ chose }) => chose ? 'none' : 'grid'};
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 0.5fr 0.7fr;
   justify-items: center;
@@ -38,17 +38,28 @@ const ChooseButton = styled.button`
   font-size: 1.5em;
 `;
 
-var ChooseOpponents = ({ selectOpponents, chooseOpponents }) => {
+const ChooseOpponents = ({ chooseOpponents }) => {
+  const [chose, setChose] = useState(false);
+  const [opponents, setOpponents] = useState('');
+
+  function handleChange (e) {
+    setOpponents(e.target.value);
+  }
+
+  function confirmChoice () {
+    setChose(true);
+    chooseOpponents(opponents);
+  }
 
   return (
-    <ChooseContainer>
+    <ChooseContainer chose={chose}>
       <OpponentsDropDownLabel>Choose Your Opponents:</OpponentsDropDownLabel>
-      <OpponentsDropDown onChange={(e) => selectOpponents(e)}>
+      <OpponentsDropDown onChange={(e) => handleChange(e)}>
         <option value='' >-</option>
         <option value='computers' >Computers</option>
         <option value='humans' >Humans</option>
       </OpponentsDropDown>
-      <ChooseButton onClick={() => chooseOpponents()}>Confirm Choice</ChooseButton>
+      <ChooseButton onClick={() => opponents && confirmChoice()}>Confirm Choice</ChooseButton>
     </ChooseContainer>
     )
   }

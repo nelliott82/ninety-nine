@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const StartContainer = styled.div`
+  z-index: 101;
   position: absolute;
-  width: 11rem;
+  width: 15rem;
   height: 14rem;
   background-color: white;
-  display: grid;
+  display: ${({ display }) => display ? 'grid' : 'none'};
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 0.5fr 0.7fr;
   justify-items: center;
@@ -38,17 +39,23 @@ const StartButton = styled.button`
   font-size: 1.5em;
 `;
 
-var StartComponent = ({ selectBots, startGame, opponents }) => {
+const StartComponent = ({ selectBots, startGame, opponents }) => {
+  const [display, setDisplay] = useState(true);
+
+  function handleClick () {
+    startGame();
+    setDisplay(false);
+  }
 
   return (
-    <StartContainer>
+    <StartContainer display={display} >
       <BotsDropDownLabel>Set # Of {opponents} Opponents:</BotsDropDownLabel>
       <BotsDropDown onChange={(e) => selectBots(e)}>
         <option value='1' >1</option>
         <option value='2' >2</option>
         <option value='3' >3</option>
       </BotsDropDown>
-      <StartButton onClick={() => startGame()}>Start Game</StartButton>
+      <StartButton onClick={() => handleClick() }>Start Game</StartButton>
     </StartContainer>
     )
   }

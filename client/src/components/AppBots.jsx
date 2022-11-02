@@ -261,14 +261,13 @@ var deck = shuffleDeck(createDeck());
 var played = [];
 var reverse = false;
 
-var AppBots = () => {
+const AppBots = ({ setStarted }) => {
   var [hands, setHands] = useState({
     0: [],
     1: [],
     2: [],
     3: []
   })
-  var [started, setStarted] = useState(false);
   var [turn, setTurn] = useState(0);
   var [thinking, setThinking] = useState(false);
   var [total, setTotal] = useState(0);
@@ -443,9 +442,7 @@ var AppBots = () => {
 
   return (
     <>
-    <StartModal started={started} >
-      <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Computer'} />
-    </StartModal>
+    <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Computer'} />
     <RoundMessageModal displayMessage={displayMessage} />
     <RoundMessage displayMessage={displayMessage} >
       {message}
