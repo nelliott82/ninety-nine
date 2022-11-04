@@ -38,12 +38,12 @@ const ComputerArea = styled.div`
   box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
   transition: border 0.5s linear;
   @media (max-width: 1170px) {
-    width: 100vw;
+    width: 95vw;
     height: ${({botsCount}) => {
       if (botsCount) {
         return '120px';
       } else {
-        return '100%';
+        return '95%';
       }
     }};
     ${({botsCount}) => {

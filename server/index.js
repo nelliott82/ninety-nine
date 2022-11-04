@@ -12,6 +12,10 @@ app.get('/', (req, res) => {
   res.sendStatus(200);
 })
 
+app.get('/:roomCode', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })

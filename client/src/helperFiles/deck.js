@@ -29,7 +29,6 @@ function createDeck () {
         realValue = 0;
         specialValue = 5;
       } else if (value === 'K') {
-        // K realValue is 0 for sorting purposes
         realValue = 99;
         specialValue = 1;
       }

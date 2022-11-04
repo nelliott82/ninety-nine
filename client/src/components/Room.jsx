@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from "react-router-dom";
 import styled from 'styled-components';
 
 const RoomChoiceContainer = styled.div`
@@ -29,10 +30,20 @@ const RoomButton = styled.button`
   font-size: 1.5em;
 `;
 
-var RoomComponent = ({ setJoining, setReady }) => {
+const allLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+function generateCodes (str) {
+  if (str.length === 4) {
+    return str;
+  }
+  return generateCodes(str + allLetters[Math.floor(Math.random() * 26)]);
+}
+
+const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
   const [roomCode, setRoomCode] = useState('');
+  const createdRoomCode = generateCodes('');
 
   function handleChange (e) {
     setRoomCode(e.target.value);
@@ -41,8 +52,10 @@ var RoomComponent = ({ setJoining, setReady }) => {
   function createAndJoinRoom () {
     if (roomCode) {
       setJoining(true);
+      saveRoomCode(roomCode);
     } else {
-      setRoomCode('placeHolder');
+      setRoomCode('1234');
+      saveRoomCode(createdRoomCode);
     }
     setReady(true);
     setRoomChoice(true);
@@ -56,11 +69,15 @@ var RoomComponent = ({ setJoining, setReady }) => {
               <label for="room">Enter Room Code:</label>
               <input name="room" onChange={(e) => handleChange(e)} ></input>
             </CodeInput>
-            <RoomButton row={3} onClick={() => roomCode && createAndJoinRoom(roomCode)}>Join</RoomButton>
+            <Link to={roomCode}>
+              <RoomButton row={3} onClick={() => roomCode && createAndJoinRoom(roomCode)}>Join</RoomButton>
+            </Link>
           </>
           :
           <>
-            <RoomButton row={1} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
+            <Link to={createdRoomCode}>
+              <RoomButton row={1} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
+            </Link>
             <RoomButton row={3} onClick={() => setJoin(true)}>Join Room</RoomButton>
           </>
         }

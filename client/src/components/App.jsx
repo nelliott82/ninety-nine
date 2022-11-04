@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
+import { Outlet, useParams } from 'react-router-dom';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
 import RoomComponent from './Room.jsx';
 import DropDownComponent from './DropDown.jsx';
 import ChooseOpponents from './Opponents.jsx';
+
+export const TopContext = React.createContext();
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -24,6 +27,7 @@ const ChooseModal = styled.div`
 `;
 
 const App = () => {
+  let { roomCode } = useParams();
   const [tempChoice, setTempChoice] = useState('');
   const [opponents, setOpponents] = useState(tempChoice);
   const [joining, setJoining] = useState(false);
@@ -34,6 +38,17 @@ const App = () => {
     setOpponents(opponentsChoice);
   }
 
+  function saveRoomCode (generatedRoomCode) {
+    roomCode = generatedRoomCode;
+  }
+
+  useEffect(() => {
+    if (roomCode) {
+      setOpponents('humans');
+      setReady(true);
+    }
+  }, [])
+
   return (
     <>
       <GlobalStyle/>
@@ -43,13 +58,13 @@ const App = () => {
         <ChooseOpponents chooseOpponents={chooseOpponents} />
 
         {opponents === 'humans' ?
-          <RoomComponent setJoining={setJoining} setReady={setReady} /> :
+          <RoomComponent setJoining={setJoining} setReady={setReady} saveRoomCode={saveRoomCode} /> :
           null}
 
       </ChooseModal>
 
       {opponents === 'humans' && ready ?
-        <AppHumans setStarted={setStarted} joining={joining} /> :
+        <Outlet context={[setStarted, joining, roomCode]} /> :
         null
       }
       {opponents === 'computers' ?

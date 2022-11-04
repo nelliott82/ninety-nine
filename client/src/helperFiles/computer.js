@@ -5,7 +5,7 @@ const computer = {
 
     if (values.length) {
       for (let i = values.length - 1; i >= 0; i--) {
-        if ((values[i][1] + total) < 99) {
+        if ((values[i][1] + total) <= 99) {
           return values[i];
         }
       }

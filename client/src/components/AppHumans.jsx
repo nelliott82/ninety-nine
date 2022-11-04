@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext } from "react-router-dom";
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
@@ -261,7 +262,7 @@ var deck = shuffleDeck(createDeck());
 var played = [];
 var reverse = false;
 
-var AppHumans = ({ joining, setStarted }) => {
+var AppHumans = () => {
   var [hands, setHands] = useState({
     0: [],
     1: [],
@@ -280,6 +281,7 @@ var AppHumans = ({ joining, setStarted }) => {
 
   const [usernameChoice, setUsernameChoice] = useState(true);
   const [start, setStart] = useState(false);
+  const [setStarted, joining, roomCode] = useOutletContext();
 
   function playCard(cardObj, player) {
     var newRound = false;
@@ -442,7 +444,21 @@ var AppHumans = ({ joining, setStarted }) => {
     }
     setUsernameChoice(false);
     setStart(true);
+    const date = new Date();
+    date.setTime(date.getTime() + (1 * 60 * 60 * 1000));
+    const expires = `; expires=${date.toUTCString()}`;
+    document.cookie = `username=${(username || '')}${expires}; path=/`;
+    document.cookie = `roomCode=${(roomCode || '')}${expires}; path=/`;
   }
+
+  useEffect(() => {
+    if (document.cookie) {
+      const cookies = {};
+      document.cookie.split('; ')
+        .map((cookie) => cookie.split('='))
+        .forEach((cookie) => { cookies[cookie[0]] = cookie[1]; });
+    }
+  });
 
   return (
     <>
