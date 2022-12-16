@@ -38,7 +38,7 @@ const ComputerArea = styled.div`
   box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
   transition: border 0.5s linear;
   @media (max-width: 1170px) {
-    width: 95vw;
+    width: 90vw;
     height: ${({botsCount}) => {
       if (botsCount) {
         return '120px';
@@ -206,7 +206,7 @@ var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, 
     setTimeout(() => setAnimate(true), 500);
   }, []);
 
-return (
+  return (
     <ComputerArea turn={turn !== player} animate={animate} strikes={strikes} botsCount={botsCount} >
       <Name botsCount={botsCount}>Computer {player}</Name>
       <Strikes botsCount={botsCount}>Strikes: {strikes[player]}</Strikes>

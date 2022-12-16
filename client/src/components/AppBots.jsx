@@ -11,7 +11,9 @@ import TotalComponent from './Total.jsx';
 
 const GlobalStyle = createGlobalStyle`
   body {
+    overflow-x: hidden;
     background: #C0DCC0;
+    position: relative;
   }
 `;
 
@@ -23,6 +25,9 @@ const MainContainer = styled.div`
   grid-template-rows: 5fr;
   justify-items: center;
   align-items: center;
+  @media (max-width: 1000px) {
+    width: 90vw;
+  }
 `;
 
 const GameArea = styled.div`
@@ -54,7 +59,7 @@ const Opponent = styled.div`
   grid-column: 2;
   grid-row: 1;
   @media (max-width: 1170px) {
-    width: 100%;
+    width: 90vw;
     height: 1%;
     display: grid;
     grid-template-columns: 1fr;
@@ -78,7 +83,7 @@ const BotAreaMobile = styled.div`
   display: none;
   @media (max-width: 1170px) {
     display: unset;
-    width: 100vw;
+    width: 90vw;
     height: 60%;
     grid-column: 1;
     grid-row: ${({row}) => row};
@@ -96,7 +101,7 @@ const Player = styled.div`
   grid-column: 2;
   grid-row: 1;
   @media (max-width: 1170px) {
-    width: 100vw;
+    width: 90vw;
   }
 `;
 
@@ -122,6 +127,7 @@ const CenterRowArea = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   @media (max-width: 1000px) {
+    width: 90vw;
     height: 11.5rem;
     margin-top: 5px;
   }
@@ -132,6 +138,9 @@ const DeckArea = styled.div`
   height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
+  @media (max-width: 1170px) {
+    width: 95vw;
+  }
 `
 
 const OpponentArea = styled.div`
@@ -461,7 +470,7 @@ const AppBots = ({ setStarted }) => {
           {botsArray[1] ?
               <>
               {botsArray.map((bot, i) =>
-                <BotAreaMobile row={i + 1} key={hands[i + 1]}>
+                <BotAreaMobile row={i + 1} key={i}>
                   <ComputerComponent strikes={strikes}
                                      computerHand={hands[i + 1]}
                                      thinking={thinking}
@@ -473,11 +482,11 @@ const AppBots = ({ setStarted }) => {
               )}
               <BotArea>
                 <ComputerComponent strikes={strikes}
-                                  computerHand={hands[2]}
-                                  thinking={thinking}
-                                  over={over}
-                                  turn={turn}
-                                  player={2} />
+                                   computerHand={hands[2]}
+                                   thinking={thinking}
+                                   over={over}
+                                   turn={turn}
+                                   player={2} />
               </BotArea>
               </>
               :

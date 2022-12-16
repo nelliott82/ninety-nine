@@ -39,6 +39,19 @@ function generateCodes (str) {
   return generateCodes(str + allLetters[Math.floor(Math.random() * 26)]);
 }
 
+function get_cookie(name){
+  return document.cookie.split(';').some(c => {
+      return c.trim().startsWith(name + '=');
+  });
+}
+
+function delete_cookie( name ) {
+  if( get_cookie( name ) ) {
+    document.cookie = name + "=" +
+      ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+  }
+}
+
 const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
@@ -56,9 +69,12 @@ const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
     } else {
       setRoomCode('1234');
       saveRoomCode(createdRoomCode);
+      delete_cookie('username');
+      delete_cookie('roomCode');
     }
     setReady(true);
     setRoomChoice(true);
+
   }
 
   return (
@@ -69,13 +85,13 @@ const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
               <label for="room">Enter Room Code:</label>
               <input name="room" onChange={(e) => handleChange(e)} ></input>
             </CodeInput>
-            <Link to={roomCode}>
+            <Link to={`${roomCode}`}>
               <RoomButton row={3} onClick={() => roomCode && createAndJoinRoom(roomCode)}>Join</RoomButton>
             </Link>
           </>
           :
           <>
-            <Link to={createdRoomCode}>
+            <Link to={`${createdRoomCode}`}>
               <RoomButton row={1} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
             </Link>
             <RoomButton row={3} onClick={() => setJoin(true)}>Join Room</RoomButton>

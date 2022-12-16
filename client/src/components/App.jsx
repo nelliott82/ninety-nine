@@ -11,7 +11,9 @@ export const TopContext = React.createContext();
 
 const GlobalStyle = createGlobalStyle`
   body {
+    overflow-x: hidden;
     background: #C0DCC0;
+    position: relative;
   }
 `;
 

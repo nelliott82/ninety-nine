@@ -38,7 +38,7 @@ const PlayerOneArea = styled.div`
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
   @media (max-width: 1000px) {
-    width: 95vw;
+    width: 90vw;
   }
 `
 

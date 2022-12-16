@@ -11,6 +11,9 @@ const Container = styled.div`
   justify-items: center;
   align-items: center;
   box-sizing: border-box;
+  @media (max-width: 1170px) {
+    width: 95vw;
+  }
 `
 const DeckName = styled.div`
   grid-column: 1;

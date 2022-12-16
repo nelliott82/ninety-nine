@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useOutletContext } from "react-router-dom";
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
@@ -9,10 +9,13 @@ import DropDownComponent from './DropDown.jsx';
 import UsernameComponent from './Username.jsx';
 import StartComponent from './Start.jsx';
 import TotalComponent from './Total.jsx';
+const { io } = require("socket.io-client");
 
-const GlobalStyle = createGlobalStyle`
+const GlobalStyle1 = createGlobalStyle`
   body {
+    overflow-x: hidden;
     background: #C0DCC0;
+    position: relative;
   }
 `;
 
@@ -24,6 +27,9 @@ const MainContainer = styled.div`
   grid-template-rows: 5fr;
   justify-items: center;
   align-items: center;
+  @media (max-width: 1000px) {
+    width: 90vw;
+  }
 `;
 
 const GameArea = styled.div`
@@ -79,7 +85,7 @@ const BotAreaMobile = styled.div`
   display: none;
   @media (max-width: 1170px) {
     display: unset;
-    width: 100vw;
+    width: 90vw;
     height: 60%;
     grid-column: 1;
     grid-row: ${({row}) => row};
@@ -97,7 +103,7 @@ const Player = styled.div`
   grid-column: 2;
   grid-row: 1;
   @media (max-width: 1170px) {
-    width: 100vw;
+    width: 90vw;
   }
 `;
 
@@ -133,6 +139,9 @@ const DeckArea = styled.div`
   height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
+  @media (max-width: 1170px) {
+    width: 95vw;
+  }
 `
 
 const OpponentArea = styled.div`
@@ -280,8 +289,9 @@ var AppHumans = () => {
   var [opponentsArray, setOpponentsArray] = useState([1]);
 
   const [usernameChoice, setUsernameChoice] = useState(true);
+  const [usernames, setUsernames] = useState(['', '', '', '']);
   const [start, setStart] = useState(false);
-  const [setStarted, joining, roomCode] = useOutletContext();
+  let [setStarted, joining, roomCode] = useOutletContext();
 
   function playCard(cardObj, player) {
     var newRound = false;
@@ -452,13 +462,19 @@ var AppHumans = () => {
   }
 
   useEffect(() => {
+
     if (document.cookie) {
       const cookies = {};
       document.cookie.split('; ')
         .map((cookie) => cookie.split('='))
         .forEach((cookie) => { cookies[cookie[0]] = cookie[1]; });
+      setUsernameChoice(false);
+      setStart(false);
+      setStarted(true);
+      joining = true;
     }
-  });
+
+  }, []);
 
   return (
     <>
@@ -493,7 +509,8 @@ var AppHumans = () => {
                                      over={over}
                                      turn={turn}
                                      player={i + 1}
-                                     botsCount={opponentsArray.length} />
+                                     botsCount={opponentsArray.length}
+                                     username={usernames[i + 1]} />
                 </BotAreaMobile>
               )}
               <BotArea>
@@ -502,7 +519,8 @@ var AppHumans = () => {
                                   thinking={thinking}
                                   over={over}
                                   turn={turn}
-                                  player={2} />
+                                  player={2}
+                                  username={usernames[2]} />
               </BotArea>
               </>
               :
@@ -511,7 +529,8 @@ var AppHumans = () => {
                                  thinking={thinking}
                                  over={over}
                                  turn={turn}
-                                 player={1} /> }
+                                 player={1}
+                                 username={usernames[1]} /> }
           </Opponent>
         </PlayerArea1>
         <CenterRowArea>
@@ -522,7 +541,8 @@ var AppHumans = () => {
                                  thinking={thinking}
                                  over={over}
                                  turn={turn}
-                                 player={1} /> :
+                                 player={1}
+                                 username={usernames[1]} /> :
                                  null}
           </OpponentArea>
           <DeckArea column={2}>
@@ -535,7 +555,8 @@ var AppHumans = () => {
                                    thinking={thinking}
                                    over={over}
                                    turn={turn}
-                                   player={3} /> :
+                                   player={3}
+                                   username={usernames[3]} /> :
                                    null}
           </OpponentArea>
         </CenterRowArea>
@@ -546,7 +567,8 @@ var AppHumans = () => {
                                 playerOneHand={hands[0]}
                                 gameOver={gameOver}
                                 turn={turn}
-                                playCard={playCard} />
+                                playCard={playCard}
+                                username={usernames[0]} />
           </Player>
           <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
         </PlayerArea2>
