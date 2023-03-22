@@ -9,7 +9,7 @@ import DropDownComponent from './DropDown.jsx';
 import UsernameComponent from './Username.jsx';
 import StartComponent from './Start.jsx';
 import TotalComponent from './Total.jsx';
-const { io } = require("socket.io-client");
+import socket from '../helperFiles/socket.js';
 
 const GlobalStyle1 = createGlobalStyle`
   body {
@@ -381,6 +381,7 @@ var AppHumans = () => {
     setAndDisplayMessage(player);
     deal(strikesArr);
     setStarted(true);
+    socket.emit("enter", roomCode, usernames[0], players.length);
   }
 
   function gameOver(player) {
@@ -451,18 +452,23 @@ var AppHumans = () => {
   function saveUsername (username) {
     if (joining) {
       setStarted(true);
+      setUsernames(usernames => [username, ...usernames.slice(1)]);
+      socket.emit("enter", roomCode, username);
+      console.log('joining')
+    } else {
+      setUsernameChoice(false);
+      setUsernames(usernames => [username, ...usernames.slice(1)]);
+      setStart(true);
+      const date = new Date();
+      date.setTime(date.getTime() + (1 * 60 * 60 * 1000));
+      const expires = `; expires=${date.toUTCString()}`;
+      document.cookie = `username=${(username || '')}${expires}; path=/`;
+      document.cookie = `roomCode=${(roomCode || '')}${expires}; path=/`;
     }
-    setUsernameChoice(false);
-    setStart(true);
-    const date = new Date();
-    date.setTime(date.getTime() + (1 * 60 * 60 * 1000));
-    const expires = `; expires=${date.toUTCString()}`;
-    document.cookie = `username=${(username || '')}${expires}; path=/`;
-    document.cookie = `roomCode=${(roomCode || '')}${expires}; path=/`;
   }
 
   useEffect(() => {
-
+    socket.connect();
     if (document.cookie) {
       const cookies = {};
       document.cookie.split('; ')
