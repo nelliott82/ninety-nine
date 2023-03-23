@@ -11,6 +11,8 @@ import StartComponent from './Start.jsx';
 import TotalComponent from './Total.jsx';
 import socket from '../helperFiles/socket.js';
 
+socket.connect();
+
 const GlobalStyle1 = createGlobalStyle`
   body {
     overflow-x: hidden;
@@ -270,6 +272,7 @@ var winner = 0;
 var deck = shuffleDeck(createDeck());
 var played = [];
 var reverse = false;
+let chosenName = '';
 
 var AppHumans = () => {
   var [hands, setHands] = useState({
@@ -289,9 +292,30 @@ var AppHumans = () => {
   var [opponentsArray, setOpponentsArray] = useState([1]);
 
   const [usernameChoice, setUsernameChoice] = useState(true);
-  const [usernames, setUsernames] = useState(['', '', '', '']);
+  const [usernames, setUsernames] = useState(new Array(4).fill('Waiting...'));
   const [start, setStart] = useState(false);
   let [setStarted, joining, roomCode] = useOutletContext();
+
+  function sortUsernames(usernames, hand) {
+    let sorted = false;
+    while (!sorted) {
+      if (usernames[0] !== chosenName) {
+        usernames.push(usernames.shift());
+      } else {
+        sorted = true;
+      }
+    }
+    setUsernames([...usernames]);
+    let tempHands = hands;
+    tempHands[0] = hand;
+    setHands(hands => tempHands);
+  }
+
+  socket.on("players", (players) => {
+    console.log(players);
+    let { usernames, hand } = players;
+    sortUsernames(usernames, hand);
+  });
 
   function playCard(cardObj, player) {
     var newRound = false;
@@ -450,6 +474,7 @@ var AppHumans = () => {
   }
 
   function saveUsername (username) {
+    chosenName = username;
     if (joining) {
       setStarted(true);
       setUsernames(usernames => [username, ...usernames.slice(1)]);
@@ -468,12 +493,16 @@ var AppHumans = () => {
   }
 
   useEffect(() => {
-    socket.connect();
     if (document.cookie) {
       const cookies = {};
       document.cookie.split('; ')
         .map((cookie) => cookie.split('='))
-        .forEach((cookie) => { cookies[cookie[0]] = cookie[1]; });
+        .forEach((cookie) => {
+          cookies[cookie[0]] = cookie[1];
+          if (cookie[0] === 'username') {
+            chosenName = cookie[1];
+          }
+        });
       setUsernameChoice(false);
       setStart(false);
       setStarted(true);

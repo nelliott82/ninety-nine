@@ -4,7 +4,7 @@ module.exports = {
     let players = [];
     for (let i = 0; i < limit; i++) {
       players[i] = {
-        username: i ? "Waiting..." : username,
+        username: i ? 'Waiting...' : username,
         hand: [],
         strikes: 0,
         turn: i ? false : true
@@ -34,14 +34,22 @@ module.exports = {
     }
     return this.rooms[roomCode];
   },
-  remove: function (room) {
-    delete this.rooms[room];
+  remove: function (roomCode) {
+    delete this.rooms[roomCode];
   },
   addPlayer: function (roomCode, username) {
-    if (rooms[roomCode].limit > rooms[roomCode].players.length) {
-      rooms[roomCode].players.push(username);
-      rooms[roomCode].inRoom += 1;
-      return true;
+    let players = this.rooms[roomCode].players.reduce((accum, player, i) => {
+      if (player.username === 'Waiting...') {
+        accum.count += 1;
+        accum.index = Math.max(accum.index, i);
+      }
+      return accum;
+    }, { count: 0, index: 1 });
+
+    if (!players.count) {
+      this.rooms[roomCode].players[players.index].username = username;
+      this.rooms[roomCode].inRoom += 1;
+      return this.rooms[roomCode].players;
     }
     return false;
   }
