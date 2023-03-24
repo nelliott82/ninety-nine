@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext } from 'react-router-dom';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
@@ -10,8 +10,6 @@ import UsernameComponent from './Username.jsx';
 import StartComponent from './Start.jsx';
 import TotalComponent from './Total.jsx';
 import socket from '../helperFiles/socket.js';
-
-socket.connect();
 
 const GlobalStyle1 = createGlobalStyle`
   body {
@@ -264,32 +262,33 @@ const OverMessage = styled.div`
   text-align: center;
 `;
 
-var syncTotal = 0;
+let syncTotal = 0;
 
-var roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
-var message;
-var winner = 0;
-var deck = shuffleDeck(createDeck());
-var played = [];
-var reverse = false;
+let roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
+let message;
+let winner = 0;
+let deck = shuffleDeck(createDeck());
+let played = [];
+let reverse = false;
 let chosenName = '';
 
-var AppHumans = () => {
-  var [hands, setHands] = useState({
+const AppHumans = () => {
+  let [hands, setHands] = useState({
     0: [],
     1: [],
     2: [],
     3: []
   })
-  var [turn, setTurn] = useState(0);
-  var [thinking, setThinking] = useState(false);
-  var [total, setTotal] = useState(0);
-  var [strikes, setStrikes] = useState([0, 0, 0, 0]);
-  var [over, setOver] = useState(false);
-  var [displayMessage, setDisplayMessage] = useState(false);
-  var [round, setRound] = useState(0);
-  var [players, setPlayers] = useState([0, 1]);
-  var [opponentsArray, setOpponentsArray] = useState([1]);
+  let [turn, setTurn] = useState(0);
+  let [thinking, setThinking] = useState(false);
+  let [total, setTotal] = useState(0);
+  let [strikes, setStrikes] = useState([0, 0, 0, 0]);
+  let [over, setOver] = useState(false);
+  let [displayMessage, setDisplayMessage] = useState(false);
+  let [round, setRound] = useState(0);
+  let [players, setPlayers] = useState([0, 1]);
+  let [opponentsArray, setOpponentsArray] = useState([1]);
+  let [owner, setOwner] = useState(false);
 
   const [usernameChoice, setUsernameChoice] = useState(true);
   const [usernames, setUsernames] = useState(new Array(4).fill('Waiting...'));
@@ -311,14 +310,8 @@ var AppHumans = () => {
     setHands(hands => tempHands);
   }
 
-  socket.on("players", (players) => {
-    console.log(players);
-    let { usernames, hand } = players;
-    sortUsernames(usernames, hand);
-  });
-
   function playCard(cardObj, player) {
-    var newRound = false;
+    let newRound = false;
 
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
@@ -383,7 +376,7 @@ var AppHumans = () => {
   }
 
   function deal(strikesArr = strikes) {
-    var deals = 3;
+    let deals = 3;
     let tempHands = {
       0: [],
       1: [],
@@ -405,7 +398,7 @@ var AppHumans = () => {
     setAndDisplayMessage(player);
     deal(strikesArr);
     setStarted(true);
-    socket.emit("enter", roomCode, usernames[0], players.length);
+    socket.emit('enter', roomCode, usernames[0], players.length);
   }
 
   function gameOver(player) {
@@ -478,21 +471,25 @@ var AppHumans = () => {
     if (joining) {
       setStarted(true);
       setUsernames(usernames => [username, ...usernames.slice(1)]);
-      socket.emit("enter", roomCode, username);
+      socket.emit('enter', roomCode, username);
       console.log('joining')
     } else {
       setUsernameChoice(false);
       setUsernames(usernames => [username, ...usernames.slice(1)]);
       setStart(true);
+      setOwner(true);
       const date = new Date();
       date.setTime(date.getTime() + (1 * 60 * 60 * 1000));
       const expires = `; expires=${date.toUTCString()}`;
       document.cookie = `username=${(username || '')}${expires}; path=/`;
       document.cookie = `roomCode=${(roomCode || '')}${expires}; path=/`;
+      document.cookie = `owner=${true}${expires}; path=/`;
     }
   }
 
   useEffect(() => {
+    socket.connect();
+
     if (document.cookie) {
       const cookies = {};
       document.cookie.split('; ')
@@ -502,6 +499,9 @@ var AppHumans = () => {
           if (cookie[0] === 'username') {
             chosenName = cookie[1];
           }
+          if (cookie[0] === 'owner') {
+            setOwner(true);
+          }
         });
       setUsernameChoice(false);
       setStart(false);
@@ -509,6 +509,17 @@ var AppHumans = () => {
       joining = true;
     }
 
+    socket.on('players', (players) => {
+      console.log(players);
+      let { usernames, hand } = players;
+      sortUsernames(usernames, hand);
+    });
+
+    return () => {
+      socket.off('players');
+      socket.emit('disconnect', roomCode, owner);
+      socket.disconnect();
+    }
   }, []);
 
   return (
@@ -609,7 +620,7 @@ var AppHumans = () => {
         </PlayerArea2>
       </GameArea>
       <Attribution>
-        <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
+        <a href='https://www.vecteezy.com/free-vector/playing-card-back'>Playing Card Back Vectors by Vecteezy</a>
       </Attribution>
     </MainContainer>
     </>

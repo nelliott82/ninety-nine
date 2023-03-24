@@ -9,43 +9,27 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 
 const Rooms = require('./rooms');
+const Utils = require('./utils');
 
 const port = process.env.PORT || 99;
 const path = require('path')
 
 io.on('connection', (socket) => {
   socket.on('enter', (roomCode, username, limit) => {
-    //{ roomCode, username, limit }
+
     console.log('entered')
     socket.join(roomCode);
     if (roomCode in Rooms) {
       console.log('exists');
-      let players = Rooms.addPlayer(roomCode, username);
-
-      players = players.reduce((accum, player) => {
-        accum.usernames.push(player.username);
-        if (player.username === username) {
-          accum.hand = player.hand;
-        }
-        return accum;
-      }, { usernames: [], hand: [] });
+      let players = Utils.sortPlayers(Rooms.addPlayer(roomCode, username), username);
 
       io.to(roomCode).emit('players', players);
     } else {
       console.log('new');
       let deck = shuffleDeck(createDeck());
       let room = Rooms.create(roomCode, username, limit, deck);
-      console.log(room.players);
 
-      console.log(room.players[0].hand);
-
-      let players = room.players.reduce((accum, player) => {
-        accum.usernames.push(player.username);
-        if (player.username === username) {
-          accum.hand = player.hand;
-        }
-        return accum;
-      }, { usernames: [], hand: [] });
+      let players = Utils.sortPlayers(room.players, username);
 
       io.to(roomCode).emit('players', players);
     }
