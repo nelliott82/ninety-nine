@@ -8,6 +8,7 @@ import PlayerOneComponent from './PlayerOne.jsx';
 import DropDownComponent from './DropDown.jsx';
 import UsernameComponent from './Username.jsx';
 import StartComponent from './Start.jsx';
+import WaitingComponent from './Waiting.jsx';
 import TotalComponent from './Total.jsx';
 import socket from '../helperFiles/socket.js';
 
@@ -240,6 +241,17 @@ const RoundMessage = styled.div`
   font-size: 3em;
 `;
 
+const WaitingessageModal = styled.div`
+  z-index: auto;
+  visibility: ${({waiting}) => waiting ? 'visible' : 'hidden'};
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(0,0,0,0.5);
+`;
+
 const OverMessageModal = styled.div`
   z-index: auto;
   visibility: ${({over}) => over ? 'visible' : 'hidden'};
@@ -289,6 +301,8 @@ const AppHumans = () => {
   let [players, setPlayers] = useState([0, 1]);
   let [opponentsArray, setOpponentsArray] = useState([1]);
   let [owner, setOwner] = useState(false);
+  let [waiting, setWaiting] = useState(false);
+  let [yetToJoin, setYetToJoin] = useState(4);
 
   const [usernameChoice, setUsernameChoice] = useState(true);
   const [usernames, setUsernames] = useState(new Array(4).fill('Waiting...'));
@@ -395,9 +409,9 @@ const AppHumans = () => {
   }
 
   function startGame(player = undefined, strikesArr = strikes) {
-    setAndDisplayMessage(player);
     deal(strikesArr);
     setStarted(true);
+    setWaiting(waiting => true);
     socket.emit('enter', roomCode, usernames[0], players.length);
   }
 
@@ -468,11 +482,12 @@ const AppHumans = () => {
 
   function saveUsername (username) {
     chosenName = username;
+    console.log('joining: ', joining);
     if (joining) {
       setStarted(true);
       setUsernames(usernames => [username, ...usernames.slice(1)]);
       socket.emit('enter', roomCode, username);
-      console.log('joining')
+      console.log('usename: ', username);
     } else {
       setUsernameChoice(false);
       setUsernames(usernames => [username, ...usernames.slice(1)]);
@@ -489,6 +504,7 @@ const AppHumans = () => {
 
   useEffect(() => {
     socket.connect();
+    console.log(socket.id);
 
     if (document.cookie) {
       const cookies = {};
@@ -512,16 +528,31 @@ const AppHumans = () => {
     socket.on('players', (players) => {
       console.log(players);
       let { usernames, hand } = players;
+      console.log("usernames: ", usernames);
+      let count = usernames.reduce((accum, username) => {
+        if (username === "Waiting...") {
+          accum += 1;
+        }
+        return accum;
+      }, 0)
+      console.log('count: ', count);
+      console.log('socket yetToJoin: ', yetToJoin);
+      setYetToJoin(yetToJoin => count);
+      console.log('socket yetToJoin: ', yetToJoin);
+      if (!count) {
+        setWaiting(false);
+        setAndDisplayMessage();
+      }
       sortUsernames(usernames, hand);
     });
 
     return () => {
       socket.off('players');
-      socket.emit('disconnect', roomCode, owner);
+      socket.emit('disconnection', roomCode, owner);
       socket.disconnect();
     }
   }, []);
-
+  console.log(usernameChoice)
   return (
     <>
     {usernameChoice ?
@@ -530,10 +561,12 @@ const AppHumans = () => {
         <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Human'} /> :
         null
     }
+    {waiting ? <WaitingComponent waiting={waiting} players={usernames.length - yetToJoin} /> : null}
     <RoundMessageModal displayMessage={displayMessage} />
     <RoundMessage displayMessage={displayMessage} >
       {message}
     </RoundMessage>
+    <WaitingessageModal waiting={waiting}/>
     <OverMessageModal over={over} />
     <OverMessage over={over}>
       {strikes[0] === 3 ?

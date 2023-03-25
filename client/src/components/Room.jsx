@@ -71,6 +71,7 @@ const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
       saveRoomCode(createdRoomCode);
       delete_cookie('username');
       delete_cookie('roomCode');
+      delete_cookie('owner');
     }
     setReady(true);
     setRoomChoice(true);

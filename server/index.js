@@ -19,11 +19,11 @@ io.on('connection', (socket) => {
 
     console.log('entered')
     socket.join(roomCode);
-    if (roomCode in Rooms) {
+    if (roomCode in Rooms.rooms) {
       console.log('exists');
       let players = Utils.sortPlayers(Rooms.addPlayer(roomCode, username), username);
 
-      io.to(roomCode).emit('players', players);
+      players && io.to(roomCode).emit('players', players);
     } else {
       console.log('new');
       let deck = shuffleDeck(createDeck());
@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
   socket.on('sendMessage', message => {
 
   })
-  socket.on('disconnect', (roomCode, owner) => {
+  socket.on('disconnection', (roomCode, owner) => {
     socket.leave(roomCode);
     if (owner) {
       Rooms.remove(roomCode);

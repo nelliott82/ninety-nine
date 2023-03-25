@@ -38,16 +38,16 @@ module.exports = {
     delete this.rooms[roomCode];
   },
   addPlayer: function (roomCode, username) {
-    let players = this.rooms[roomCode].players.reduce((accum, player, i) => {
-      if (player.username === 'Waiting...') {
-        accum.count += 1;
+    let openings = this.rooms[roomCode].players.reduce((accum, player, i) => {
+      if (player.username === 'Waiting...' && !accum.found) {
+        accum.found = true;
         accum.index = Math.max(accum.index, i);
       }
       return accum;
-    }, { count: 0, index: 1 });
+    }, { found: false, index: 1 });
 
-    if (!players.count) {
-      this.rooms[roomCode].players[players.index].username = username;
+    if (openings.found) {
+      this.rooms[roomCode].players[openings.index].username = username;
       this.rooms[roomCode].inRoom += 1;
       return this.rooms[roomCode].players;
     }

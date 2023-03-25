@@ -261,34 +261,34 @@ const OverMessage = styled.div`
   text-align: center;
 `;
 
-var syncTotal = 0;
+let syncTotal = 0;
 
-var roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
-var message;
-var winner = 0;
-var deck = shuffleDeck(createDeck());
-var played = [];
-var reverse = false;
+let roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
+let message;
+let winner = 0;
+let deck = shuffleDeck(createDeck());
+let played = [];
+let reverse = false;
 
 const AppBots = ({ setStarted }) => {
-  var [hands, setHands] = useState({
+  let [hands, setHands] = useState({
     0: [],
     1: [],
     2: [],
     3: []
   })
-  var [turn, setTurn] = useState(0);
-  var [thinking, setThinking] = useState(false);
-  var [total, setTotal] = useState(0);
-  var [strikes, setStrikes] = useState([0, 0, 0, 0]);
-  var [over, setOver] = useState(false);
-  var [displayMessage, setDisplayMessage] = useState(false);
-  var [round, setRound] = useState(0);
-  var [players, setPlayers] = useState([0, 1]);
-  var [botsArray, setBotsArray] = useState([1]);
+  let [turn, setTurn] = useState(0);
+  let [thinking, setThinking] = useState(false);
+  let [total, setTotal] = useState(0);
+  let [strikes, setStrikes] = useState([0, 0, 0, 0]);
+  let [over, setOver] = useState(false);
+  let [displayMessage, setDisplayMessage] = useState(false);
+  let [round, setRound] = useState(0);
+  let [players, setPlayers] = useState([0, 1]);
+  let [botsArray, setBotsArray] = useState([1]);
 
   function playCard(cardObj, player) {
-    var newRound = false;
+    let newRound = false;
 
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
@@ -353,14 +353,14 @@ const AppBots = ({ setStarted }) => {
   }
 
   function computer(bot) {
-    var thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 1000 : Math.random() * 4000 + 1000;
+    let thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 1000 : Math.random() * 4000 + 1000;
     setTimeout(() => {
       playCard(nikkoBot.chooseCard(hands[bot], syncTotal), bot);
     }, thinkingTime);
   }
 
   function deal(strikesArr = strikes) {
-    var deals = 3;
+    let deals = 3;
     let tempHands = {
       0: [],
       1: [],
