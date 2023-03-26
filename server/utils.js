@@ -1,5 +1,5 @@
 module.exports = {
-  sortPlayers: (players, username) => {
+  sortPlayers: (players, username = 'Waiting...') => {
     return players ?
       players.reduce((accum, player) => {
         accum.usernames.push(player.username);

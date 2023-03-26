@@ -15,26 +15,38 @@ const port = process.env.PORT || 99;
 const path = require('path')
 
 io.on('connection', (socket) => {
-  socket.on('enter', (roomCode, username, limit) => {
+  socket.on('create', (roomCode, username, limit) => {
 
-    console.log('entered')
+    console.log('created')
+
+    let deck = shuffleDeck(createDeck());
+    let room = Rooms.create(roomCode, username, limit, deck);
+
+    let players = Utils.sortPlayers(room.players, username);
+
+    io.to(roomCode).emit('players', players);
+  });
+  socket.on('enter', (roomCode) => {
     socket.join(roomCode);
+    console.log('joined');
+    if (roomCode in Rooms.rooms) {
+      console.log('exists');
+      let players = Utils.sortPlayers(Rooms.addPlayer(roomCode));
+      console.log('players: ', players);
+
+      players && io.to(roomCode).emit('players', players);
+      console.log('emited');
+    }
+  })
+  socket.on('username', (roomCode, username) => {
     if (roomCode in Rooms.rooms) {
       console.log('exists');
       let players = Utils.sortPlayers(Rooms.addPlayer(roomCode, username), username);
 
       players && io.to(roomCode).emit('players', players);
-    } else {
-      console.log('new');
-      let deck = shuffleDeck(createDeck());
-      let room = Rooms.create(roomCode, username, limit, deck);
-
-      let players = Utils.sortPlayers(room.players, username);
-
-      io.to(roomCode).emit('players', players);
     }
   })
-  socket.on('sendMessage', message => {
+  socket.on('sendMessage', (message) => {
 
   })
   socket.on('disconnection', (roomCode, owner) => {

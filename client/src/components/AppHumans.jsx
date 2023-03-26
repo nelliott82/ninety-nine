@@ -282,7 +282,8 @@ let winner = 0;
 let deck = shuffleDeck(createDeck());
 let played = [];
 let reverse = false;
-let chosenName = '';
+let chosenName = 'Waiting...';
+let count = 4;
 
 const AppHumans = () => {
   let [hands, setHands] = useState({
@@ -412,7 +413,7 @@ const AppHumans = () => {
     deal(strikesArr);
     setStarted(true);
     setWaiting(waiting => true);
-    socket.emit('enter', roomCode, usernames[0], players.length);
+    socket.emit('create', roomCode, usernames[0], players.length);
   }
 
   function gameOver(player) {
@@ -483,13 +484,14 @@ const AppHumans = () => {
   function saveUsername (username) {
     chosenName = username;
     console.log('joining: ', joining);
+    setUsernameChoice(false);
     if (joining) {
       setStarted(true);
       setUsernames(usernames => [username, ...usernames.slice(1)]);
-      socket.emit('enter', roomCode, username);
+      socket.emit('username', roomCode, username);
       console.log('usename: ', username);
+      startGame(undefined, []);
     } else {
-      setUsernameChoice(false);
       setUsernames(usernames => [username, ...usernames.slice(1)]);
       setStart(true);
       setOwner(true);
@@ -504,7 +506,29 @@ const AppHumans = () => {
 
   useEffect(() => {
     socket.connect();
-    console.log(socket.id);
+    console.log('roomCode: ', roomCode);
+
+    socket.on('players', (players) => {
+      console.log(players);
+      let { usernames, hand } = players;
+      console.log("usernames: ", usernames);
+      count = usernames.reduce((accum, username) => {
+        if (username === "Waiting...") {
+          accum += 1;
+        }
+        return accum;
+      }, 0)
+      console.log('count: ', count);
+
+      if (!count) {
+        setWaiting(false);
+        setAndDisplayMessage();
+      }
+      sortUsernames(usernames, hand);
+      setOpponentsArray(opponentsArray => [...Array(usernames.length - 1).keys()]);
+    });
+
+    socket.emit('enter', roomCode);
 
     if (document.cookie) {
       const cookies = {};
@@ -525,27 +549,6 @@ const AppHumans = () => {
       joining = true;
     }
 
-    socket.on('players', (players) => {
-      console.log(players);
-      let { usernames, hand } = players;
-      console.log("usernames: ", usernames);
-      let count = usernames.reduce((accum, username) => {
-        if (username === "Waiting...") {
-          accum += 1;
-        }
-        return accum;
-      }, 0)
-      console.log('count: ', count);
-      console.log('socket yetToJoin: ', yetToJoin);
-      setYetToJoin(yetToJoin => count);
-      console.log('socket yetToJoin: ', yetToJoin);
-      if (!count) {
-        setWaiting(false);
-        setAndDisplayMessage();
-      }
-      sortUsernames(usernames, hand);
-    });
-
     return () => {
       socket.off('players');
       socket.emit('disconnection', roomCode, owner);
@@ -561,7 +564,7 @@ const AppHumans = () => {
         <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Human'} /> :
         null
     }
-    {waiting ? <WaitingComponent waiting={waiting} players={usernames.length - yetToJoin} /> : null}
+    {waiting ? <WaitingComponent waiting={waiting} players={count} /> : null}
     <RoundMessageModal displayMessage={displayMessage} />
     <RoundMessage displayMessage={displayMessage} >
       {message}

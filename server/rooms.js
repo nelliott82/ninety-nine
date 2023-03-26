@@ -37,7 +37,7 @@ module.exports = {
   remove: function (roomCode) {
     delete this.rooms[roomCode];
   },
-  addPlayer: function (roomCode, username) {
+  addPlayer: function (roomCode, username = 'Waiting...') {
     let openings = this.rooms[roomCode].players.reduce((accum, player, i) => {
       if (player.username === 'Waiting...' && !accum.found) {
         accum.found = true;
