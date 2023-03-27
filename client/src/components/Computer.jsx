@@ -199,7 +199,7 @@ const FinalMsg = styled.div`
 
 var placeHolder = [2, 3, 4];
 
-var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, botsCount }) => {
+var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, botsCount, username }) => {
   var [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -208,8 +208,8 @@ var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, 
 
   return (
     <ComputerArea turn={turn !== player} animate={animate} strikes={strikes} botsCount={botsCount} >
-      <Name botsCount={botsCount}>Computer {player}</Name>
-      <Strikes botsCount={botsCount}>Strikes: {strikes[player]}</Strikes>
+      <Name botsCount={botsCount}>{username ? username : `Computer ${player}`}</Name>
+      <Strikes botsCount={botsCount}>Strikes: {strikes[player] ? strikes[player] : strikes}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2} botsCount={botsCount}>
                                                                 <ComputerCards key={card[0] + 'c'}
                                                                                index={i + 2}

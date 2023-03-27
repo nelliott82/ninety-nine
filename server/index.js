@@ -21,29 +21,42 @@ io.on('connection', (socket) => {
 
     let deck = shuffleDeck(createDeck());
     let room = Rooms.create(roomCode, username, limit, deck);
+    room.players.forEach((player) => {
+      console.log(player.hand);
+    })
+    let players = Utils.formatPlayers(room.players, username);
 
-    let players = Utils.sortPlayers(room.players, username);
+    if (players) {
+      io.to(roomCode).emit('players', players.playerObjects);
+      io.to(socket.id).emit('hand', players.hand);
+    }
 
-    io.to(roomCode).emit('players', players);
   });
   socket.on('enter', (roomCode) => {
     socket.join(roomCode);
     console.log('joined');
     if (roomCode in Rooms.rooms) {
       console.log('exists');
-      let players = Utils.sortPlayers(Rooms.addPlayer(roomCode));
+      let players = Utils.formatPlayers(Rooms.addPlayer(roomCode));
       console.log('players: ', players);
 
-      players && io.to(roomCode).emit('players', players);
+      if (players) {
+        io.to(roomCode).emit('players', players.playerObjects);
+        //io.to(socket.id).emit('hand', players.hand);
+      }
+
       console.log('emited');
     }
   })
   socket.on('username', (roomCode, username) => {
     if (roomCode in Rooms.rooms) {
       console.log('exists');
-      let players = Utils.sortPlayers(Rooms.addPlayer(roomCode, username), username);
+      let players = Utils.formatPlayers(Rooms.addPlayer(roomCode, username), username);
 
-      players && io.to(roomCode).emit('players', players);
+      if (players) {
+        io.to(roomCode).emit('players', players.playerObjects);
+        io.to(socket.id).emit('hand', players.hand);
+      }
     }
   })
   socket.on('sendMessage', (message) => {

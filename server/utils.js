@@ -1,13 +1,15 @@
 module.exports = {
-  sortPlayers: (players, username = 'Waiting...') => {
+  formatPlayers: (players, currentUsername = 'Waiting...') => {
     return players ?
       players.reduce((accum, player) => {
-        accum.usernames.push(player.username);
-        if (player.username === username) {
+        let { username, strikes, turn } = player;
+        accum.playerObjects.push({ username, strikes, turn });
+
+        if (username === currentUsername && !accum.hand.length) {
           accum.hand = player.hand;
         }
         return accum;
-      }, { usernames: [], hand: [] }) :
+      }, { playerObjects: [], hand: [] }) :
       players;
   }
 }

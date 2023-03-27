@@ -90,12 +90,12 @@ PlayerOneCards.defaultProps = {
 
 var placeHolder = [2, 3, 4];
 
-var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, gameOver }) => {
+var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, gameOver, username }) => {
 
 return (
     <PlayerOneArea turn={turn === 0} >
-      <Name>Player One</Name>
-      <Strikes>Strikes: {strikes[0]}</Strikes>
+      <Name>{username ? username : 'Player One'}</Name>
+      <Strikes>Strikes: {strikes[0] ? strikes[0] : strikes}</Strikes>
         {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
                                                                 <PlayerOneCards key={card[0] + 'p'}
                                                                                 index={i + 2}

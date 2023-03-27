@@ -306,23 +306,24 @@ const AppHumans = () => {
   let [yetToJoin, setYetToJoin] = useState(4);
 
   const [usernameChoice, setUsernameChoice] = useState(true);
-  const [usernames, setUsernames] = useState(new Array(4).fill('Waiting...'));
+  const [usernames, setUsernames] = useState(new Array(4)
+                                                  .fill('')
+                                                  .map(() => { return { username: 'Waiting...',
+                                                                        strikes: 0,
+                                                                        turn: false } }));
   const [start, setStart] = useState(false);
   let [setStarted, joining, roomCode] = useOutletContext();
 
-  function sortUsernames(usernames, hand) {
+  function sortUsernames(playerObjects) {
     let sorted = false;
     while (!sorted) {
-      if (usernames[0] !== chosenName) {
-        usernames.push(usernames.shift());
+      if (playerObjects[0].username !== chosenName) {
+        playerObjects.push(playerObjects.shift());
       } else {
         sorted = true;
       }
     }
-    setUsernames([...usernames]);
-    let tempHands = hands;
-    tempHands[0] = hand;
-    setHands(hands => tempHands);
+    setUsernames([...playerObjects]);
   }
 
   function playCard(cardObj, player) {
@@ -413,7 +414,7 @@ const AppHumans = () => {
     deal(strikesArr);
     setStarted(true);
     setWaiting(waiting => true);
-    socket.emit('create', roomCode, usernames[0], players.length);
+    socket.emit('create', roomCode, usernames[0].username, players.length);
   }
 
   function gameOver(player) {
@@ -487,12 +488,13 @@ const AppHumans = () => {
     setUsernameChoice(false);
     if (joining) {
       setStarted(true);
-      setUsernames(usernames => [username, ...usernames.slice(1)]);
+      setUsernames(usernames => [{ username, strikes: 0, turn: false }, ...usernames.slice(1)]);
       socket.emit('username', roomCode, username);
-      console.log('usename: ', username);
-      startGame(undefined, []);
+      console.log('username: ', username);
+      setStarted(true);
+      setWaiting(waiting => true);
     } else {
-      setUsernames(usernames => [username, ...usernames.slice(1)]);
+      setUsernames(usernames => [{ username, strikes: 0, turn: true }, ...usernames.slice(1)]);
       setStart(true);
       setOwner(true);
       const date = new Date();
@@ -509,11 +511,10 @@ const AppHumans = () => {
     console.log('roomCode: ', roomCode);
 
     socket.on('players', (players) => {
-      console.log(players);
-      let { usernames, hand } = players;
-      console.log("usernames: ", usernames);
-      count = usernames.reduce((accum, username) => {
-        if (username === "Waiting...") {
+      console.log('players emitted: ', players);
+
+      count = players.reduce((accum, player) => {
+        if (player.username === "Waiting...") {
           accum += 1;
         }
         return accum;
@@ -524,9 +525,18 @@ const AppHumans = () => {
         setWaiting(false);
         setAndDisplayMessage();
       }
-      sortUsernames(usernames, hand);
-      setOpponentsArray(opponentsArray => [...Array(usernames.length - 1).keys()]);
+      sortUsernames(players);
+
+      setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
     });
+
+    socket.on('hand', (hand) => {
+      let tempHands = hands;
+      tempHands[0] = hand;
+
+      // CONSIDER CHANGING HOW HANDS WORKS HERE. ONLY NEED ONE HAND ARRAY.
+      setHands(hands => tempHands);
+    })
 
     socket.emit('enter', roomCode);
 
@@ -555,7 +565,9 @@ const AppHumans = () => {
       socket.disconnect();
     }
   }, []);
-  console.log(usernameChoice)
+  console.log('usernameChoice: ', usernameChoice);
+  console.log('usernames: ', usernames);
+  console.log('opponentsArray: ', opponentsArray);
   return (
     <>
     {usernameChoice ?
@@ -583,48 +595,52 @@ const AppHumans = () => {
           <Opponent botsCount={opponentsArray.length} >
           {opponentsArray[1] ?
               <>
-              {opponentsArray.map((bot, i) =>
-                <BotAreaMobile row={i + 1} key={hands[i + 1]}>
-                  <ComputerComponent strikes={strikes}
+              {opponentsArray.map((bot, i) => {
+                console.log(`${i + 1}: `, usernames[i + 1])
+                console.log(`${i + 1} strikes: `, usernames[i + 1].strikes)
+                return (
+                <BotAreaMobile row={i + 1} key={i}>
+                  <ComputerComponent strikes={usernames[i + 1].strikes}
                                      computerHand={hands[i + 1]}
                                      thinking={thinking}
                                      over={over}
-                                     turn={turn}
+                                     turn={usernames[i + 1].turn}
                                      player={i + 1}
                                      botsCount={opponentsArray.length}
-                                     username={usernames[i + 1]} />
+                                     username={usernames[i + 1].username} />
                 </BotAreaMobile>
-              )}
+                )
+              })}
               <BotArea>
-                <ComputerComponent strikes={strikes}
-                                  computerHand={hands[2]}
-                                  thinking={thinking}
-                                  over={over}
-                                  turn={turn}
-                                  player={2}
-                                  username={usernames[2]} />
+                <ComputerComponent strikes={usernames[2].strikes}
+                                   computerHand={hands[2]}
+                                   thinking={thinking}
+                                   over={over}
+                                   turn={usernames[2].turn}
+                                   player={2}
+                                   username={usernames[2].username} />
               </BotArea>
               </>
               :
-              <ComputerComponent strikes={strikes}
+              <ComputerComponent strikes={usernames[1].strikes}
                                  computerHand={hands[1]}
                                  thinking={thinking}
                                  over={over}
-                                 turn={turn}
+                                 turn={usernames[1].turn}
                                  player={1}
-                                 username={usernames[1]} /> }
+                                 username={usernames[1].username} /> }
           </Opponent>
         </PlayerArea1>
         <CenterRowArea>
           <OpponentArea column={1}>
             {opponentsArray[1] ?
-              <ComputerComponent strikes={strikes}
+              <ComputerComponent strikes={usernames[1].strikes}
                                  computerHand={hands[1]}
                                  thinking={thinking}
                                  over={over}
-                                 turn={turn}
+                                 turn={usernames[1].turn}
                                  player={1}
-                                 username={usernames[1]} /> :
+                                 username={usernames[1].username} /> :
                                  null}
           </OpponentArea>
           <DeckArea column={2}>
@@ -632,25 +648,25 @@ const AppHumans = () => {
           </DeckArea>
           <OpponentArea column={3}>
             {opponentsArray[2] ?
-                <ComputerComponent strikes={strikes}
+                <ComputerComponent strikes={usernames[3].strikes}
                                    computerHand={hands[3]}
                                    thinking={thinking}
                                    over={over}
-                                   turn={turn}
+                                   turn={usernames[3].turn}
                                    player={3}
-                                   username={usernames[3]} /> :
+                                   username={usernames[3].username} /> :
                                    null}
           </OpponentArea>
         </CenterRowArea>
         <TotalComponent total={total} />
         <PlayerArea2>
           <Player>
-            <PlayerOneComponent strikes={strikes}
+            <PlayerOneComponent strikes={usernames[0].strikes}
                                 playerOneHand={hands[0]}
                                 gameOver={gameOver}
-                                turn={turn}
+                                turn={usernames[0].turn}
                                 playCard={playCard}
-                                username={usernames[0]} />
+                                username={usernames[0].username} />
           </Player>
           <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
         </PlayerArea2>
