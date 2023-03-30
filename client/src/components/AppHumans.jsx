@@ -11,6 +11,8 @@ import StartComponent from './Start.jsx';
 import WaitingComponent from './Waiting.jsx';
 import TotalComponent from './Total.jsx';
 import socket from '../helperFiles/socket.js';
+import { getCookie, setCookies, makeCookieObject } from '../helperFiles/cookies.js';
+
 
 const GlobalStyle1 = createGlobalStyle`
   body {
@@ -284,14 +286,17 @@ let played = [];
 let reverse = false;
 let chosenName = 'Waiting...';
 let count = 4;
+let uid = '';
 
 const AppHumans = () => {
-  let [hands, setHands] = useState({
+  let [hands, setHands] = useState([{
     0: [],
     1: [],
     2: [],
     3: []
-  })
+  }])
+  let [hand, setHand] = useState([]);
+  let [opponentHand, setOpponentHand] = useState([]);
   let [turn, setTurn] = useState(0);
   let [thinking, setThinking] = useState(false);
   let [total, setTotal] = useState(0);
@@ -304,6 +309,19 @@ const AppHumans = () => {
   let [owner, setOwner] = useState(false);
   let [waiting, setWaiting] = useState(false);
   let [yetToJoin, setYetToJoin] = useState(4);
+  let [countdown, setCountdown] = useState(15);
+
+  function timer() {
+    if (countdown) {
+      setTimeout(() => {
+        setCountdown(countdown - 1);
+        timer();
+        console.log(countdown);
+      }, 1000)
+    } else {
+      setCountdown(15);
+    }
+  }
 
   const [usernameChoice, setUsernameChoice] = useState(true);
   const [usernames, setUsernames] = useState(new Array(4)
@@ -313,6 +331,16 @@ const AppHumans = () => {
                                                                         turn: false } }));
   const [start, setStart] = useState(false);
   let [setStarted, joining, roomCode] = useOutletContext();
+
+  function getCookieValues() {
+    if (document.cookie) {
+      const cookies = makeCookieObject();
+
+      chosenName = cookies.username ? cookies.username : chosenName;
+      uid = cookies.uid ? cookies.uid : uid;
+      cookies.owner && setOwner(true);
+    }
+  }
 
   function sortUsernames(playerObjects) {
     let sorted = false;
@@ -329,6 +357,10 @@ const AppHumans = () => {
   function playCard(cardObj, player) {
     let newRound = false;
 
+    socket.emit('playCard', cardObj, roomCode, uid);
+    console.log('uid: ', uid);
+
+    /*
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
 
@@ -361,6 +393,7 @@ const AppHumans = () => {
         played = [];
       }
     }
+    */
   }
 
   function calculateNextPlayer (player) {
@@ -467,12 +500,12 @@ const AppHumans = () => {
     setPlayers(players => [...Array(num + 1).keys()]);
   }
 
-  function setAndDisplayMessage(player = undefined) {
-    let strikeOrLost = strikes[player] < 3 ? 'got a strike' : 'lost';
-    if (player === 0) {
+  function setAndDisplayMessage(player = undefined, strikes) {
+    let strikeOrLost = strikes < 3 ? 'got a strike' : 'lost';
+    if (player === chosenName) {
       message = `You ${strikeOrLost}! New round!`;
     } else if (player) {
-      message = `Computer ${player} ${strikeOrLost}! New round!`;
+      message = `${player} ${strikeOrLost}! New round!`;
     } else {
       message = 'Begin!';
     }
@@ -484,25 +517,24 @@ const AppHumans = () => {
 
   function saveUsername (username) {
     chosenName = username;
-    console.log('joining: ', joining);
     setUsernameChoice(false);
+
+    console.log('start (should be false): ', start);
+    console.log('joining (should be false): ', joining);
+
     if (joining) {
       setStarted(true);
       setUsernames(usernames => [{ username, strikes: 0, turn: false }, ...usernames.slice(1)]);
       socket.emit('username', roomCode, username);
-      console.log('username: ', username);
-      setStarted(true);
       setWaiting(waiting => true);
     } else {
       setUsernames(usernames => [{ username, strikes: 0, turn: true }, ...usernames.slice(1)]);
       setStart(true);
       setOwner(true);
-      const date = new Date();
-      date.setTime(date.getTime() + (1 * 60 * 60 * 1000));
-      const expires = `; expires=${date.toUTCString()}`;
-      document.cookie = `username=${(username || '')}${expires}; path=/`;
-      document.cookie = `roomCode=${(roomCode || '')}${expires}; path=/`;
-      document.cookie = `owner=${true}${expires}; path=/`;
+
+      setCookies([{ name: 'username', value: username },
+                  { name: 'roomCode', value: roomCode },
+                  { name: 'owner', value: true }])
     }
   }
 
@@ -511,7 +543,7 @@ const AppHumans = () => {
     console.log('roomCode: ', roomCode);
 
     socket.on('players', (players) => {
-      console.log('players emitted: ', players);
+      getCookieValues();
 
       count = players.reduce((accum, player) => {
         if (player.username === "Waiting...") {
@@ -519,7 +551,6 @@ const AppHumans = () => {
         }
         return accum;
       }, 0)
-      console.log('count: ', count);
 
       if (!count) {
         setWaiting(false);
@@ -531,28 +562,37 @@ const AppHumans = () => {
     });
 
     socket.on('hand', (hand) => {
-      let tempHands = hands;
-      tempHands[0] = hand;
+      setHand(hand);
+      setOpponentHand([1, 2, 3]);
+    });
 
-      // CONSIDER CHANGING HOW HANDS WORKS HERE. ONLY NEED ONE HAND ARRAY.
-      setHands(hands => tempHands);
-    })
+
+    socket.on('nextTurn', (players, total, discard) => {
+      console.log('players: ', players);
+      console.log('total: ', total);
+      console.log('played: ', discard);
+
+      sortUsernames(players);
+      setTotal(total);
+      syncTotal = total;
+      played = [discard];
+    });
+
+    socket.on('newRound', (players, username, strikes) => {
+
+      sortUsernames(players);
+      setTotal(0);
+      setRound(round => round + 1);
+      setAndDisplayMessage(username, strikes);
+      syncTotal = 0;
+      played = [];
+    });
 
     socket.emit('enter', roomCode);
 
     if (document.cookie) {
-      const cookies = {};
-      document.cookie.split('; ')
-        .map((cookie) => cookie.split('='))
-        .forEach((cookie) => {
-          cookies[cookie[0]] = cookie[1];
-          if (cookie[0] === 'username') {
-            chosenName = cookie[1];
-          }
-          if (cookie[0] === 'owner') {
-            setOwner(true);
-          }
-        });
+      getCookieValues();
+
       setUsernameChoice(false);
       setStart(false);
       setStarted(true);
@@ -565,9 +605,7 @@ const AppHumans = () => {
       socket.disconnect();
     }
   }, []);
-  console.log('usernameChoice: ', usernameChoice);
-  console.log('usernames: ', usernames);
-  console.log('opponentsArray: ', opponentsArray);
+
   return (
     <>
     {usernameChoice ?
@@ -596,12 +634,10 @@ const AppHumans = () => {
           {opponentsArray[1] ?
               <>
               {opponentsArray.map((bot, i) => {
-                console.log(`${i + 1}: `, usernames[i + 1])
-                console.log(`${i + 1} strikes: `, usernames[i + 1].strikes)
                 return (
                 <BotAreaMobile row={i + 1} key={i}>
                   <ComputerComponent strikes={usernames[i + 1].strikes}
-                                     computerHand={hands[i + 1]}
+                                     computerHand={opponentHand}
                                      thinking={thinking}
                                      over={over}
                                      turn={usernames[i + 1].turn}
@@ -613,7 +649,7 @@ const AppHumans = () => {
               })}
               <BotArea>
                 <ComputerComponent strikes={usernames[2].strikes}
-                                   computerHand={hands[2]}
+                                   computerHand={opponentHand}
                                    thinking={thinking}
                                    over={over}
                                    turn={usernames[2].turn}
@@ -623,7 +659,7 @@ const AppHumans = () => {
               </>
               :
               <ComputerComponent strikes={usernames[1].strikes}
-                                 computerHand={hands[1]}
+                                 computerHand={opponentHand}
                                  thinking={thinking}
                                  over={over}
                                  turn={usernames[1].turn}
@@ -635,7 +671,7 @@ const AppHumans = () => {
           <OpponentArea column={1}>
             {opponentsArray[1] ?
               <ComputerComponent strikes={usernames[1].strikes}
-                                 computerHand={hands[1]}
+                                 computerHand={opponentHand}
                                  thinking={thinking}
                                  over={over}
                                  turn={usernames[1].turn}
@@ -649,7 +685,7 @@ const AppHumans = () => {
           <OpponentArea column={3}>
             {opponentsArray[2] ?
                 <ComputerComponent strikes={usernames[3].strikes}
-                                   computerHand={hands[3]}
+                                   computerHand={opponentHand}
                                    thinking={thinking}
                                    over={over}
                                    turn={usernames[3].turn}
@@ -662,8 +698,7 @@ const AppHumans = () => {
         <PlayerArea2>
           <Player>
             <PlayerOneComponent strikes={usernames[0].strikes}
-                                playerOneHand={hands[0]}
-                                gameOver={gameOver}
+                                playerOneHand={hand}
                                 turn={usernames[0].turn}
                                 playCard={playCard}
                                 username={usernames[0].username} />

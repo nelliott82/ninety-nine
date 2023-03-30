@@ -33,9 +33,9 @@ const ComputerArea = styled.div`
   grid-template-rows: 0.1fr 2fr 0.3fr;
   justify-items: center;
   align-items: center;
-  animation: ${({turn}) => turn ? fadeOut : fadeIn} ${({animate}) => animate ? '0.5s' : '0s' } linear;
-  border: ${({turn}) => turn ? '2px solid transparent' : '2px solid blue' };
-  box-shadow: ${({turn}) => turn ? '0 0 10px transparent' : '0 0 10px blue' };
+  animation: ${({turn}) => turn ? fadeIn : fadeOut} ${({animate}) => animate ? '0.5s' : '0s' } linear;
+  border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
+  box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
   @media (max-width: 1170px) {
     width: 90vw;
@@ -197,19 +197,19 @@ const FinalMsg = styled.div`
   grid-row: 3;
 `
 
-var placeHolder = [2, 3, 4];
+let placeHolder = [2, 3, 4];
 
-var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, botsCount, username }) => {
-  var [animate, setAnimate] = useState(false);
+let ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, botsCount, username, countdown }) => {
+  let [animate, setAnimate] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setAnimate(true), 500);
   }, []);
 
   return (
-    <ComputerArea turn={turn !== player} animate={animate} strikes={strikes} botsCount={botsCount} >
-      <Name botsCount={botsCount}>{username ? username : `Computer ${player}`}</Name>
-      <Strikes botsCount={botsCount}>Strikes: {strikes[player] ? strikes[player] : strikes}</Strikes>
+    <ComputerArea turn={turn} animate={animate} strikes={strikes} botsCount={botsCount} >
+      <Name botsCount={botsCount}>{username ? `Name: ${username}` : `Computer ${player}`}</Name>
+      <Strikes botsCount={botsCount}>Strikes: {Array.isArray(strikes) ? strikes[player] : strikes}</Strikes>
         {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2} botsCount={botsCount}>
                                                                 <ComputerCards key={card[0] + 'c'}
                                                                                index={i + 2}
@@ -217,7 +217,7 @@ var ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, 
                                                                                src='/assets/cards/back.jpg' />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} botsCount={botsCount}/>)}
-        {turn === player ? <Thinking botsCount={botsCount}>Thinking...</Thinking> : <ThinkingNull/>}
+        {turn ? <Thinking botsCount={botsCount}>{username ? 'countdown.toString()' : 'Thinking...'}</Thinking> : <ThinkingNull/>}
         {/* {over ? strikes[player] < 3 ?
               <FinalMsg>"Better luck next time!"</FinalMsg>
               :

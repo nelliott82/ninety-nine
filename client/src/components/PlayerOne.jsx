@@ -90,16 +90,16 @@ PlayerOneCards.defaultProps = {
 
 var placeHolder = [2, 3, 4];
 
-var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, gameOver, username }) => {
+var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, username }) => {
 
 return (
-    <PlayerOneArea turn={turn === 0} >
-      <Name>{username ? username : 'Player One'}</Name>
-      <Strikes>Strikes: {strikes[0] ? strikes[0] : strikes}</Strikes>
+    <PlayerOneArea turn={turn} >
+      <Name>{username ? `Name: ${username}` : 'Player One'}</Name>
+      <Strikes>Strikes: {Array.isArray(strikes) ? strikes[0] : strikes}</Strikes>
         {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
                                                                 <PlayerOneCards key={card[0] + 'p'}
                                                                                 index={i + 2}
-                                                                                onClick={() => {if (turn === 0) { playCard(card, 0) }}}
+                                                                                onClick={() => {if (turn) { playCard(card, 0) }}}
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                                </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}

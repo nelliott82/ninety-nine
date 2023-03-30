@@ -277,7 +277,8 @@ const AppBots = ({ setStarted }) => {
     2: [],
     3: []
   })
-  let [turn, setTurn] = useState(0);
+  // MAKE TURN A TRUE/FALSE VALUE ON PLAYER/OPPONENT OBJECTS
+  let [turn, setTurn] = useState(true);
   let [thinking, setThinking] = useState(false);
   let [total, setTotal] = useState(0);
   let [strikes, setStrikes] = useState([0, 0, 0, 0]);
@@ -285,10 +286,11 @@ const AppBots = ({ setStarted }) => {
   let [displayMessage, setDisplayMessage] = useState(false);
   let [round, setRound] = useState(0);
   let [players, setPlayers] = useState([0, 1]);
-  let [botsArray, setBotsArray] = useState([1]);
+  let [botsArray, setBotsArray] = useState([{ turn: false }]);
 
   function playCard(cardObj, player) {
     let newRound = false;
+    setTurn(false);
 
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
@@ -344,11 +346,20 @@ const AppBots = ({ setStarted }) => {
       }
     }
 
-    setTurn(turn => nextPlayer);
+    let tempBotsArray = botsArray;
+    let botsTurn = false;
+    for (let i = 0; i < tempBotsArray.length; i++) {
+      tempBotsArray[i].turn = (i === (nextPlayer - 1));
+      if (i === (nextPlayer - 1)) {
+        botsTurn = true;
+      }
+    }
+    setBotsArray(botsArray => [...tempBotsArray]);
 
     if (nextPlayer !== 0) {
       computer(nextPlayer);
-
+    } else {
+      setTurn(true);
     }
   }
 
@@ -430,7 +441,9 @@ const AppBots = ({ setStarted }) => {
 
   function selectBots(e) {
     let num = parseInt(e.target.value);
-    setBotsArray(botsArray => [...Array(num).keys()]);
+    setBotsArray(botsArray => [...Array(num).fill('').map(() => {
+                                                          return { turn: false }
+                                                        })]);
     setPlayers(players => [...Array(num + 1).keys()]);
   }
 
@@ -448,7 +461,7 @@ const AppBots = ({ setStarted }) => {
       setDisplayMessage(displayMessage => false);
     }, 2000)
   }
-
+  console.log('botsArray: ', botsArray);
   return (
     <>
     <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Computer'} />
@@ -475,7 +488,7 @@ const AppBots = ({ setStarted }) => {
                                      computerHand={hands[i + 1]}
                                      thinking={thinking}
                                      over={over}
-                                     turn={turn}
+                                     turn={bot.turn}
                                      player={i + 1}
                                      botsCount={botsArray.length} />
                 </BotAreaMobile>
@@ -485,7 +498,7 @@ const AppBots = ({ setStarted }) => {
                                    computerHand={hands[2]}
                                    thinking={thinking}
                                    over={over}
-                                   turn={turn}
+                                   turn={botsArray[1].turn}
                                    player={2} />
               </BotArea>
               </>
@@ -494,7 +507,7 @@ const AppBots = ({ setStarted }) => {
                                  computerHand={hands[1]}
                                  thinking={thinking}
                                  over={over}
-                                 turn={turn}
+                                 turn={botsArray[0].turn}
                                  player={1} /> }
           </Opponent>
         </PlayerArea1>
@@ -505,7 +518,7 @@ const AppBots = ({ setStarted }) => {
                                  computerHand={hands[1]}
                                  thinking={thinking}
                                  over={over}
-                                 turn={turn}
+                                 turn={botsArray[0].turn}
                                  player={1} /> :
                                  null}
           </OpponentArea>
@@ -518,7 +531,7 @@ const AppBots = ({ setStarted }) => {
                                    computerHand={hands[3]}
                                    thinking={thinking}
                                    over={over}
-                                   turn={turn}
+                                   turn={botsArray[2].turn}
                                    player={3} /> :
                                    null}
           </OpponentArea>

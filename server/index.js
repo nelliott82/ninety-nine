@@ -4,7 +4,6 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 //const http = require('http').createServer(app);
 const cors = require('cors');
-const { shuffleDeck, createDeck } = require('../client/src/helperFiles/deck.js');
 const httpServer = createServer(app);
 const io = new Server(httpServer);
 
@@ -12,19 +11,14 @@ const Rooms = require('./rooms');
 const Utils = require('./utils');
 
 const port = process.env.PORT || 99;
-const path = require('path')
+const path = require('path');
 
 io.on('connection', (socket) => {
-  socket.on('create', (roomCode, username, limit) => {
+  socket.on('create', (roomCode, username, limit, uid = socket.id) => {
 
-    console.log('created')
+    let room = Rooms.create(roomCode, username, limit, uid);
 
-    let deck = shuffleDeck(createDeck());
-    let room = Rooms.create(roomCode, username, limit, deck);
-    room.players.forEach((player) => {
-      console.log(player.hand);
-    })
-    let players = Utils.formatPlayers(room.players, username);
+    let players = Utils.formatPlayers(room.players, uid);
 
     if (players) {
       io.to(roomCode).emit('players', players.playerObjects);
@@ -32,42 +26,61 @@ io.on('connection', (socket) => {
     }
 
   });
-  socket.on('enter', (roomCode) => {
+
+  socket.on('enter', (roomCode, uid = socket.id) => {
     socket.join(roomCode);
-    console.log('joined');
-    if (roomCode in Rooms.rooms) {
-      console.log('exists');
-      let players = Utils.formatPlayers(Rooms.addPlayer(roomCode));
-      console.log('players: ', players);
+    if (roomCode in Rooms.data) {
+      let players = Utils.formatPlayers(Rooms.addPlayer(roomCode, uid), uid);
 
       if (players) {
         io.to(roomCode).emit('players', players.playerObjects);
-        //io.to(socket.id).emit('hand', players.hand);
+        io.to(socket.id).emit('uid', socket.id);
       }
 
-      console.log('emited');
     }
-  })
-  socket.on('username', (roomCode, username) => {
-    if (roomCode in Rooms.rooms) {
-      console.log('exists');
-      let players = Utils.formatPlayers(Rooms.addPlayer(roomCode, username), username);
+  });
+
+  socket.on('username', (roomCode, username, uid = socket.id) => {
+    if (roomCode in Rooms.data) {
+      let players = Utils.formatPlayers(Rooms.addPlayer(roomCode, uid, username), uid);
 
       if (players) {
         io.to(roomCode).emit('players', players.playerObjects);
         io.to(socket.id).emit('hand', players.hand);
       }
     }
+  });
+
+  socket.on('playCard', (cardObj, roomCode, uid) => {
+    let room = Rooms.data[roomCode];
+
+    let newRound = Utils.playCard(cardObj, room, uid);
+    let players = Utils.formatPlayers(room.players, uid);
+
+    if (newRound) {
+      io.to(roomCode).emit('newRound', players.playerObjects, players.username, players.strikes);
+
+      room.players.forEach(player => {
+        io.to(player.id).emit('hand', player.hand);
+      })
+
+    } else {
+      io.to(roomCode).emit('nextTurn', players.playerObjects, room.total, cardObj);
+      io.to(socket.id).emit('hand', players.hand);
+    }
   })
+
   socket.on('sendMessage', (message) => {
 
-  })
+  });
+
   socket.on('disconnection', (roomCode, owner) => {
     socket.leave(roomCode);
     if (owner) {
       Rooms.remove(roomCode);
     }
-  })
+  });
+
 })
 
 app.use(cors());

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import styled from 'styled-components';
+import { deleteCookie } from '../helperFiles/cookies.js';
 
 const RoomChoiceContainer = styled.div`
   position: absolute;
@@ -39,19 +40,6 @@ function generateCodes (str) {
   return generateCodes(str + allLetters[Math.floor(Math.random() * 26)]);
 }
 
-function get_cookie(name){
-  return document.cookie.split(';').some(c => {
-      return c.trim().startsWith(name + '=');
-  });
-}
-
-function delete_cookie( name ) {
-  if( get_cookie( name ) ) {
-    document.cookie = name + "=" +
-      ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
-  }
-}
-
 const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
@@ -69,9 +57,9 @@ const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
     } else {
       setRoomCode('1234');
       saveRoomCode(createdRoomCode);
-      delete_cookie('username');
-      delete_cookie('roomCode');
-      delete_cookie('owner');
+      deleteCookie('username');
+      deleteCookie('roomCode');
+      deleteCookie('owner');
     }
     setReady(true);
     setRoomChoice(true);
