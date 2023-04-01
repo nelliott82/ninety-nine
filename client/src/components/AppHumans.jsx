@@ -287,6 +287,7 @@ let reverse = false;
 let chosenName = 'Waiting...';
 let count = 4;
 let uid = '';
+let finalStrikes = 0;
 
 const AppHumans = () => {
   let [hands, setHands] = useState([{
@@ -352,75 +353,126 @@ const AppHumans = () => {
       }
     }
     setUsernames([...playerObjects]);
+    return playerObjects;
+  }
+
+  function setIndex(j, change) {
+    j = j + change;
+    if (reverse && j < 0) {
+      j = usernames.length - 1;
+    } else if (!reverse && j === usernames.length) {
+      j = 0;
+    }
+    return j;
+  }
+
+  function calculateNextPlayer () {
+    let setNextPlayer = false;
+    let change = reverse ? -1 : 1;
+    let j = setIndex(0, change);
+
+    while (!setNextPlayer) {
+      if (usernames[j].strikes < 3) {
+        setNextPlayer = true;
+      } else {
+        j = setIndex(j, change);
+      }
+    }
+
+    return usernames[j].index;
+
+    // setTurn(turn => nextPlayer);
+
+    // if (nextPlayer !== 0) {
+    //   computer(nextPlayer);
+    // }
+  }
+
+  function setNewRound(player) {
+    let nextPlayer = calculateNextPlayer();
+
+    socket.emit('newRound', roomCode, usernames[0].index, nextPlayer, uid);
+
+    return true;
+
+    // let tempStrikes = strikes;
+    // let countDone = 0;
+
+    // if (strikes[player] === 2) {
+    //   tempStrikes[player] = 3;
+    //   setStrikes(strikes => [...tempStrikes]);
+    //   for (let i = 1; i < tempStrikes.length; i++) {
+    //     if (tempStrikes[i] === 3) {
+    //       countDone++;
+    //     }
+    //   }
+    // }
+
+    // if (countDone === players.length - 1 || tempStrikes[0] === 3) {
+    //   setOver(true);
+    // } else {
+
+    //   setRound(round => round + 1);
+
+    //   if (tempStrikes[player] < 3) {
+    //     tempStrikes[player] += 1;
+    //   }
+
+    //   setStrikes(strikes => [...tempStrikes]);
+
+    //   if (player === 0) {
+    //     winner = 1;
+    //   } else {
+    //     winner = 0;
+    //   }
+
+    //   deck = shuffleDeck(createDeck());
+    //   played = [];
+
+    //   setTotal(total => 0);
+    //   syncTotal = 0;
+
+    //   setTurn(turn => turn = 0);
+
+    //   startGame(player, tempStrikes);
+    //}
   }
 
   function playCard(cardObj, player) {
     let newRound = false;
 
-    socket.emit('playCard', cardObj, roomCode, uid);
-    console.log('uid: ', uid);
-
-    /*
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
 
     } else if (cardObj[0][0] === 'K') {
-      setTotal(total => 99);
+      // setTotal(total => 99);
       syncTotal = 99;
 
     } else {
       if (syncTotal + cardObj[1] > 99) {
-        gameOver(player);
-        newRound = true;
+        newRound = setNewRound(usernames[0].strikes);
       } else {
-        setTotal(total => total += cardObj[1]);
+        // setTotal(total => total += cardObj[1]);
         syncTotal += cardObj[1];
       }
 
     }
 
     if (!newRound) {
-      calculateNextPlayer(player);
+      let nextPlayer = calculateNextPlayer();
 
-      let tempHands = hands;
-      tempHands[player] = [...hands[player].filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]
-      setHands(hands => tempHands);
+      socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, usernames[0].index, nextPlayer, uid);
 
-      played = [...played, cardObj];
+      // let tempHands = hands;
+      // tempHands[player] = [...hands[player].filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]
+      // setHands(hands => tempHands);
 
-      if (!deck.length) {
-        deck = shuffleDeck(played);
-        played = [];
-      }
-    }
-    */
-  }
+      // played = [...played, cardObj];
 
-  function calculateNextPlayer (player) {
-    let nextPlayer = player;
-    let moveOn = true;
-
-    while (moveOn) {
-      if (nextPlayer === 0) {
-        nextPlayer = reverse ? players.length - 1 : nextPlayer + 1;
-
-      } else if (players.length > nextPlayer + 1) {
-        nextPlayer = reverse ? nextPlayer - 1 : nextPlayer + 1;
-
-      } else {
-        nextPlayer = reverse ? nextPlayer - 1 : 0;
-
-      }
-      if (strikes[nextPlayer] !== 3) {
-        moveOn = false;
-      }
-    }
-
-    setTurn(turn => nextPlayer);
-
-    if (nextPlayer !== 0) {
-      computer(nextPlayer);
-
+      // if (!deck.length) {
+      //   deck = shuffleDeck(played);
+      //   played = [];
+      // }
     }
   }
 
@@ -450,50 +502,6 @@ const AppHumans = () => {
     socket.emit('create', roomCode, usernames[0].username, players.length);
   }
 
-  function gameOver(player) {
-    let tempStrikes = strikes;
-    let countDone = 0;
-
-    if (strikes[player] === 2) {
-      tempStrikes[player] = 3;
-      setStrikes(strikes => [...tempStrikes]);
-      for (let i = 1; i < tempStrikes.length; i++) {
-        if (tempStrikes[i] === 3) {
-          countDone++;
-        }
-      }
-    }
-
-    if (countDone === players.length - 1 || tempStrikes[0] === 3) {
-      setOver(true);
-    } else {
-
-      setRound(round => round + 1);
-
-      if (tempStrikes[player] < 3) {
-        tempStrikes[player] += 1;
-      }
-
-      setStrikes(strikes => [...tempStrikes]);
-
-      if (player === 0) {
-        winner = 1;
-      } else {
-        winner = 0;
-      }
-
-      deck = shuffleDeck(createDeck());
-      played = [];
-
-      setTotal(total => 0);
-      syncTotal = 0;
-
-      setTurn(turn => turn = 0);
-
-      startGame(player, tempStrikes);
-    }
-  }
-
   function selectBots(e) {
     let num = parseInt(e.target.value);
     setOpponentsArray(opponentsArray => [...Array(num).keys()]);
@@ -518,9 +526,6 @@ const AppHumans = () => {
   function saveUsername (username) {
     chosenName = username;
     setUsernameChoice(false);
-
-    console.log('start (should be false): ', start);
-    console.log('joining (should be false): ', joining);
 
     if (joining) {
       setStarted(true);
@@ -567,11 +572,9 @@ const AppHumans = () => {
     });
 
 
-    socket.on('nextTurn', (players, total, discard) => {
-      console.log('players: ', players);
-      console.log('total: ', total);
-      console.log('played: ', discard);
+    socket.on('nextTurn', (players, total, discard, reverse2) => {
 
+      reverse = reverse2;
       sortUsernames(players);
       setTotal(total);
       syncTotal = total;
@@ -580,11 +583,26 @@ const AppHumans = () => {
 
     socket.on('newRound', (players, username, strikes) => {
 
-      sortUsernames(players);
+      players = sortUsernames(players);
       setTotal(0);
-      setRound(round => round + 1);
-      setAndDisplayMessage(username, strikes);
       syncTotal = 0;
+      setRound(round => round + 1);
+      if (players[0].strikes === 3) {
+        finalStrikes = 3;
+        setOver(true);
+      } else {
+        setAndDisplayMessage(username, strikes);
+      }
+      played = [];
+    });
+
+    socket.on('gameOver', (players) => {
+
+      players = sortUsernames(players);
+      setTotal(0);
+      syncTotal = 0;
+      finalStrikes = players[0].strikes;
+      setOver(true);
       played = [];
     });
 
@@ -622,7 +640,7 @@ const AppHumans = () => {
     <WaitingessageModal waiting={waiting}/>
     <OverMessageModal over={over} />
     <OverMessage over={over}>
-      {strikes[0] === 3 ?
+      {finalStrikes === 3 ?
       <div>You lose.</div>
       :
       <div>Congrats! You win!</div>}
@@ -703,7 +721,7 @@ const AppHumans = () => {
                                 playCard={playCard}
                                 username={usernames[0].username} />
           </Player>
-          <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
+          <ForfeitButton onClick={() => {if (turn === 0) { newRound(0) }}} >Forfeit</ForfeitButton>
         </PlayerArea2>
       </GameArea>
       <Attribution>

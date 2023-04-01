@@ -51,23 +51,33 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playCard', (cardObj, roomCode, uid) => {
+  socket.on('playCard', (cardObj, roomCode, reverse, syncTotal, currentPlayer, nextPlayer, uid) => {
     let room = Rooms.data[roomCode];
 
-    let newRound = Utils.playCard(cardObj, room, uid);
-    let players = Utils.formatPlayers(room.players, uid);
+    let players = Utils.formatPlayers(Rooms.playCard(roomCode, cardObj, currentPlayer, nextPlayer), uid);
+
+    io.to(roomCode).emit('nextTurn', players.playerObjects, syncTotal, cardObj, reverse);
+    io.to(socket.id).emit('hand', players.hand);
+
+  })
+
+  socket.on('newRound', (roomCode, currentPlayer, nextPlayer, uid) => {
+    let room = Rooms.data[roomCode];
+
+    let { players, newRound } = Rooms.newRound(roomCode, currentPlayer, nextPlayer);
+    players = Utils.formatPlayers(players, uid);
 
     if (newRound) {
-      io.to(roomCode).emit('newRound', players.playerObjects, players.username, players.strikes);
+
+      io.to(roomCode).emit('newRound', players.playerObjects, room.players[currentPlayer].username, room.players[currentPlayer].strikes);
 
       room.players.forEach(player => {
         io.to(player.id).emit('hand', player.hand);
       })
-
     } else {
-      io.to(roomCode).emit('nextTurn', players.playerObjects, room.total, cardObj);
-      io.to(socket.id).emit('hand', players.hand);
+      io.to(roomCode).emit('gameOver', players.playerObjects);
     }
+
   })
 
   socket.on('sendMessage', (message) => {

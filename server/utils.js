@@ -3,11 +3,8 @@ const { shuffleDeck, createDeck } = require('../client/src/helperFiles/deck.js')
 function formatPlayers(players, uid) {
   return players ?
     players.reduce((accum, player) => {
-      let { id, username, strikes, turn } = player;
-      accum.playerObjects.push({ username, strikes, turn });
-      console.log('id: ', id);
-      console.log('uid: ', uid);
-      console.log(id === uid);
+      let { id, username, strikes, turn, index } = player;
+      accum.playerObjects.push({ username, strikes, turn, index });
 
       if (id === uid && !accum.hand.length) {
         accum.hand = player.hand;
@@ -61,7 +58,7 @@ function gameOver(room, uid) {
 function newDeal(room) {
   room.players.forEach(player => {
     player.hand = [];
-  })
+  });
 
   dealCards(room);
 }

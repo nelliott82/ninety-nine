@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 const fadeIn = keyframes`
@@ -33,7 +33,7 @@ const PlayerOneArea = styled.div`
   grid-template-rows: 0.1fr 2fr;
   justify-items: center;
   align-items: center;
-  animation: ${({turn}) => turn ? fadeIn : fadeOut} 0.5s linear;
+  animation: ${({turn}) => turn ? fadeIn : fadeOut} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
@@ -91,9 +91,14 @@ PlayerOneCards.defaultProps = {
 var placeHolder = [2, 3, 4];
 
 var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, username }) => {
+  let [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setAnimate(true), 500);
+  }, []);
 
 return (
-    <PlayerOneArea turn={turn} >
+    <PlayerOneArea turn={turn} animate={animate} >
       <Name>{username ? `Name: ${username}` : 'Player One'}</Name>
       <Strikes>Strikes: {Array.isArray(strikes) ? strikes[0] : strikes}</Strikes>
         {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
