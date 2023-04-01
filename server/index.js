@@ -14,12 +14,24 @@ const port = process.env.PORT || 99;
 const path = require('path');
 
 io.on('connection', (socket) => {
-  socket.on('create', (roomCode, username, limit, uid = socket.id) => {
+  socket.on('getRoomCode', () => {
+    let roomCode = Rooms.generateRoomCode('');
 
-    let room = Rooms.create(roomCode, username, limit, uid);
+    io.to(socket.id).emit('roomCode', roomCode);
+  });
+
+  socket.on('deleteRoomCode', (roomCode) => {
+    Rooms.deleteRoom(roomCode);
+    console.log(roomCode in Rooms.data);
+  });
+
+  socket.on('create', (roomCode, password, username, limit, uid = socket.id) => {
+
+    let room = Rooms.create(roomCode, password, username, limit, uid);
+    console.log(JSON.stringify(room.players));
 
     let players = Utils.formatPlayers(room.players, uid);
-
+    console.log(JSON.stringify(players));
     if (players) {
       io.to(roomCode).emit('players', players.playerObjects);
       io.to(socket.id).emit('hand', players.hand);
@@ -29,7 +41,9 @@ io.on('connection', (socket) => {
 
   socket.on('enter', (roomCode, uid = socket.id) => {
     socket.join(roomCode);
-    if (roomCode in Rooms.data) {
+    let room = Rooms.data[roomCode];
+
+    if (room.players) {
       let players = Utils.formatPlayers(Rooms.addPlayer(roomCode, uid), uid);
 
       if (players) {

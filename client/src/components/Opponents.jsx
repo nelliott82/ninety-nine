@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import socket from '../helperFiles/socket.js';
 
 const ChooseContainer = styled.div`
   position: absolute;
@@ -38,9 +39,10 @@ const ChooseButton = styled.button`
   font-size: 1.5em;
 `;
 
-const ChooseOpponents = ({ chooseOpponents }) => {
+const ChooseOpponents = ({ chooseOpponents, setRoomCode1 }) => {
   const [chose, setChose] = useState(false);
   const [opponents, setOpponents] = useState('');
+  let roomCodeHolder;
 
   function handleChange (e) {
     setOpponents(e.target.value);
@@ -49,7 +51,23 @@ const ChooseOpponents = ({ chooseOpponents }) => {
   function confirmChoice () {
     setChose(true);
     chooseOpponents(opponents);
+    if (opponents === 'computers') {
+      socket.emit('deleteRoomCode', roomCodeHolder);
+      socket.disconnect();
+    }
   }
+
+  useEffect(() => {
+    socket.connect();
+
+    socket.on('roomCode', (roomCode) => {
+      roomCodeHolder = roomCode;
+      setRoomCode1(roomCode);
+      console.log(roomCode);
+    })
+
+    socket.emit('getRoomCode');
+  }, [])
 
   return (
     <ChooseContainer chose={chose}>

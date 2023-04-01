@@ -40,23 +40,23 @@ function generateCodes (str) {
   return generateCodes(str + allLetters[Math.floor(Math.random() * 26)]);
 }
 
-const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
+const RoomComponent = ({ setJoining, setReady, setRoomCode1, roomCode1 }) => {
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
-  const [roomCode, setRoomCode] = useState('');
-  const createdRoomCode = generateCodes('');
+  const [givenRoomCode, setGivenRoomCode] = useState('');
+  //const createdRoomCode = generateCodes('');
+  //let createdRoomCode = '';
 
   function handleChange (e) {
-    setRoomCode(e.target.value);
+    setGivenRoomCode(e.target.value);
   }
 
   function createAndJoinRoom () {
-    if (roomCode) {
+    if (givenRoomCode) {
       setJoining(true);
-      saveRoomCode(roomCode);
+      setGivenRoomCode(givenRoomCode);
     } else {
-      setRoomCode('1234');
-      saveRoomCode(createdRoomCode);
+      //saveRoomCode(createdRoomCode);
       deleteCookie('username');
       deleteCookie('roomCode');
       deleteCookie('owner');
@@ -65,7 +65,7 @@ const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
     setRoomChoice(true);
 
   }
-
+  console.log(roomCode1);
   return (
       <RoomChoiceContainer roomChoice={roomChoice} >
         {join ?
@@ -74,13 +74,13 @@ const RoomComponent = ({ setJoining, setReady, saveRoomCode }) => {
               <label for="room">Enter Room Code:</label>
               <input name="room" onChange={(e) => handleChange(e)} ></input>
             </CodeInput>
-            <Link to={`${roomCode}`}>
-              <RoomButton row={3} onClick={() => roomCode && createAndJoinRoom(roomCode)}>Join</RoomButton>
+            <Link to={`${givenRoomCode}`}>
+              <RoomButton row={3} onClick={() => givenRoomCode && createAndJoinRoom()}>Join</RoomButton>
             </Link>
           </>
           :
           <>
-            <Link to={`${createdRoomCode}`}>
+            <Link to={`${roomCode1}`}>
               <RoomButton row={1} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
             </Link>
             <RoomButton row={3} onClick={() => setJoin(true)}>Join Room</RoomButton>

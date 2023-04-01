@@ -1,8 +1,40 @@
 const { dealCards } = require('./utils.js');
+const allLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
 const Rooms = {
-  data: {},
-  create: function (roomCode, username, limit, uid) {
+  data: {DAM: '',
+         COC: '',
+         COK: '',
+         DIC: '',
+         DIK: '',
+         FUC: '',
+         PUC: '',
+         PUK: '',
+         SLU: '',
+         SHI: '',
+         CUN: '',
+         FAG: '',
+         HOM: '',
+         POR: '',
+         VAG: '',
+         PUS: '',
+         HOR: '',
+         WHR: '',
+         ASS: '',
+         ASH: '',
+         GOD: '',
+         BAL: '',
+         BUT: ''},
+  generateRoomCode: function (str) {
+      if (str in this.data || str.slice(1) in this.data) {
+        return this.generateRoomCode(allLetters[Math.floor(Math.random() * 26)]);
+      } else if (str.length === 4) {
+        this.data[str] = { players: false };
+        return str;
+      }
+      return this.generateRoomCode(str + allLetters[Math.floor(Math.random() * 26)]);
+  },
+  create: function (roomCode, password, username, limit, uid) {
     let players = [];
     for (let i = 0; i < limit; i++) {
       players[i] = {
@@ -23,14 +55,17 @@ const Rooms = {
       inRoom: 1
     }
 
+    if (password) {
+      room.password = password;
+    }
+
     dealCards(room);
 
-    if (!(roomCode in this.data)) {
-      this.data[roomCode] = room
-    }
+    this.data[roomCode] = room
+
     return this.data[roomCode];
   },
-  remove: function (roomCode) {
+  deleteRoom: function (roomCode) {
     delete this.data[roomCode];
   },
   addPlayer: function (roomCode, uid, username = 'Waiting...') {

@@ -35,13 +35,15 @@ const App = () => {
   const [joining, setJoining] = useState(false);
   const [ready, setReady] = useState(false);
   const [started, setStarted] = useState(false);
+  const [roomCode1, setRoomCode1] = useState('');
 
   function chooseOpponents(opponentsChoice) {
     setOpponents(opponentsChoice);
   }
 
   function saveRoomCode (generatedRoomCode) {
-    roomCode = generatedRoomCode;
+    setRoomCode1(roomCode1 => generatedRoomCode);
+    console.log('roomCode after save: ', roomCode1);
   }
 
   useEffect(() => {
@@ -57,10 +59,10 @@ const App = () => {
       <DropDownComponent/>
       <ChooseModal started={started} >
 
-        <ChooseOpponents chooseOpponents={chooseOpponents} />
+        <ChooseOpponents chooseOpponents={chooseOpponents} setRoomCode1={setRoomCode1} />
 
         {opponents === 'humans' ?
-          <RoomComponent setJoining={setJoining} setReady={setReady} saveRoomCode={saveRoomCode} /> :
+          <RoomComponent setJoining={setJoining} setReady={setReady} setRoomCode1={setRoomCode1} roomCode1={roomCode1} /> :
           null}
 
       </ChooseModal>

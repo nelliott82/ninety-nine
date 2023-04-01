@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useParams } from 'react-router-dom';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
@@ -311,6 +311,7 @@ const AppHumans = () => {
   let [waiting, setWaiting] = useState(false);
   let [yetToJoin, setYetToJoin] = useState(4);
   let [countdown, setCountdown] = useState(15);
+  let [password, setPassword] = useState('');
 
   function timer() {
     if (countdown) {
@@ -331,16 +332,22 @@ const AppHumans = () => {
                                                                         strikes: 0,
                                                                         turn: false } }));
   const [start, setStart] = useState(false);
-  let [setStarted, joining, roomCode] = useOutletContext();
+  let [setStarted, joining] = useOutletContext();
+  let { roomCode } = useParams();
+
 
   function getCookieValues() {
+    let cookies = {};
+
     if (document.cookie) {
-      const cookies = makeCookieObject();
+      cookies = makeCookieObject();
 
       chosenName = cookies.username ? cookies.username : chosenName;
       uid = cookies.uid ? cookies.uid : uid;
       cookies.owner && setOwner(true);
     }
+
+    return cookies;
   }
 
   function sortUsernames(playerObjects) {
@@ -499,7 +506,8 @@ const AppHumans = () => {
     deal(strikesArr);
     setStarted(true);
     setWaiting(waiting => true);
-    socket.emit('create', roomCode, usernames[0].username, players.length);
+    console.log('roomCode at create: ', roomCode);
+    socket.emit('create', roomCode, password, usernames[0].username, players.length);
   }
 
   function selectBots(e) {
@@ -544,7 +552,6 @@ const AppHumans = () => {
   }
 
   useEffect(() => {
-    socket.connect();
     console.log('roomCode: ', roomCode);
 
     socket.on('players', (players) => {
@@ -609,12 +616,14 @@ const AppHumans = () => {
     socket.emit('enter', roomCode);
 
     if (document.cookie) {
-      getCookieValues();
+      let cookies = getCookieValues();
 
-      setUsernameChoice(false);
-      setStart(false);
-      setStarted(true);
-      joining = true;
+      if (cookies.username) {
+        setUsernameChoice(false);
+        setStart(false);
+        setStarted(true);
+        joining = true;
+      }
     }
 
     return () => {
@@ -661,6 +670,7 @@ const AppHumans = () => {
                                      turn={usernames[i + 1].turn}
                                      player={i + 1}
                                      botsCount={opponentsArray.length}
+                                     countdown={countdown}
                                      username={usernames[i + 1].username} />
                 </BotAreaMobile>
                 )
@@ -672,6 +682,7 @@ const AppHumans = () => {
                                    over={over}
                                    turn={usernames[2].turn}
                                    player={2}
+                                   countdown={countdown}
                                    username={usernames[2].username} />
               </BotArea>
               </>
@@ -682,6 +693,7 @@ const AppHumans = () => {
                                  over={over}
                                  turn={usernames[1].turn}
                                  player={1}
+                                 countdown={countdown}
                                  username={usernames[1].username} /> }
           </Opponent>
         </PlayerArea1>
@@ -694,6 +706,7 @@ const AppHumans = () => {
                                  over={over}
                                  turn={usernames[1].turn}
                                  player={1}
+                                 countdown={countdown}
                                  username={usernames[1].username} /> :
                                  null}
           </OpponentArea>
@@ -708,6 +721,7 @@ const AppHumans = () => {
                                    over={over}
                                    turn={usernames[3].turn}
                                    player={3}
+                                   countdown={countdown}
                                    username={usernames[3].username} /> :
                                    null}
           </OpponentArea>
@@ -721,7 +735,7 @@ const AppHumans = () => {
                                 playCard={playCard}
                                 username={usernames[0].username} />
           </Player>
-          <ForfeitButton onClick={() => {if (turn === 0) { newRound(0) }}} >Forfeit</ForfeitButton>
+          <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0) }}} >Forfeit</ForfeitButton>
         </PlayerArea2>
       </GameArea>
       <Attribution>

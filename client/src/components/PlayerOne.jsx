@@ -101,8 +101,8 @@ return (
     <PlayerOneArea turn={turn} animate={animate} >
       <Name>{username ? `Name: ${username}` : 'Player One'}</Name>
       <Strikes>Strikes: {Array.isArray(strikes) ? strikes[0] : strikes}</Strikes>
-        {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={card[0] + 'p'} index={i + 2}>
-                                                                <PlayerOneCards key={card[0] + 'p'}
+        {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={i} index={i + 2}>
+                                                                <PlayerOneCards key={i}
                                                                                 index={i + 2}
                                                                                 onClick={() => {if (turn) { playCard(card, 0) }}}
                                                                                 src={`/assets/cards/${card[0]}.png`} />

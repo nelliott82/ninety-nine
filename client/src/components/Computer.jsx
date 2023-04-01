@@ -210,14 +210,14 @@ let ComputerComponent = ({ strikes, computerHand, thinking, over, turn, player, 
     <ComputerArea turn={turn} animate={animate} strikes={strikes} botsCount={botsCount} >
       <Name botsCount={botsCount}>{username ? `Name: ${username}` : `Computer ${player}`}</Name>
       <Strikes botsCount={botsCount}>Strikes: {Array.isArray(strikes) ? strikes[player] : strikes}</Strikes>
-        {computerHand.length ? computerHand.map((card, i) => <Holder key={card[0] + 'c'} index={i + 2} botsCount={botsCount}>
-                                                                <ComputerCards key={card[0] + 'c'}
+        {computerHand.length && strikes < 3 ? computerHand.map((card, i) => <Holder key={i} index={i + 2} botsCount={botsCount}>
+                                                                <ComputerCards key={i}
                                                                                index={i + 2}
                                                                                botsCount={botsCount}
                                                                                src='/assets/cards/back.jpg' />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} botsCount={botsCount}/>)}
-        {turn ? <Thinking botsCount={botsCount}>{username ? /*'countdown.toString()'*/'' : 'Thinking...'}</Thinking> : <ThinkingNull/>}
+        {turn ? <Thinking botsCount={botsCount}>{username ? countdown.toString() : 'Thinking...'}</Thinking> : <ThinkingNull/>}
         {/* {over ? strikes[player] < 3 ?
               <FinalMsg>"Better luck next time!"</FinalMsg>
               :
