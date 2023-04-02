@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import styled from 'styled-components';
 import socket from '../helperFiles/socket.js';
 
@@ -39,9 +40,10 @@ const ChooseButton = styled.button`
   font-size: 1.5em;
 `;
 
-const ChooseOpponents = ({ chooseOpponents, setRoomCode1 }) => {
+const ChooseOpponents = ({ chooseOpponents, setReady, setRoomCode1 }) => {
   const [chose, setChose] = useState(false);
   const [opponents, setOpponents] = useState('');
+  const navigate = useNavigate();
   let roomCodeHolder;
 
   function handleChange (e) {
@@ -54,6 +56,9 @@ const ChooseOpponents = ({ chooseOpponents, setRoomCode1 }) => {
     if (opponents === 'computers') {
       socket.emit('deleteRoomCode', roomCodeHolder);
       socket.disconnect();
+    } else {
+      setReady(true);
+      navigate('/humans');
     }
   }
 
@@ -63,7 +68,6 @@ const ChooseOpponents = ({ chooseOpponents, setRoomCode1 }) => {
     socket.on('roomCode', (roomCode) => {
       roomCodeHolder = roomCode;
       setRoomCode1(roomCode);
-      console.log(roomCode);
     })
 
     socket.emit('getRoomCode');

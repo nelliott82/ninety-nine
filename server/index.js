@@ -22,16 +22,27 @@ io.on('connection', (socket) => {
 
   socket.on('deleteRoomCode', (roomCode) => {
     Rooms.deleteRoom(roomCode);
-    console.log(roomCode in Rooms.data);
+  });
+
+  socket.on('checkPassword', (roomCode, password) => {
+    let room = Rooms.data[roomCode];
+    console.log(room);
+    console.log(roomCode);
+
+    if (room.password !== password) {
+      io.to(socket.id).emit('passwordFail');
+    } else {
+      io.to(socket.id).emit('passwordSucceed', roomCode);
+    }
   });
 
   socket.on('create', (roomCode, password, username, limit, uid = socket.id) => {
 
     let room = Rooms.create(roomCode, password, username, limit, uid);
-    console.log(JSON.stringify(room.players));
 
     let players = Utils.formatPlayers(room.players, uid);
-    console.log(JSON.stringify(players));
+    console.log(room);
+
     if (players) {
       io.to(roomCode).emit('players', players.playerObjects);
       io.to(socket.id).emit('hand', players.hand);
@@ -117,7 +128,7 @@ app.get('/', (req, res) => {
   console.log('entered');
 })
 
-app.get('/:roomCode', (req, res) => {
+app.get('/room/:roomCode', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 

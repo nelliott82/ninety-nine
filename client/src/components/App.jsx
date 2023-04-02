@@ -19,13 +19,13 @@ const GlobalStyle = createGlobalStyle`
 
 const ChooseModal = styled.div`
   z-index: 100;
-  display: ${({ started }) => started ? 'none' : 'block'};
+  display: 'block';
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: 100vw;
-  background: rgba(0,0,0,0.5);
+  background: ${({ started }) => started ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)'};
 `;
 
 const App = () => {
@@ -59,21 +59,18 @@ const App = () => {
       <DropDownComponent/>
       <ChooseModal started={started} >
 
-        <ChooseOpponents chooseOpponents={chooseOpponents} setRoomCode1={setRoomCode1} />
+        <ChooseOpponents chooseOpponents={chooseOpponents} setReady={setReady} setRoomCode1={setRoomCode1} />
 
-        {opponents === 'humans' ?
-          <RoomComponent setJoining={setJoining} setReady={setReady} setRoomCode1={setRoomCode1} roomCode1={roomCode1} /> :
-          null}
+          {opponents === 'humans' && ready ?
+            <Outlet context={[setStarted, joining, roomCode, setJoining, setReady, setRoomCode1, roomCode1]} /> :
+            null
+          }
+          {opponents === 'computers' ?
+            <AppBots setStarted={setStarted}/> :
+            null
+          }
 
       </ChooseModal>
-
-      {opponents === 'humans' && ready ?
-        <Outlet context={[setStarted, joining, roomCode]} /> :
-        null
-      }
-      {opponents === 'computers' ?
-        <AppBots setStarted={setStarted}/> :
-        null}
     </>
   )
 }

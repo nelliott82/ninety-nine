@@ -10,11 +10,13 @@ const Rooms = {
          FUC: '',
          PUC: '',
          PUK: '',
+         SUC: '',
+         SUK: '',
          SLU: '',
          SHI: '',
          CUN: '',
          FAG: '',
-         HOM: '',
+         HOMO: '',
          POR: '',
          VAG: '',
          PUS: '',
@@ -47,12 +49,15 @@ const Rooms = {
       }
     }
 
+    let timeoutId = this.timedDeleteRoom(roomCode);
+
     let room = {
       limit,
       players,
       total: 0,
       reverse: false,
-      inRoom: 1
+      inRoom: 1,
+      timeoutId
     }
 
     if (password) {
@@ -67,6 +72,13 @@ const Rooms = {
   },
   deleteRoom: function (roomCode) {
     delete this.data[roomCode];
+  },
+  timedDeleteRoom: function (roomCode) {
+    return setTimeout(() => this.deleteRoom(roomCode), (60000 * 60));
+  },
+  restartGame: function (timeoutId, roomCode) {
+    clearTimeout(timeoutId);
+    return this.timedDeleteRoom(roomCode);
   },
   addPlayer: function (roomCode, uid, username = 'Waiting...') {
     let room = this.data[roomCode];

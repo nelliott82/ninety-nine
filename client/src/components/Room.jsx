@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import styled from 'styled-components';
 import { deleteCookie } from '../helperFiles/cookies.js';
+import socket from '../helperFiles/socket.js';
 
 const RoomChoiceContainer = styled.div`
   position: absolute;
@@ -10,7 +11,7 @@ const RoomChoiceContainer = styled.div`
   background-color: white;
   display: ${({ roomChoice }) => roomChoice ? 'none' : 'grid'};
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 0.5fr 1fr;
+  grid-template-rows: 1fr 1fr 0.5fr 1fr;
   justify-items: center;
   align-items: center;
   left: 50%;
@@ -24,6 +25,16 @@ const CodeInput = styled.div`
   align-items: center;
 `;
 
+const PasswordInput = styled.div`
+  grid-row: 2;
+  justify-items: center;
+  align-items: center;
+`;
+
+const PasswordMsg = styled.p`
+  grid-row: 3;
+`;
+
 const RoomButton = styled.button`
   grid-row: ${({ row }) => row};
   width: 10rem;
@@ -31,41 +42,55 @@ const RoomButton = styled.button`
   font-size: 1.5em;
 `;
 
-const allLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-
-function generateCodes (str) {
-  if (str.length === 4) {
-    return str;
-  }
-  return generateCodes(str + allLetters[Math.floor(Math.random() * 26)]);
-}
-
-const RoomComponent = ({ setJoining, setReady, setRoomCode1, roomCode1 }) => {
+const RoomComponent = () => {
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
   const [givenRoomCode, setGivenRoomCode] = useState('');
-  //const createdRoomCode = generateCodes('');
-  //let createdRoomCode = '';
+  const [givenPassword, setGivenPassword] = useState('');
+  const [create, setCreate] = useState(false);
+  const [incorrect, setIncorrect] = useState(false);
+  const navigate = useNavigate();
+  let [setStarted, joining, roomCode, setJoining, setReady, setRoomCode1, roomCode1] = useOutletContext();
 
   function handleChange (e) {
-    setGivenRoomCode(e.target.value);
-  }
-
-  function createAndJoinRoom () {
-    if (givenRoomCode) {
-      setJoining(true);
-      setGivenRoomCode(givenRoomCode);
+    if (e.target.name === 'room') {
+      setGivenRoomCode(e.target.value);
     } else {
-      //saveRoomCode(createdRoomCode);
-      deleteCookie('username');
-      deleteCookie('roomCode');
-      deleteCookie('owner');
+      setGivenPassword(e.target.value);
     }
-    setReady(true);
-    setRoomChoice(true);
-
   }
-  console.log(roomCode1);
+
+  function createAndJoinRoom (password) {
+    if (givenRoomCode) {
+      socket.emit('checkPassword', givenRoomCode, givenPassword);
+    } else if (password) {
+      setCreate(false);
+      setRoomChoice(true);
+      navigate(`/room/${roomCode1}`,{ state: { setPassword: givenPassword } });
+    } else {
+      setCreate(true);
+    }
+  }
+
+  useEffect(() => {
+    socket.on('passwordFail', () => {
+      console.log('passwordFail');
+      setIncorrect(true);
+    })
+
+    socket.on('passwordSucceed', (roomCode) => {
+      setJoining(true);
+      setGivenRoomCode(roomCode);
+      setRoomChoice(true);
+      navigate(`/room/${roomCode}`);
+    });
+
+    return () => {
+      socket.off('passwordFail');
+      socket.off('passwordSucceed');
+    }
+  }, [])
+
   return (
       <RoomChoiceContainer roomChoice={roomChoice} >
         {join ?
@@ -74,15 +99,25 @@ const RoomComponent = ({ setJoining, setReady, setRoomCode1, roomCode1 }) => {
               <label for="room">Enter Room Code:</label>
               <input name="room" onChange={(e) => handleChange(e)} ></input>
             </CodeInput>
-            <Link to={`${givenRoomCode}`}>
-              <RoomButton row={3} onClick={() => givenRoomCode && createAndJoinRoom()}>Join</RoomButton>
-            </Link>
+            <PasswordInput>
+              <label for="password">Enter Password:</label>
+              <input name="password" onChange={(e) => handleChange(e)} ></input>
+            </PasswordInput>
+            {incorrect ? <PasswordMsg>Incorrect password</PasswordMsg> : null}
+            <RoomButton row={4} onClick={() => (givenRoomCode && givenPassword) && createAndJoinRoom()}>Join</RoomButton>
+          </>
+          :
+          create ?
+          <>
+            <PasswordInput>
+                <label for="password">Create Password:</label>
+                <input name="password" onChange={(e) => handleChange(e)} ></input>
+            </PasswordInput>
+            <RoomButton row={3} onClick={() => createAndJoinRoom(true)}>Set Password</RoomButton>
           </>
           :
           <>
-            <Link to={`${roomCode1}`}>
-              <RoomButton row={1} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
-            </Link>
+            <RoomButton row={2} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
             <RoomButton row={3} onClick={() => setJoin(true)}>Join Room</RoomButton>
           </>
         }

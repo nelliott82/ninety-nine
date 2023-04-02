@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useOutletContext, useParams, useLocation, useNavigate } from 'react-router-dom';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ComputerComponent from './Computer.jsx';
@@ -289,7 +289,9 @@ let count = 4;
 let uid = '';
 let finalStrikes = 0;
 
-const AppHumans = () => {
+const AppHumans = (props) => {
+  let { state } = useLocation();
+  let navigate = useNavigate();
   let [hands, setHands] = useState([{
     0: [],
     1: [],
@@ -507,7 +509,7 @@ const AppHumans = () => {
     setStarted(true);
     setWaiting(waiting => true);
     console.log('roomCode at create: ', roomCode);
-    socket.emit('create', roomCode, password, usernames[0].username, players.length);
+    socket.emit('create', roomCode, state.setPassword, usernames[0].username, players.length);
   }
 
   function selectBots(e) {
@@ -539,6 +541,7 @@ const AppHumans = () => {
       setStarted(true);
       setUsernames(usernames => [{ username, strikes: 0, turn: false }, ...usernames.slice(1)]);
       socket.emit('username', roomCode, username);
+      console.log('sent username');
       setWaiting(waiting => true);
     } else {
       setUsernames(usernames => [{ username, strikes: 0, turn: true }, ...usernames.slice(1)]);
@@ -553,6 +556,7 @@ const AppHumans = () => {
 
   useEffect(() => {
     console.log('roomCode: ', roomCode);
+    console.log('state: ', state);
 
     socket.on('players', (players) => {
       getCookieValues();
