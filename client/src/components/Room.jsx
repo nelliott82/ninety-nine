@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import styled from 'styled-components';
-import { deleteCookie } from '../helperFiles/cookies.js';
+import { setCookies, deleteCookie } from '../helperFiles/cookies.js';
 import socket from '../helperFiles/socket.js';
 
 const RoomChoiceContainer = styled.div`
@@ -42,6 +42,9 @@ const RoomButton = styled.button`
   font-size: 1.5em;
 `;
 
+let syncRoomCode = '';
+let syncPassword = '';
+
 const RoomComponent = () => {
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
@@ -50,22 +53,25 @@ const RoomComponent = () => {
   const [create, setCreate] = useState(false);
   const [incorrect, setIncorrect] = useState(false);
   const navigate = useNavigate();
-  let [setStarted, joining, roomCode, setJoining, setReady, setRoomCode1, roomCode1] = useOutletContext();
+  let [setStarted, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1] = useOutletContext();
 
   function handleChange (e) {
     if (e.target.name === 'room') {
+      syncRoomCode = e.target.value;
       setGivenRoomCode(e.target.value);
     } else {
+      syncPassword = e.target.value;
       setGivenPassword(e.target.value);
     }
   }
 
   function createAndJoinRoom (password) {
     if (givenRoomCode) {
-      socket.emit('checkPassword', givenRoomCode, givenPassword);
+      socket.emit('passwordCheck', givenRoomCode, givenPassword);
     } else if (password) {
       setCreate(false);
       setRoomChoice(true);
+      setCookies([{ name: 'password', value: roomCode1 }, { name: 'roomCode', value: givenPassword }]);
       navigate(`/room/${roomCode1}`,{ state: { setPassword: givenPassword } });
     } else {
       setCreate(true);
@@ -73,21 +79,21 @@ const RoomComponent = () => {
   }
 
   useEffect(() => {
-    socket.on('passwordFail', () => {
-      console.log('passwordFail');
-      setIncorrect(true);
+    socket.on('passwordResult', (passwordResult, roomCode) => {
+      if (passwordResult) {
+        setJoining(true);
+        setGivenRoomCode(roomCode);
+        setRoomChoice(true);
+        setCookies([{ name: 'password', value: syncPassword }, { name: 'roomCode', value: syncRoomCode }]);
+        navigate(`/room/${roomCode}`,{ state: { setPassword: syncPassword } });
+      } else {
+        console.log('passwordFail');
+        setIncorrect(true);
+      }
     })
 
-    socket.on('passwordSucceed', (roomCode) => {
-      setJoining(true);
-      setGivenRoomCode(roomCode);
-      setRoomChoice(true);
-      navigate(`/room/${roomCode}`);
-    });
-
     return () => {
-      socket.off('passwordFail');
-      socket.off('passwordSucceed');
+      socket.off('passwordResult');
     }
   }, [])
 

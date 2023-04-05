@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const StartContainer = styled.div`
+const WaitingContainer = styled.div`
   z-index: 101;
   position: absolute;
   width: 15rem;
@@ -17,34 +17,20 @@ const StartContainer = styled.div`
   transform: translate(-50%, -50%);
 `;
 
-const BotsDropDownLabel = styled.div`
-  grid-row: 1;
-  width: 7rem;
-  height: 4rem;
-  font-size: 1.5em;
-  text-align: center;
-`;
-
-const BotsDropDown = styled.select`
-  grid-row: 2;
-  width: 5rem;
-  height: 2rem;
-  font-size: 1.5em;
-`;
-
-const StartButton = styled.button`
-  grid-row: 3;
-  width: 10rem;
-  height: 4rem;
-  font-size: 1.5em;
-`;
-
-const WaitingComponent = ({ waiting, players }) => {
+const WaitingComponent = ({ waiting, players, owner, roomCode, password }) => {
 
   return (
-    <StartContainer display={waiting} >
-      Waiting on {players} more player{players > 1 ? 's' : ''}...
-    </StartContainer>
+    <WaitingContainer display={waiting} owner={owner} >
+      <p>Waiting on {players} more player{players > 1 ? 's' : ''}...</p>
+      {owner ?
+        <>
+          <p>Invitation link copied</p>
+          <p>to clipboard.</p>
+        </>
+        :
+        null
+      }
+    </WaitingContainer>
     )
   }
 

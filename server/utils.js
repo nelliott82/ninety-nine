@@ -1,6 +1,7 @@
 const { shuffleDeck, createDeck } = require('../client/src/helperFiles/deck.js');;
 
 function formatPlayers(players, uid) {
+
   return players ?
     players.reduce((accum, player) => {
       let { id, username, strikes, turn, index } = player;

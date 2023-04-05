@@ -98,6 +98,23 @@ const Rooms = {
     }
     return false;
   },
+  findPlayer: function (roomCode, oldUid, newUid) {
+    let room = this.data[roomCode];
+    let openings = room.players.reduce((accum, player, i) => {
+      if ((player.id === oldUid) && !accum.found) {
+        accum.found = true;
+        accum.index = Math.max(accum.index, i);
+      }
+      return accum;
+    }, { found: false, index: 1 });
+
+    if (openings.found) {
+      room.players[openings.index].id = newUid;
+      room.inRoom += 1;
+      return room.players;
+    }
+    return false;
+  },
   playCard: function(roomCode, cardObj, currentPlayer, nextPlayer) {
     let room = this.data[roomCode];
 

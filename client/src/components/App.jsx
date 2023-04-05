@@ -30,6 +30,7 @@ const ChooseModal = styled.div`
 
 const App = () => {
   let { roomCode } = useParams();
+  const [chose, setChose] = useState(false);
   const [tempChoice, setTempChoice] = useState('');
   const [opponents, setOpponents] = useState(tempChoice);
   const [joining, setJoining] = useState(false);
@@ -48,8 +49,10 @@ const App = () => {
 
   useEffect(() => {
     if (roomCode) {
+      console.log('roomCode found in App');
       setOpponents('humans');
       setReady(true);
+      setChose(true);
     }
   }, [])
 
@@ -59,10 +62,15 @@ const App = () => {
       <DropDownComponent/>
       <ChooseModal started={started} >
 
-        <ChooseOpponents chooseOpponents={chooseOpponents} setReady={setReady} setRoomCode1={setRoomCode1} />
+        <ChooseOpponents chooseOpponents={chooseOpponents}
+                         setReady={setReady}
+                         setRoomCode1={setRoomCode1}
+                         setChose={setChose}
+                         chose={chose}
+                         />
 
           {opponents === 'humans' && ready ?
-            <Outlet context={[setStarted, joining, roomCode, setJoining, setReady, setRoomCode1, roomCode1]} /> :
+            <Outlet context={[setStarted, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1]} /> :
             null
           }
           {opponents === 'computers' ?

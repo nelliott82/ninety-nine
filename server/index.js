@@ -24,16 +24,10 @@ io.on('connection', (socket) => {
     Rooms.deleteRoom(roomCode);
   });
 
-  socket.on('checkPassword', (roomCode, password) => {
+  socket.on('passwordCheck', (roomCode, password) => {
     let room = Rooms.data[roomCode];
-    console.log(room);
-    console.log(roomCode);
 
-    if (room.password !== password) {
-      io.to(socket.id).emit('passwordFail');
-    } else {
-      io.to(socket.id).emit('passwordSucceed', roomCode);
-    }
+    io.to(socket.id).emit('passwordResult', room.password === password, roomCode);
   });
 
   socket.on('create', (roomCode, password, username, limit, uid = socket.id) => {
@@ -41,10 +35,9 @@ io.on('connection', (socket) => {
     let room = Rooms.create(roomCode, password, username, limit, uid);
 
     let players = Utils.formatPlayers(room.players, uid);
-    console.log(room);
 
     if (players) {
-      io.to(roomCode).emit('players', players.playerObjects);
+      io.to(roomCode).emit('players', players.playerObjects, uid);
       io.to(socket.id).emit('hand', players.hand);
     }
 
@@ -52,6 +45,7 @@ io.on('connection', (socket) => {
 
   socket.on('enter', (roomCode, uid = socket.id) => {
     socket.join(roomCode);
+
     let room = Rooms.data[roomCode];
 
     if (room.players) {
@@ -59,10 +53,34 @@ io.on('connection', (socket) => {
 
       if (players) {
         io.to(roomCode).emit('players', players.playerObjects);
-        io.to(socket.id).emit('uid', socket.id);
+        io.to(socket.id).emit('playerId', socket.id);
       }
 
     }
+  });
+
+  socket.on('reenter', (uid, password, roomCode) => {
+    let room = Rooms.data[roomCode];
+    let reenter = false;
+    let username = '';
+
+    if (room && room.password === password) {
+      socket.join(roomCode);
+
+      let players = Utils.formatPlayers(Rooms.findPlayer(roomCode, uid, socket.id), socket.id);
+
+      username = players.username;
+
+      if (players) {
+        reenter = true;
+        io.to(roomCode).emit('players', players.playerObjects);
+        io.to(socket.id).emit('playerId', socket.id);
+      }
+
+    }
+
+    io.to(socket.id).emit('reenterCheck', reenter, username, room.password === password);
+
   });
 
   socket.on('username', (roomCode, username, uid = socket.id) => {
@@ -76,7 +94,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playCard', (cardObj, roomCode, reverse, syncTotal, currentPlayer, nextPlayer, uid) => {
+  socket.on('playCard', (cardObj, roomCode, reverse, syncTotal, currentPlayer, nextPlayer, uid = socket.id) => {
     let room = Rooms.data[roomCode];
 
     let players = Utils.formatPlayers(Rooms.playCard(roomCode, cardObj, currentPlayer, nextPlayer), uid);
@@ -125,7 +143,6 @@ app.use(express.urlencoded({extended:true}));
 
 app.get('/', (req, res) => {
   res.sendStatus(200);
-  console.log('entered');
 })
 
 app.get('/room/:roomCode', (req, res) => {

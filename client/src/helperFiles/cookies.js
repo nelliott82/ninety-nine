@@ -26,9 +26,16 @@ function setCookies(cookies) {
   const date = new Date();
   date.setTime(date.getTime() + (1 * 60 * 60 * 1000));
   const expires = `; expires=${date.toUTCString()}`;
+  let cookiesObject = makeCookieObject();
+
   for (let i = 0; i < cookies.length; i++) {
     let { name, value } = cookies[i];
-    document.cookie = `${name}=${(value)}${expires}; path=/`;
+    if (cookiesObject.hasOwnProperty('uid')) {
+
+    }
+    console.log('name: ', name);
+    console.log('value: ', value);
+    document.cookie = `${name}=${value}${expires}; path=/`;
   }
 }
 

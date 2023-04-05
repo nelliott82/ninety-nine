@@ -40,8 +40,7 @@ const ChooseButton = styled.button`
   font-size: 1.5em;
 `;
 
-const ChooseOpponents = ({ chooseOpponents, setReady, setRoomCode1 }) => {
-  const [chose, setChose] = useState(false);
+const ChooseOpponents = ({ setChose, chose, chooseOpponents, setReady, setRoomCode1 }) => {
   const [opponents, setOpponents] = useState('');
   const navigate = useNavigate();
   let roomCodeHolder;
