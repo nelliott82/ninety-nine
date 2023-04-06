@@ -5,7 +5,7 @@ const WaitingContainer = styled.div`
   z-index: 101;
   position: absolute;
   width: 15rem;
-  height: 14rem;
+  height: ${({ owner }) => owner ? '16rem' : '14rem'};
   background-color: white;
   display: ${({ display }) => display ? 'grid' : 'none'};
   grid-template-columns: 1fr;
@@ -26,6 +26,8 @@ const WaitingComponent = ({ waiting, players, owner, roomCode, password }) => {
         <>
           <p>Invitation link copied</p>
           <p>to clipboard.</p>
+          <p>Room Code: {roomCode}</p>
+          <p>Password: {password}</p>
         </>
         :
         null

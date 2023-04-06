@@ -199,7 +199,7 @@ const FinalMsg = styled.div`
 
 let placeHolder = [2, 3, 4];
 
-let ComputerComponent = ({ strikes, computerHand, human, over, turn, player, botsCount, username, countdown, displayCountdown }) => {
+let ComputerComponent = ({ strikes, computerHand, human, over, turn, player, botsCount, username, countdown, displayCountdown, active }) => {
   let [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -208,7 +208,10 @@ let ComputerComponent = ({ strikes, computerHand, human, over, turn, player, bot
 
   return (
     <ComputerArea turn={turn} animate={animate} strikes={strikes} botsCount={botsCount} >
-      <Name botsCount={botsCount}>{username ? `Name: ${username}` : `Computer ${player}`}</Name>
+      <Name botsCount={botsCount}>{username ?
+                                    `Name: ${username} ${active ? '' : ' [Inactive]'}`
+                                    :
+                                    `Computer ${player}`}</Name>
       <Strikes botsCount={botsCount}>Strikes: {Array.isArray(strikes) ? strikes[player] : strikes}</Strikes>
         {computerHand.length && strikes < 3 ? computerHand.map((card, i) => <Holder key={i} index={i + 2} botsCount={botsCount}>
                                                                 <ComputerCards key={i}

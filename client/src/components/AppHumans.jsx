@@ -287,7 +287,7 @@ const Timer = styled.div`
   text-align: center;
 `;
 
-let timerDelay = 3;
+let timerDelay = 30;
 let syncTotal = 0;
 let syncCountdown = timerDelay;
 let syncHand = [];
@@ -307,6 +307,9 @@ let finalStrikes = 0;
 
 const AppHumans = (props) => {
   let { state } = useLocation();
+  if (!state) {
+    state = {};
+  }
   let navigate = useNavigate();
   let [hands, setHands] = useState([{
     0: [],
@@ -363,6 +366,7 @@ const AppHumans = (props) => {
                                                   .fill('')
                                                   .map(() => { return { username: 'Waiting...',
                                                                         strikes: 0,
+                                                                        active: false,
                                                                         turn: false } }));
   const [start, setStart] = useState(false);
   let [setStarted, setChose, joining, setJoining] = useOutletContext();
@@ -421,6 +425,9 @@ const AppHumans = (props) => {
       }
     }
 
+    syncUsernames[0].turn = false;
+    syncUsernames[j].turn = true;
+    setUsernames([...syncUsernames]);
     return syncUsernames[j].index;
 
     // setTurn(turn => nextPlayer);
@@ -431,6 +438,8 @@ const AppHumans = (props) => {
   }
 
   function setNewRound(player) {
+    syncUsernames[player].strikes += 1;
+    setUsernames([...syncUsernames]);
     let nextPlayer = calculateNextPlayer();
 
     socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, uid);
@@ -489,14 +498,14 @@ const AppHumans = (props) => {
       reverse = !reverse;
 
     } else if (cardObj[0][0] === 'K') {
-      // setTotal(total => 99);
+      setTotal(total => 99);
       syncTotal = 99;
 
     } else {
       if (syncTotal + cardObj[1] > 99) {
-        newRound = setNewRound(syncUsernames[0].strikes);
+        newRound = setNewRound(0);
       } else {
-        // setTotal(total => total += cardObj[1]);
+        setTotal(total => total += cardObj[1]);
         syncTotal += cardObj[1];
       }
 
@@ -633,17 +642,21 @@ const AppHumans = (props) => {
       setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
     });
 
+    let count = 0;
     socket.on('hand', (newHand) => {
-      console.log('newHand: ', newHand);
-      syncHand = newHand;
-      setHand(hand => [...newHand]);
-      setOpponentHand([1, 2, 3]);
+      if (!newHand.length && syncUsernames[0].strikes < 3 && count < 3) {
+        count += 1;
+        socket.emit('getHand', roomCode, syncUsernames[0].index);
+      } else {
+        syncHand = newHand;
+        setHand(hand => [...newHand]);
+        setOpponentHand([1, 2, 3]);
+      }
     });
 
+    socket.on('nextTurn', (players, total, discard, reverseChange) => {
 
-    socket.on('nextTurn', (players, total, discard, reverse2) => {
-
-      reverse = reverse2;
+      reverse = reverseChange;
       sortUsernames(players);
       restartTimer(0);
       setTotal(total);
@@ -661,6 +674,7 @@ const AppHumans = (props) => {
         finalStrikes = 3;
         setOver(true);
       } else {
+
         restartTimer(2500);
         setAndDisplayMessage(username, strikes);
       }
@@ -668,7 +682,7 @@ const AppHumans = (props) => {
     });
 
     socket.on('gameOver', (players) => {
-
+      //clearTimeout(timerId);
       players = sortUsernames(players);
       setTotal(0);
       syncTotal = 0;
@@ -678,7 +692,6 @@ const AppHumans = (props) => {
     });
 
     socket.on('reenterCheck', (reenter, username, password) => {
-      console.log('reenter');
 
       if (reenter) {
         if (username !== 'Waiting...') {
@@ -688,7 +701,6 @@ const AppHumans = (props) => {
         setChose(true);
         setStart(start => false);
         setJoining(joining => true);
-        console.log('joining after reenter: ', joining)
       } else {
         navigate('/');
       }
@@ -697,6 +709,11 @@ const AppHumans = (props) => {
     socket.on('playerId', playerId => {
       let cookiesObject = getCookieValues();
       setCookies([{ name: 'playerId', value: playerId }])
+    })
+
+    socket.on('owner', () => {
+      setCookies([{ name: 'owner', value: true }]);
+      setOwner(true);
     })
 
     if (document.cookie) {
@@ -718,10 +735,26 @@ const AppHumans = (props) => {
       socket.emit('enter', roomCode);
     }
 
-    return () => {
+    const cleanup = (e) => {
       socket.off('players');
-      socket.emit('disconnection', roomCode, owner);
-      socket.disconnect();
+      let playersRemain = false;
+      let players = syncUsernames.filter(player => player.active);
+      playersRemain = players.length ? true : false;
+      let cookies = getCookieValues();
+      if (cookies.owner) {
+        setCookies([{ name: 'owner', value: false }]);
+      }
+      socket.emit('disconnection', { roomCode, owner: cookies.owner, playerIndex: syncUsernames[0].index, playersRemain, players }, () => {
+        socket.disconnect();
+      });
+      //socket.disconnect();
+    }
+
+    window.addEventListener('beforeunload', cleanup);
+
+    return () => {
+      window.removeEventListener('beforeunload', cleanup);
+      cleanup();
     }
   }, []);
 
@@ -746,7 +779,7 @@ const AppHumans = (props) => {
       :
       <div>Congrats! You win!</div>}
     </OverMessage>
-    <Timer turn={usernames[0].turn && displayCountdown}>
+    <Timer turn={usernames[0].turn && displayCountdown && !over}>
       <div>{countdown.toString()}</div>
     </Timer>
     <MainContainer>
@@ -767,7 +800,9 @@ const AppHumans = (props) => {
                                      botsCount={opponentsArray.length}
                                      countdown={countdown}
                                      username={usernames[i + 1].username}
-                                     displayCountdown={displayCountdown} />
+                                     displayCountdown={displayCountdown}
+                                     active={usernames[i + 1].active}
+                                     />
                 </BotAreaMobile>
                 )
               })}
@@ -780,7 +815,9 @@ const AppHumans = (props) => {
                                    player={2}
                                    countdown={countdown}
                                    username={usernames[2].username}
-                                   displayCountdown={displayCountdown} />
+                                   displayCountdown={displayCountdown}
+                                   active={usernames[2].active}
+                                   />
               </BotArea>
               </>
               :
@@ -792,7 +829,9 @@ const AppHumans = (props) => {
                                  player={1}
                                  countdown={countdown}
                                  username={usernames[1].username}
-                                 displayCountdown={displayCountdown} /> }
+                                 displayCountdown={displayCountdown}
+                                 active={usernames[1].active}
+                                 /> }
           </Opponent>
         </PlayerArea1>
         <CenterRowArea>
@@ -806,7 +845,9 @@ const AppHumans = (props) => {
                                  player={1}
                                  countdown={countdown}
                                  username={usernames[1].username}
-                                 displayCountdown={displayCountdown} /> :
+                                 displayCountdown={displayCountdown}
+                                 active={usernames[1].active}
+                                 /> :
                                  null}
           </OpponentArea>
           <DeckArea column={2}>
@@ -822,7 +863,9 @@ const AppHumans = (props) => {
                                    player={3}
                                    countdown={countdown}
                                    username={usernames[3].username}
-                                   displayCountdown={displayCountdown} /> :
+                                   displayCountdown={displayCountdown}
+                                   active={usernames[3].active}
+                                   /> :
                                    null}
           </OpponentArea>
         </CenterRowArea>

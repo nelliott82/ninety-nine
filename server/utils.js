@@ -4,8 +4,8 @@ function formatPlayers(players, uid) {
 
   return players ?
     players.reduce((accum, player) => {
-      let { id, username, strikes, turn, index } = player;
-      accum.playerObjects.push({ username, strikes, turn, index });
+      let { id, username, strikes, turn, index, active } = player;
+      accum.playerObjects.push({ username, strikes, turn, index, active });
 
       if (id === uid && !accum.hand.length) {
         accum.hand = player.hand;

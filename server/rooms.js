@@ -38,13 +38,17 @@ const Rooms = {
   },
   create: function (roomCode, password, username, limit, uid) {
     let players = [];
+
     for (let i = 0; i < limit; i++) {
       players[i] = {
         id: i ? undefined : uid,
+        owner: i ? false : true,
         username: i ? 'Waiting...' : username,
         hand: [],
         strikes: 0,
         turn: i ? false : true,
+        active: i ? false : true,
+        playTimer: null,
         index: i
       }
     }
@@ -70,11 +74,14 @@ const Rooms = {
 
     return this.data[roomCode];
   },
-  deleteRoom: function (roomCode) {
+  deleteRoom: function (roomCode, byTimer) {
+    if (!byTimer) {
+      clearTimeout(this.data[roomCode].timerId);
+    }
     delete this.data[roomCode];
   },
   timedDeleteRoom: function (roomCode) {
-    return setTimeout(() => this.deleteRoom(roomCode), (60000 * 60));
+    return setTimeout(() => this.deleteRoom(roomCode, true), (60000 * 60));
   },
   restartGame: function (timeoutId, roomCode) {
     clearTimeout(timeoutId);
@@ -93,6 +100,7 @@ const Rooms = {
     if (openings.found) {
       room.players[openings.index].id = uid;
       room.players[openings.index].username = username;
+      room.players[openings.index].active = true;
       room.inRoom += 1;
       return room.players;
     }
@@ -110,7 +118,7 @@ const Rooms = {
 
     if (openings.found) {
       room.players[openings.index].id = newUid;
-      room.inRoom += 1;
+      room.players[openings.index].active = true;
       return room.players;
     }
     return false;
@@ -125,33 +133,123 @@ const Rooms = {
 
     return room.players;
   },
+  forcePlay: function(currentPlayer, roomCode, syncTotal, reverse) {
+    let total = syncTotal;
+    let newRound = false;
+    let player = this.data[roomCode].players[currentPlayer];
+    let players = this.data[roomCode].players;
+    let gameOver;
+    let cardObj = player.hand[0];
+    console.log('currentPlayer: ', currentPlayer);
+    if (cardObj[0][0] === '4') {
+      reverse = !reverse;
+
+    } else if (cardObj[0][0] === 'K') {
+      total = 99;
+
+    } else {
+      if (total + cardObj[1] > 99) {
+        newRound = true;
+      } else {
+        total += cardObj[1];
+      }
+    }
+
+    let nextPlayer = this.calculateNextPlayer(currentPlayer, roomCode, reverse);
+    console.log('got here: ', currentPlayer);
+    this.playCard(roomCode, cardObj, currentPlayer, nextPlayer);
+
+    console.log('newRound: ', newRound);
+    if (!newRound) {
+      console.log('playCard triggered')
+      this.playCard(roomCode, cardObj, currentPlayer, nextPlayer);
+    } else {
+      console.log('newRound triggered')
+      let newRoundResults = this.newRound(roomCode, currentPlayer, nextPlayer);
+      players = newRoundResults.players;
+      newRound = newRoundResults.newRound;
+      gameOver = !newRound;
+    }
+
+    return { total, cardObj, reverseChange: reverse, newPlayer: nextPlayer, newRound, players, gameOver };
+  },
   newRound: function(roomCode, currentPlayer, nextPlayer) {
+    console.log('inside newRound')
     let room = this.data[roomCode];
 
     this.updateTurns(room, currentPlayer, nextPlayer);
+    console.log('turns updated')
 
     room.players[currentPlayer].strikes += 1;
 
     let strikes = 0;
+    let active = 0;
 
     room.players.forEach((player) => {
       if (player.strikes === 3) {
         strikes += 1;
       }
+      if (!player.active) {
+        active += 1;
+      }
       player.hand = [];
     })
+    console.log('counted strikes and active')
+    console.log('strikes: ', strikes)
+    console.log('active: ', active)
 
-    if (strikes === (room.limit - 1)) {
+
+    if (strikes === (room.limit - 1) || active === (room.limit - 1)) {
       return { players: room.players, newRound: false };
     } else {
       dealCards(room);
     }
+    room.players.forEach(player => console.log('new round hands: ', JSON.stringify(player.hand)));
 
     return { players: room.players, newRound: true };
   },
   updateTurns: function(room, currentPlayer, nextPlayer) {
+    console.log('inside updateTurns')
+
     room.players[nextPlayer].turn = true;
     room.players[currentPlayer].turn = false;
+  },
+  assignNewOwner: function(room, oldOwnerIndex, newOwnerIndex) {
+    room.players[oldOwnerIndex].active = false;
+    room.players[oldOwnerIndex].owner = false;
+    room.players[newOwnerIndex].owner = true;
+
+    return room.players[newOwnerIndex].id;
+  },
+  setIndex: function(j, change, roomCode) {
+    j = j + change;
+    if (j < 0) {
+      j = this.data[roomCode].players.length - 1;
+    } else if (j === this.data[roomCode].players.length) {
+      j = 0;
+    }
+    return j;
+  },
+  calculateNextPlayer: function(index, roomCode, reverse) {
+    let setNextPlayer = false;
+    let change = reverse ? -1 : 1;
+    let j = this.setIndex(index, change, roomCode);
+
+    while (!setNextPlayer) {
+      if (this.data[roomCode].players[j].strikes < 3) {
+        setNextPlayer = true;
+      } else {
+        j = this.setIndex(j, change, roomCode);
+      }
+    }
+
+    return this.data[roomCode].players[j].index;
+
+    // setTurn(turn => nextPlayer);
+
+    // if (nextPlayer !== 0) {
+    //   computer(nextPlayer);
+    // }
   }
 }
 
