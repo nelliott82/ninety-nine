@@ -3,7 +3,7 @@ const { shuffleDeck, createDeck } = require('../client/src/helperFiles/deck.js')
 function formatPlayers(players, uid) {
 
   return players ?
-    players.reduce((accum, player) => {
+    players.reduce((accum, player, i) => {
       let { id, username, strikes, turn, index, active } = player;
       accum.playerObjects.push({ username, strikes, turn, index, active });
 
@@ -11,9 +11,10 @@ function formatPlayers(players, uid) {
         accum.hand = player.hand;
         accum.username = username;
         accum.strikes = strikes;
+        accum.index = i;
       }
       return accum;
-    }, { playerObjects: [], hand: [], username: '', strikes: 0}) :
+    }, { playerObjects: [], hand: [], username: '', strikes: 0, index: 0}) :
     players;
 }
 

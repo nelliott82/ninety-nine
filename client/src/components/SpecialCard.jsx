@@ -37,7 +37,7 @@ var SpecialCardComponent = ({ name, card, behavior}) => {
 return (
     <SpecialCardDiv>
       <CardName>{name}</CardName>
-      <CardImage src={`assets/cards/${card}.png`} />
+      <CardImage src={`/assets/cards/${card}.png`} />
       <CardBehavior>{behavior}</CardBehavior>
     </SpecialCardDiv>
   )

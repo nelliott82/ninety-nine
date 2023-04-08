@@ -199,7 +199,18 @@ const FinalMsg = styled.div`
 
 let placeHolder = [2, 3, 4];
 
-let ComputerComponent = ({ strikes, computerHand, human, over, turn, player, botsCount, username, countdown, displayCountdown, active }) => {
+let ComputerComponent = ({ strikes,
+                           computerHand,
+                           human,
+                           computer,
+                           over,
+                           turn,
+                           player,
+                           botsCount,
+                           username,
+                           countdown,
+                           displayCountdown,
+                           active }) => {
   let [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -220,7 +231,7 @@ let ComputerComponent = ({ strikes, computerHand, human, over, turn, player, bot
                                                                                src='/assets/cards/back.jpg' />
                                                              </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} botsCount={botsCount}/>)}
-        {turn ? <Thinking botsCount={botsCount}>{human && displayCountdown ? countdown.toString() : !human ? 'Thinking...' : null}</Thinking> : <ThinkingNull/>}
+        {turn ? <Thinking botsCount={botsCount}>{human && displayCountdown ? countdown.toString() : computer ? 'Thinking...' : null}</Thinking> : <ThinkingNull/>}
         {/* {over ? strikes[player] < 3 ?
               <FinalMsg>"Better luck next time!"</FinalMsg>
               :

@@ -47,6 +47,11 @@ const ChooseOpponents = ({ setChose, chose, chooseOpponents, setReady, setRoomCo
 
   function handleChange (e) {
     setOpponents(e.target.value);
+    if (e.target.value === 'humans') {
+      socket.connect();
+
+      socket.emit('getRoomCode');
+    }
   }
 
   function confirmChoice () {
@@ -57,19 +62,15 @@ const ChooseOpponents = ({ setChose, chose, chooseOpponents, setReady, setRoomCo
       socket.disconnect();
     } else {
       setReady(true);
-      navigate('/humans');
+      navigate('/select');
     }
   }
 
   useEffect(() => {
-    socket.connect();
-
     socket.on('roomCode', (roomCode) => {
       roomCodeHolder = roomCode;
       setRoomCode1(roomCode);
     })
-
-    socket.emit('getRoomCode');
   }, [])
 
   return (

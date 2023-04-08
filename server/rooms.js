@@ -16,6 +16,13 @@ const Rooms = {
          SHI: '',
          CUN: '',
          FAG: '',
+         FIST: '',
+         NIG: '',
+         NGU: '',
+         NGA: '',
+         NGGR: '',
+         NGER: '',
+         SPIC: '',
          HOMO: '',
          POR: '',
          VAG: '',
@@ -23,6 +30,7 @@ const Rooms = {
          HOR: '',
          WHR: '',
          ASS: '',
+         ANAL: '',
          ASH: '',
          GOD: '',
          BAL: '',
@@ -90,13 +98,15 @@ const Rooms = {
   addPlayer: function (roomCode, uid, username = 'Waiting...') {
     let room = this.data[roomCode];
     let openings = room.players.reduce((accum, player, i) => {
+      console.log('player.id: ', player.id);
+      console.log('uid: ', uid);
       if ((!player.id || player.id === uid) && !accum.found) {
         accum.found = true;
         accum.index = Math.max(accum.index, i);
       }
       return accum;
     }, { found: false, index: 1 });
-
+    console.log('openings: ', openings);
     if (openings.found) {
       room.players[openings.index].id = uid;
       room.players[openings.index].username = username;
@@ -140,7 +150,7 @@ const Rooms = {
     let players = this.data[roomCode].players;
     let gameOver;
     let cardObj = player.hand[0];
-    console.log('currentPlayer: ', currentPlayer);
+
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
 
@@ -156,15 +166,12 @@ const Rooms = {
     }
 
     let nextPlayer = this.calculateNextPlayer(currentPlayer, roomCode, reverse);
-    console.log('got here: ', currentPlayer);
+
     this.playCard(roomCode, cardObj, currentPlayer, nextPlayer);
 
-    console.log('newRound: ', newRound);
     if (!newRound) {
-      console.log('playCard triggered')
       this.playCard(roomCode, cardObj, currentPlayer, nextPlayer);
     } else {
-      console.log('newRound triggered')
       let newRoundResults = this.newRound(roomCode, currentPlayer, nextPlayer);
       players = newRoundResults.players;
       newRound = newRoundResults.newRound;
@@ -174,11 +181,9 @@ const Rooms = {
     return { total, cardObj, reverseChange: reverse, newPlayer: nextPlayer, newRound, players, gameOver };
   },
   newRound: function(roomCode, currentPlayer, nextPlayer) {
-    console.log('inside newRound')
     let room = this.data[roomCode];
 
     this.updateTurns(room, currentPlayer, nextPlayer);
-    console.log('turns updated')
 
     room.players[currentPlayer].strikes += 1;
 
@@ -194,23 +199,16 @@ const Rooms = {
       }
       player.hand = [];
     })
-    console.log('counted strikes and active')
-    console.log('strikes: ', strikes)
-    console.log('active: ', active)
-
 
     if (strikes === (room.limit - 1) || active === (room.limit - 1)) {
       return { players: room.players, newRound: false };
     } else {
       dealCards(room);
     }
-    room.players.forEach(player => console.log('new round hands: ', JSON.stringify(player.hand)));
 
     return { players: room.players, newRound: true };
   },
   updateTurns: function(room, currentPlayer, nextPlayer) {
-    console.log('inside updateTurns')
-
     room.players[nextPlayer].turn = true;
     room.players[currentPlayer].turn = false;
   },

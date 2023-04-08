@@ -51,7 +51,6 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse) {
 
     setTimeout(() => {
       if (newRound) {
-        console.log('new round in force play');
         room.players.forEach(player => clearTimeout(player.playTimer));
 
         io.to(roomCode).emit('newRound', formattedPlayers.playerObjects, username, formattedPlayers.strikes);
@@ -60,11 +59,9 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse) {
           io.to(player.id).emit('hand', player.hand);
         })
       } else if (keepPlaying) {
-        console.log('keepPlaying');
         io.to(roomCode).emit('nextTurn', formattedPlayers.playerObjects, total, cardObj, reverseChange);
 
       } else {
-        console.log('gameOver');
         room.players.forEach(player => clearTimeout(player.playTimer));
         io.to(roomCode).emit('gameOver', formattedPlayers.playerObjects);
       }
@@ -84,13 +81,15 @@ io.on('connection', (socket) => {
     Rooms.deleteRoom(roomCode);
   });
 
-  socket.on('passwordCheck', (roomCode, password) => {
-    let room = Rooms.data[roomCode];
+  socket.on('roomCheck', (roomCode, password) => {
+    let room = Rooms.data[roomCode] || {};
 
-    io.to(socket.id).emit('passwordResult', room.password === password, roomCode);
+    io.to(socket.id).emit('roomResult', room.password === password, room.password, roomCode);
   });
 
   socket.on('create', (roomCode, password, username, limit, uid = socket.id) => {
+    console.log('joined at create')
+    socket.join(roomCode);
 
     let room = Rooms.create(roomCode, password, username, limit, uid);
 
@@ -104,44 +103,79 @@ io.on('connection', (socket) => {
   });
 
   socket.on('enter', (roomCode, uid = socket.id) => {
-    socket.join(roomCode);
-
-    let room = Rooms.data[roomCode];
+    let room = Rooms.data[roomCode] || {};
 
     if (room.players) {
+      console.log('joined at enter')
+      socket.join(roomCode);
+      console.log(room.players);
       let players = Utils.formatPlayers(Rooms.addPlayer(roomCode, uid), uid);
-
+      console.log(players.playerObjects);
       if (players) {
+
         io.to(roomCode).emit('players', players.playerObjects);
         io.to(socket.id).emit('playerId', socket.id);
+      } else {
+        io.to(socket.id).emit('enterFail', 'That room is full.');
       }
-
+    } else if (room.password !== password) {
+      io.to(socket.id).emit('enterFail', 'Incorrect password');
+    } else {
+      io.to(socket.id).emit('enterFail', 'That room does not exist.');
     }
+
   });
 
   socket.on('reenter', (uid, password, roomCode) => {
-    let room = Rooms.data[roomCode];
-    let reenter = false;
+    let empty = {};
+    let room = Rooms.data[roomCode] || empty;
+    let players = {};
+    let reenter = '';
     let username = '';
 
-    if (room && room.password === password) {
-      socket.join(roomCode);
-
-      let players = Utils.formatPlayers(Rooms.findPlayer(roomCode, uid, socket.id), socket.id);
+    if (room === empty) {
+      reenter = 'That room does not exist.'
+    } else if (room.password === password) {
+      players = Utils.formatPlayers(Rooms.findPlayer(roomCode, uid, socket.id), socket.id);
 
       username = players.username;
 
       if (players) {
-        reenter = true;
-        io.to(roomCode).emit('players', players.playerObjects);
-        io.to(socket.id).emit('playerId', socket.id);
+        console.log('joined at reenter')
+        socket.join(roomCode);
+        reenter = 'reenter';
+        io.to(roomCode).emit('playerReenter', players.playerObjects);
+      } else if (room.inRoom === room.limit) {
+        reenter = 'That room is full.'
+      }
+      if (reenter === 'reenter') {
+        console.log('countdown requested')
+        let activePlayers = room.players.filter(player => player.id !== socket.id && player.active);
+        console.log('requested from: ', activePlayers[0].id);
+        io.to(activePlayers[0].id).emit('getCountdown', players.index);
       }
 
+    } else {
+      reenter = 'Incorrect password.'
     }
-
-    io.to(socket.id).emit('reenterCheck', reenter, username, room.password === password);
+    console.log('reenter: ', reenter);
+    console.log('username: ', username);
+    console.log('password match: ', room.password === password);
+    console.log('reenterCheck: ', socket.id);
+    io.to(socket.id).emit('reenterCheck', reenter, username, socket.id, players.hand);
 
   });
+
+  socket.on('disconnect', () => {
+    console.log('ran')
+  })
+
+  socket.on('currentCountdown', (roomCode, countdown, index) => {
+    console.log('countdown received: ', countdown)
+    let socketId = Rooms.data[roomCode].players[index].id;
+    console.log('sending countdown: ', socketId)
+    io.to(socketId).emit('gotCountdown', countdown);
+  })
 
   socket.on('username', (roomCode, username, uid = socket.id) => {
     if (roomCode in Rooms.data) {
