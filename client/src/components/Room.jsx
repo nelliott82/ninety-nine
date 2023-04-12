@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import styled from 'styled-components';
-import { setCookies, deleteCookie } from '../helperFiles/cookies.js';
+import { setCookies, deleteCookie, makeCookieObject } from '../helperFiles/cookies.js';
 import socket from '../helperFiles/socket.js';
+
+let cookies = makeCookieObject();
 
 const RoomChoiceContainer = styled.div`
   position: absolute;
@@ -21,12 +23,14 @@ const RoomChoiceContainer = styled.div`
 
 const CodeInput = styled.div`
   grid-row: 1;
+  left-margin: 1rem;
   justify-items: center;
   align-items: center;
 `;
 
 const PasswordInput = styled.div`
   grid-row: 3;
+  left-margin: 1rem;
   justify-items: center;
   align-items: center;
 `;
@@ -56,7 +60,7 @@ const RoomComponent = () => {
   const [incorrect, setIncorrect] = useState(false);
   const [enterPassword, setEnterPassword] = useState(false);
   const navigate = useNavigate();
-  let [setStarted, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1] = useOutletContext();
+  let [setStarted, started, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1] = useOutletContext();
 
   function handleChange (e) {
     if (e.target.name === 'room') {
@@ -77,7 +81,8 @@ const RoomComponent = () => {
     } else if (givenPassword) {
       setCreate(false);
       setRoomChoice(true);
-      setCookies([{ name: 'roomCode', value: roomCode1 }, { name: 'password', value: givenPassword }]);
+      setCookies([{ name: 'roomCode', value: roomCode1 },
+                  { name: 'password', value: givenPassword }]);
       navigate(`/room/${roomCode1}`,{ state: { setPassword: givenPassword } });
     } else {
       setCreate(true);
@@ -109,7 +114,8 @@ const RoomComponent = () => {
         setJoining(true);
         setGivenRoomCode(roomCode);
         setRoomChoice(true);
-        setCookies([{ name: 'password', value: syncPassword }, { name: 'roomCode', value: roomCode }]);
+        setCookies([{ name: 'password', value: syncPassword },
+                    { name: 'roomCode', value: roomCode }]);
         navigate(`/room/${roomCode}`,{ state: { setPassword: syncPassword } });
       } else {
         console.log('passwordFail');
@@ -147,7 +153,7 @@ const RoomComponent = () => {
                 <label for="password">Create Password:</label>
                 <input name="password" onChange={(e) => handleChange(e)} ></input>
             </PasswordInput>
-            <RoomButton row={3} onClick={() => createAndJoinRoom(true)}>Set Password</RoomButton>
+            <RoomButton row={4} onClick={() => createAndJoinRoom(true)}>Set Password</RoomButton>
           </>
           :
           <>

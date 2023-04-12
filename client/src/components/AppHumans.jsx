@@ -124,6 +124,16 @@ const ForfeitButton = styled.button`
   }
 `
 
+const ReplayButton = styled.button`
+  width: 5rem;
+  height: 2rem;
+  font-size: 1em;
+  visibility: ${({ gameOver }) => gameOver ? 'visible' : 'hidden'};
+  position: absolute;
+  left: 50%;
+  top: 60%;
+`
+
 const CenterRowArea = styled.div`
   width: 100%;
   height: 15rem;
@@ -163,8 +173,8 @@ const Attribution = styled.div`
 `;
 
 const StartModal = styled.div`
-  z-index: 100;
-  display: ${({ started }) => (started ? 'none' : 'block')};
+  z-index: auto;
+  display: ${({ started }) => (started ? 'block' : 'none')};
   position: fixed;
   top: 0;
   left: 0;
@@ -175,24 +185,20 @@ const StartModal = styled.div`
 
 const fadeIn = keyframes`
   from {
-    transform: scale(1) translate(-50%);;
     opacity: 1;
   }
 
   to {
-    transform: scale(1) translate(-50%);;
     opacity: 1;
   }
 `;
 
 const fadeOut = keyframes`
   from {
-    transform: scale(1) translate(-50%);;
     opacity: 1;
   }
 
   to {
-    transform: scale(.25) translate(-50%);;
     opacity: 0;
   }
 `;
@@ -242,9 +248,9 @@ const RoundMessage = styled.div`
   font-size: 3em;
 `;
 
-const WaitingessageModal = styled.div`
+const RoomModal = styled.div`
   z-index: auto;
-  visibility: ${({waiting}) => waiting ? 'visible' : 'hidden'};
+  visibility: ${({ on }) => on ? 'visible' : 'hidden'};
   position: fixed;
   top: 0;
   left: 0;
@@ -287,7 +293,7 @@ const Timer = styled.div`
 `;
 
 let navigated = false;
-let timerDelay = 30;
+let timerDelay = 15;
 let syncTotal = 0;
 let syncCountdown = timerDelay;
 let syncHand = [];
@@ -302,7 +308,7 @@ let played = [];
 let reverse = false;
 let chosenName = 'Waiting...';
 let count = 4;
-let uid = '';
+let playerId = '';
 let finalStrikes = 0;
 
 const AppHumans = (props) => {
@@ -317,6 +323,8 @@ const AppHumans = (props) => {
     2: [],
     3: []
   }])
+  let [display, setDisplay] = useState(false);
+  let [on, setOn] = useState(true);
   let [hand, setHand] = useState([]);
   let [opponentHand, setOpponentHand] = useState([]);
   let [turn, setTurn] = useState(0);
@@ -325,6 +333,7 @@ const AppHumans = (props) => {
   let [total, setTotal] = useState(0);
   let [strikes, setStrikes] = useState([0, 0, 0, 0]);
   let [over, setOver] = useState(false);
+  let [gameOver, setGameOver] = useState(false);
   let [displayMessage, setDisplayMessage] = useState(false);
   let [round, setRound] = useState(0);
   let [players, setPlayers] = useState([0, 1]);
@@ -339,7 +348,7 @@ const AppHumans = (props) => {
 
   function timer() {
     clearTimeout(timerId);
-    if (syncCountdown >= 0) {
+    if (syncCountdown > 0) {
       timerId = setTimeout(() => {
         syncCountdown -= 1;
         setCountdown(countdown => countdown - 1);
@@ -363,6 +372,7 @@ const AppHumans = (props) => {
   }
 
   const [usernameChoice, setUsernameChoice] = useState(true);
+  const [usernameMessage, setUsernameMessage] = useState(false);
   const [usernames, setUsernames] = useState(new Array(4)
                                                   .fill('')
                                                   .map(() => { return { username: 'Waiting...',
@@ -370,7 +380,7 @@ const AppHumans = (props) => {
                                                                         active: false,
                                                                         turn: false } }));
   const [start, setStart] = useState(false);
-  let [setStarted, setChose, joining, setJoining] = useOutletContext();
+  let [setStarted, started, setChose, joining, setJoining] = useOutletContext();
   let { roomCode } = useParams();
 
 
@@ -381,22 +391,18 @@ const AppHumans = (props) => {
       cookies = makeCookieObject();
 
       chosenName = cookies.username ? cookies.username : chosenName;
-      uid = cookies.uid ? cookies.uid : uid;
+      playerId = cookies.playerId ? cookies.playerId : playerId;
       cookies.owner && setOwner(true);
     }
 
     return cookies;
   }
-  let stop = true;
-  function sortUsernames(playerObjects, reenter) {
+
+  function sortUsernames(playerObjects) {
     let sorted = false;
 
     while (!sorted) {
-      if (reenter && stop) {
-        console.log(playerObjects)
-        console.log(chosenName)
-        stop = false;
-      }
+      console.log('chosenName: ', chosenName)
       if (playerObjects[0].username !== chosenName) {
         playerObjects.push(playerObjects.shift());
       } else {
@@ -444,12 +450,12 @@ const AppHumans = (props) => {
     // }
   }
 
-  function setNewRound(player) {
+  function setNewRound(player, playerId) {
     syncUsernames[player].strikes += 1;
     setUsernames([...syncUsernames]);
     let nextPlayer = calculateNextPlayer();
 
-    socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, uid);
+    socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, playerId, reverse);
 
     return true;
 
@@ -497,6 +503,7 @@ const AppHumans = (props) => {
   }
 
   function playCard(cardObj, player) {
+    let cookies = getCookieValues();
     clearTimeout(timerId);
     let newRound = false;
 
@@ -509,7 +516,7 @@ const AppHumans = (props) => {
 
     } else {
       if (syncTotal + cardObj[1] > 99) {
-        newRound = setNewRound(0);
+        newRound = setNewRound(0, cookies.playerId);
       } else {
         setTotal(total => total += cardObj[1]);
         syncTotal += cardObj[1];
@@ -519,11 +526,13 @@ const AppHumans = (props) => {
 
     if (!newRound) {
       let nextPlayer = calculateNextPlayer();
+      played = [cardObj];
 
-      socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, uid);
+      socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId);
 
       syncCountdown = timerDelay;
       setCountdown(timerDelay);
+      timer();
       // timer();
 
       // let tempHands = hands;
@@ -562,6 +571,8 @@ const AppHumans = (props) => {
     deal(strikesArr);
     setStarted(true);
     setWaiting(waiting => true);
+
+    setCookies([{ name: 'created', value: true }]);
     socket.emit('create', roomCode, state.setPassword, usernames[0].username, players.length);
 
     navigator.clipboard
@@ -597,18 +608,17 @@ const AppHumans = (props) => {
   }
 
   function saveUsername (username) {
+    let cookies = getCookieValues();
     chosenName = username;
-    setUsernameChoice(false);
-    setCookies([{ name: 'username', value: username },
-                { name: 'roomCode', value: roomCode }])
+    setCookies([{ name: 'roomCode', value: roomCode }])
 
     if (joining) {
-      setStarted(true);
-      syncUsernames = [{ username, strikes: 0, turn: false }, ...syncUsernames.slice(1)];
-      setUsernames(usernames => [{ username, strikes: 0, turn: false }, ...usernames.slice(1)]);
-      socket.emit('username', roomCode, username);
-      setWaiting(waiting => true);
+      console.log('got here');
+      // setStarted(true);
+      socket.emit('username', roomCode, username, cookies.playerId);
     } else {
+      setUsernameChoice(false);
+      setCookies([{ name: 'username', value: username }])
       syncUsernames = [{ username, strikes: 0, turn: true }, ...syncUsernames.slice(1)];
       setUsernames(usernames => [{ username, strikes: 0, turn: true }, ...usernames.slice(1)]);
       setStart(true);
@@ -616,10 +626,15 @@ const AppHumans = (props) => {
     }
   }
 
+  function replay () {
+    socket.emit('replay', roomCode);
+  }
+
   useEffect(() => {
     console.log('roomCode: ', roomCode);
     console.log('state: ', state);
     let cookies = getCookieValues();
+    socket.connect();
 
     if (cookies.hasOwnProperty('owner')) {
       setOwner(true);
@@ -627,14 +642,14 @@ const AppHumans = (props) => {
     }
 
     if (!state.hasOwnProperty('setPassword')) {
-      socket.connect();
+      //socket.connect();
 
       console.log('does not have setPassword');
 
       if (document.cookie) {
 
         if (cookies.playerId) {
-          socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode);
+          socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username);
         } else {
           console.log('entered here 1')
           if (!cookies.owner) {
@@ -654,19 +669,24 @@ const AppHumans = (props) => {
 
     } else {
       console.log('entered here 2');
-      if (cookies.playerId) {
-        socket.connect();
-
+      if ((cookies.playerId && !cookies.owner) || cookies.created) {
+        //setWaiting(true);
         console.log('entered here 2.1');
-        socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode);
-      } else if (!cookies.owner) {
+        socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username || 'Waiting...');
+      } else {
         console.log('entered here 2.2');
-        socket.emit('enter', cookies.roomCode);
+        socket.emit('enter', cookies.roomCode, state.setPassword, cookies.owner, cookies.playerId);
       }
     }
 
-    socket.on('players', (players) => {
-      getCookieValues();
+    socket.on('players', (players, restart) => {
+      getCookieValues()
+      console.log('players: ', players);
+      if (restart) {
+        finalStrikes = 0;
+        setOver(false);
+        setGameOver(false);
+      }
 
       count = players.reduce((accum, player) => {
         if (player.username === "Waiting...") {
@@ -678,24 +698,57 @@ const AppHumans = (props) => {
 
       if (!count) {
         setWaiting(false);
+        setOn(false);
         setAndDisplayMessage();
         restartTimer(2500);
       }
       sortUsernames(players);
-
+      console.log('syncUsernames: ', syncUsernames);
       setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
     });
 
     socket.on('playerReenter', (players) => {
       getCookieValues();
-
-      sortUsernames(players, true);
-
+      players = sortUsernames(players);
+      finalStrikes = players[0].strikes;
+      if (finalStrikes === 3) {
+        setOver(true);
+      }
       setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
+
+      console.log('playerReenter players: ', players);
+      let playerState = players.reduce((accum, player) => {
+        if (player.username === "Waiting...") {
+          accum.waiting = true;
+          accum.count += 1;
+        }
+        if (!player.active) {
+          accum.inactive += 1;
+        }
+        if (player.strikes === 3) {
+          accum.strikes += 1;
+        }
+        return accum;
+      }, { waiting: false, count: 0, inactive: 0, strikes: 0 });
+      chosenName !== 'Waiting...' && setWaiting(playerState.waiting);
+      chosenName !== 'Waiting...' && setOn(playerState.waiting);
+      setWaitingCount(playerState.count);
+
+      if (((playerState.inactive === players.length - 1) && !playerState.waiting) ||
+          (playerState.strikes === players.length - 1)) {
+        setDisplayCountdown(false);
+        setTotal(0);
+        syncTotal = 0;
+        setOver(true);
+        !(playerState.inactive === players.length - 1) && setGameOver(true);
+        played = [];
+      }
+
     });
 
     let attempts = 0;
     socket.on('hand', (newHand) => {
+
       if (!newHand.length && syncUsernames[0].strikes < 3 && attempts < 3) {
         attempts += 1;
         socket.emit('getHand', roomCode, syncUsernames[0].index);
@@ -709,7 +762,7 @@ const AppHumans = (props) => {
     socket.on('nextTurn', (players, total, discard, reverseChange) => {
 
       reverse = reverseChange;
-      sortUsernames(players);
+      sortUsernames(players, 'nextTurn');
       restartTimer(0);
       setTotal(total);
       syncTotal = total;
@@ -717,7 +770,7 @@ const AppHumans = (props) => {
     });
 
     socket.on('newRound', (players, username, strikes) => {
-
+      console.log('new round')
       setDisplayCountdown(false);
       players = sortUsernames(players);
       setTotal(0);
@@ -735,32 +788,32 @@ const AppHumans = (props) => {
     });
 
     socket.on('gameOver', (players) => {
+      console.log('game over')
+      clearTimeout(timerId);
       setDisplayCountdown(false);
       players = sortUsernames(players);
       setTotal(0);
       syncTotal = 0;
       finalStrikes = players[0].strikes;
       setOver(true);
+      setGameOver(true);
       played = [];
     });
 
-    socket.on('reenterCheck', (message, username, playerId, hand) => {
+    socket.on('reenterCheck', (message, username, playerId, newHand) => {
       console.log('reenterCheck')
       if (message === 'reenter') {
-        setCookies([{ name: 'playerId', value: playerId }])
-
-        console.log('message: ', message)
         if (username !== 'Waiting...') {
-          console.log('username: ', username)
-          setStarted(true);
           setUsernameChoice(false);
-          setWaiting(false);
         }
-        syncHand = [...hand];
-        setHand([...hand]);
+        setStarted(true);
+        syncHand = [...newHand];
+        setHand([...newHand]);
+        setOpponentHand([1, 2, 3]);
         setChose(true);
         setStart(start => false);
-        setJoining(joining => true);
+        !cookies.owner && setJoining(joining => true);
+        setDisplay(true);
       } else {
         console.log('oops: ', message);
         navigated = true;
@@ -768,10 +821,29 @@ const AppHumans = (props) => {
       }
     })
 
-    socket.on('enterFail', (message) => {
-      console.log('enter fail: ', message);
-      navigated = true;
-      navigate('/select', {state: { message }});
+    socket.on('enterCheck', (message) => {
+      if (message === 'OK') {
+        console.log('cool')
+        setStarted(true);
+        setDisplay(true);
+      } else {
+        console.log('enter fail: ', message);
+        navigated = true;
+        navigate('/select', {state: { message }});
+      }
+    })
+
+    socket.on('usernameCheck', (exists, username) => {
+      setUsernameMessage(exists);
+      console.log('exists: ', exists);
+      if (!exists) {
+        chosenName = username;
+        syncUsernames = [{ username, strikes: 0, turn: false }, ...syncUsernames.slice(1)];
+        setUsernames(usernames => [{ username, strikes: 0, turn: false }, ...usernames.slice(1)]);
+        setCookies([{ name: 'username', value: username }])
+        setWaiting(waiting => true);
+        setUsernameChoice(false);
+      }
     })
 
     socket.on('playerId', playerId => {
@@ -784,157 +856,180 @@ const AppHumans = (props) => {
       setOwner(true);
     })
 
-    socket.on('getCountdown', (index) => {
-      socket.emit('currentCountdown', roomCode, syncCountdown, index);
+    socket.on('getGameState', (index) => {
+      socket.emit('currentGameState', roomCode, syncCountdown, played[0], syncTotal, index);
     })
 
-    socket.on('gotCountdown', gotCountdown => {
-      syncCountdown = gotCountdown;
-      setCountdown(gotCountdown);
-      setDisplayCountdown(true);
+    socket.on('gotGameState', (gotCountdown, gotPlayed, gotTotal, gotReverse) => {
+      let wait = syncUsernames.reduce((accum, player) => {
+        if (player.username === 'Waiting...') {
+          accum = true;
+        }
+        return accum;
+      }, false);
+      console.log('********syncUsernames: ', syncUsernames);
+      console.log('********wait: ', wait);
+      if (!wait) {
+        reverse = gotReverse;
+        syncCountdown = gotCountdown;
+        played = gotPlayed ? [gotPlayed] : [];
+        syncTotal = gotTotal || 0;
+        setTotal(gotTotal || 0);
+        setCountdown(gotCountdown);
+        setDisplayCountdown(true);
+        timer();
+      }
     })
 
     return () => {
       if (!navigated) {
-        socket.disconnect();
+        let index = syncUsernames[0] ? syncUsernames[0].index : -1;
+        socket.disconnect(roomCode, index);
       }
     }
   }, []);
-
-  return (
-    <>
-    {usernameChoice ?
-      <UsernameComponent saveUsername={saveUsername} /> :
-      start && !joining ?
-        <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Human'} /> :
-        null
-    }
-    {waiting ? <WaitingComponent waiting={waiting} players={waitingCount} owner={owner} roomCode={roomCode} password={state.setPassword} /> : null}
-    <RoundMessageModal displayMessage={displayMessage} />
-    <RoundMessage displayMessage={displayMessage} >
-      {message}
-    </RoundMessage>
-    <WaitingessageModal waiting={waiting}/>
-    <OverMessageModal over={over} />
-    <OverMessage over={over}>
-      {finalStrikes === 3 ?
-      <div>You lose.</div>
-      :
-      <div>Congrats! You win!</div>}
-    </OverMessage>
-    <Timer turn={usernames[0].turn && displayCountdown && !over}>
-      <div>{countdown.toString()}</div>
-    </Timer>
-    <MainContainer>
-      <GameArea>
-        <PlayerArea1>
-          <Opponent botsCount={opponentsArray.length} >
-          {opponentsArray[1] ?
-              <>
-              {opponentsArray.map((bot, i) => {
-                return (
-                <BotAreaMobile row={i + 1} key={i}>
-                  <ComputerComponent strikes={usernames[i + 1].strikes}
-                                     computerHand={opponentHand}
-                                     human={human}
-                                     computer={computer}
-                                     over={over}
-                                     turn={usernames[i + 1].turn}
-                                     player={i + 1}
-                                     botsCount={opponentsArray.length}
-                                     countdown={countdown}
-                                     username={usernames[i + 1].username}
-                                     displayCountdown={displayCountdown}
-                                     active={usernames[i + 1].active}
-                                     />
-                </BotAreaMobile>
-                )
-              })}
-              <BotArea>
-                <ComputerComponent strikes={usernames[2].strikes}
-                                   computerHand={opponentHand}
-                                   human={human}
-                                   computer={computer}
-                                   over={over}
-                                   turn={usernames[2].turn}
-                                   player={2}
-                                   countdown={countdown}
-                                   username={usernames[2].username}
-                                   displayCountdown={displayCountdown}
-                                   active={usernames[2].active}
-                                   />
-              </BotArea>
-              </>
-              :
-              <ComputerComponent strikes={usernames[1].strikes}
-                                 computerHand={opponentHand}
-                                 human={human}
-                                 computer={computer}
-                                 over={over}
-                                 turn={usernames[1].turn}
-                                 player={1}
-                                 countdown={countdown}
-                                 username={usernames[1].username}
-                                 displayCountdown={displayCountdown}
-                                 active={usernames[1].active}
-                                 /> }
-          </Opponent>
-        </PlayerArea1>
-        <CenterRowArea>
-          <OpponentArea column={1}>
+  console.log('display: ', display);
+  console.log('on: ', on);
+  if (display) {
+    return (
+      <>
+      {usernameChoice ?
+        <UsernameComponent saveUsername={saveUsername} usernameMessage={usernameMessage} /> :
+        start && !joining ?
+          <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Human'} /> :
+          null
+      }
+      {waiting ? <WaitingComponent waiting={waiting} players={waitingCount} owner={owner} roomCode={roomCode} password={state.setPassword} /> : null}
+      <RoomModal on={on} />
+      <RoundMessageModal displayMessage={displayMessage} />
+      <RoundMessage displayMessage={displayMessage} >
+        {message}
+      </RoundMessage>
+      <OverMessageModal over={over} />
+      <OverMessage over={over}>
+        {finalStrikes === 3 ?
+        <div>You lose.</div>
+        :
+        <div>Congrats! You win!</div>}
+      </OverMessage>
+      <ReplayButton gameOver={gameOver && owner} onClick={() => replay()} >Replay?</ReplayButton>
+      <Timer turn={usernames[0].turn && displayCountdown && !over}>
+        <div>{countdown.toString()}</div>
+      </Timer>
+      <MainContainer>
+        <GameArea>
+          <PlayerArea1>
+            <Opponent botsCount={opponentsArray.length} >
             {opponentsArray[1] ?
-              <ComputerComponent strikes={usernames[1].strikes}
-                                 computerHand={opponentHand}
-                                 human={human}
-                                 computer={computer}
-                                 over={over}
-                                 turn={usernames[1].turn}
-                                 player={1}
-                                 countdown={countdown}
-                                 username={usernames[1].username}
-                                 displayCountdown={displayCountdown}
-                                 active={usernames[1].active}
-                                 /> :
-                                 null}
-          </OpponentArea>
-          <DeckArea column={2}>
-            <PlayingArea played={played} deck={deck} />
-          </DeckArea>
-          <OpponentArea column={3}>
-            {opponentsArray[2] ?
-                <ComputerComponent strikes={usernames[3].strikes}
-                                   computerHand={opponentHand}
-                                   human={human}
-                                   computer={computer}
-                                   over={over}
-                                   turn={usernames[3].turn}
-                                   player={3}
-                                   countdown={countdown}
-                                   username={usernames[3].username}
-                                   displayCountdown={displayCountdown}
-                                   active={usernames[3].active}
-                                   /> :
-                                   null}
-          </OpponentArea>
-        </CenterRowArea>
-        <TotalComponent total={total} />
-        <PlayerArea2>
-          <Player>
-            <PlayerOneComponent strikes={usernames[0].strikes}
-                                playerOneHand={hand}
-                                turn={usernames[0].turn}
-                                playCard={playCard}
-                                username={usernames[0].username} />
-          </Player>
-          <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0) }}} >Forfeit</ForfeitButton>
-        </PlayerArea2>
-      </GameArea>
-      <Attribution>
-        <a href='https://www.vecteezy.com/free-vector/playing-card-back'>Playing Card Back Vectors by Vecteezy</a>
-      </Attribution>
-    </MainContainer>
-    </>
-  )
+                <>
+                {opponentsArray.map((bot, i) => {
+                  return (
+                  <BotAreaMobile row={i + 1} key={i}>
+                    <ComputerComponent strikes={usernames[i + 1].strikes}
+                                      computerHand={opponentHand}
+                                      human={human}
+                                      computer={computer}
+                                      over={over}
+                                      turn={usernames[i + 1].turn}
+                                      player={i + 1}
+                                      botsCount={opponentsArray.length}
+                                      countdown={countdown}
+                                      username={usernames[i + 1].username}
+                                      displayCountdown={displayCountdown}
+                                      active={usernames[i + 1].active}
+                                      />
+                  </BotAreaMobile>
+                  )
+                })}
+                <BotArea>
+                  <ComputerComponent strikes={usernames[2].strikes}
+                                    computerHand={opponentHand}
+                                    human={human}
+                                    computer={computer}
+                                    over={over}
+                                    turn={usernames[2].turn}
+                                    player={2}
+                                    countdown={countdown}
+                                    username={usernames[2].username}
+                                    displayCountdown={displayCountdown}
+                                    active={usernames[2].active}
+                                    />
+                </BotArea>
+                </>
+                :
+                <ComputerComponent strikes={usernames[1].strikes}
+                                  computerHand={opponentHand}
+                                  human={human}
+                                  computer={computer}
+                                  over={over}
+                                  turn={usernames[1].turn}
+                                  player={1}
+                                  countdown={countdown}
+                                  username={usernames[1].username}
+                                  displayCountdown={displayCountdown}
+                                  active={usernames[1].active}
+                                  /> }
+            </Opponent>
+          </PlayerArea1>
+          <CenterRowArea>
+            <OpponentArea column={1}>
+              {opponentsArray[1] ?
+                <ComputerComponent strikes={usernames[1].strikes}
+                                  computerHand={opponentHand}
+                                  human={human}
+                                  computer={computer}
+                                  over={over}
+                                  turn={usernames[1].turn}
+                                  player={1}
+                                  countdown={countdown}
+                                  username={usernames[1].username}
+                                  displayCountdown={displayCountdown}
+                                  active={usernames[1].active}
+                                  /> :
+                                  null}
+            </OpponentArea>
+            <DeckArea column={2}>
+              <PlayingArea played={played} deck={deck} />
+            </DeckArea>
+            <OpponentArea column={3}>
+              {opponentsArray[2] ?
+                  <ComputerComponent strikes={usernames[3].strikes}
+                                    computerHand={opponentHand}
+                                    human={human}
+                                    computer={computer}
+                                    over={over}
+                                    turn={usernames[3].turn}
+                                    player={3}
+                                    countdown={countdown}
+                                    username={usernames[3].username}
+                                    displayCountdown={displayCountdown}
+                                    active={usernames[3].active}
+                                    /> :
+                                    null}
+            </OpponentArea>
+          </CenterRowArea>
+          <TotalComponent total={total} />
+          <PlayerArea2>
+            <Player>
+              <PlayerOneComponent strikes={usernames[0].strikes}
+                                  playerOneHand={hand}
+                                  turn={usernames[0].turn}
+                                  playCard={playCard}
+                                  username={usernames[0].username} />
+            </Player>
+            <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0) }}} >Forfeit</ForfeitButton>
+          </PlayerArea2>
+        </GameArea>
+        <Attribution>
+          <a href='https://www.vecteezy.com/free-vector/playing-card-back'>Playing Card Back Vectors by Vecteezy</a>
+        </Attribution>
+      </MainContainer>
+      </>
+    )
+  } else {
+    return <></>
+  }
+
 }
 
 export default AppHumans;

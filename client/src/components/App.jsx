@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import { Outlet, useParams } from 'react-router-dom';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
@@ -17,9 +17,29 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const fadeInModal = keyframes`
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+  }
+`;
+
+const fadeOutModal = keyframes`
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+`;
+
 const ChooseModal = styled.div`
   z-index: 100;
-  display: 'block';
+  display: block;
   position: fixed;
   top: 0;
   left: 0;
@@ -27,6 +47,7 @@ const ChooseModal = styled.div`
   width: 100vw;
   background: ${({ started }) => started ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)'};
 `;
+
 
 const App = () => {
   let { roomCode } = useParams();
@@ -70,7 +91,7 @@ const App = () => {
                          />
 
           {opponents === 'humans' && ready ?
-            <Outlet context={[setStarted, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1]} /> :
+            <Outlet context={[setStarted, started, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1]} /> :
             null
           }
           {opponents === 'computers' ?

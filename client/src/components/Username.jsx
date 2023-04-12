@@ -9,7 +9,7 @@ const StartContainer = styled.div`
   background-color: white;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 0.5fr 0.7fr;
+  grid-template-rows: 1fr 1fr 1fr;
   justify-items: center;
   align-items: center;
   left: 50%;
@@ -23,6 +23,13 @@ const CodeInput = styled.div`
   align-items: center;
 `;
 
+const Message = styled.div`
+  grid-row: 2;
+  visibility: ${({ usernameMessage }) => usernameMessage ? 'visible' : 'hidden' };
+  justify-items: center;
+  align-items: center;
+`;
+
 const StartButton = styled.button`
   grid-row: 3;
   width: 10rem;
@@ -30,7 +37,7 @@ const StartButton = styled.button`
   font-size: 1.5em;
 `;
 
-const UsernameComponent = ({ saveUsername }) => {
+const UsernameComponent = ({ saveUsername, usernameMessage }) => {
   const [username, setUsername] = useState('');
 
   function handleChange (e) {
@@ -43,6 +50,9 @@ const UsernameComponent = ({ saveUsername }) => {
         <label for="username" >Enter Username:</label>
         <input name="username" onChange={(e) => handleChange(e)} ></input>
       </CodeInput>
+      <Message usernameMessage={usernameMessage}>
+       <p>Username already taken</p>
+      </Message>
       <StartButton onClick={() => username && saveUsername(username) }>Set Username</StartButton>
     </StartContainer>
     )

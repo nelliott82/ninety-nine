@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SpecialCardComponent from './SpecialCard.jsx';
 
 const RulesDropDown = styled.div`
+  z-index: 1001;
   margin-left: 0.5rem;
   width: 98vw;
   height: 310px;

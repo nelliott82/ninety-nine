@@ -160,7 +160,7 @@ const Attribution = styled.div`
 `;
 
 const StartModal = styled.div`
-  z-index: 100;
+  z-index: auto;
   display: ${({ started }) => (started ? 'none' : 'block')};
   position: fixed;
   top: 0;

@@ -1,13 +1,12 @@
 const { shuffleDeck, createDeck } = require('../client/src/helperFiles/deck.js');;
 
-function formatPlayers(players, uid) {
+function formatPlayers(players, currentPlayerId) {
 
   return players ?
     players.reduce((accum, player, i) => {
-      let { id, username, strikes, turn, index, active } = player;
+      let { playerId, username, strikes, turn, index, active } = player;
       accum.playerObjects.push({ username, strikes, turn, index, active });
-
-      if (id === uid && !accum.hand.length) {
+      if (playerId === currentPlayerId && !accum.hand.length) {
         accum.hand = player.hand;
         accum.username = username;
         accum.strikes = strikes;
@@ -18,7 +17,7 @@ function formatPlayers(players, uid) {
     players;
 }
 
-function playCard(cardObj, room, uid) {
+function playCard(cardObj, room, playerId) {
   let newRound = false;
 
   if (cardObj[0][0] === '4') {
@@ -29,7 +28,7 @@ function playCard(cardObj, room, uid) {
 
   } else {
     if (room.total + cardObj[1] > 99) {
-      gameOver(room, uid);
+      gameOver(room, playerId);
       newRound = true;
       return newRound;
     } else {
@@ -39,7 +38,7 @@ function playCard(cardObj, room, uid) {
   }
 
   if (!newRound) {
-    updatePlayers(cardObj, room, uid);
+    updatePlayers(cardObj, room, playerId);
 
     if (!room.deck.length) {
       room.deck = shuffleDeck(room.discard);
@@ -52,8 +51,8 @@ function playCard(cardObj, room, uid) {
   }
 }
 
-function gameOver(room, uid) {
-  updatePlayers(false, room, uid);
+function gameOver(room, playerId) {
+  updatePlayers(false, room, playerId);
   newDeal(room);
 }
 
@@ -81,10 +80,10 @@ function dealCards(room) {
   }
 }
 
-function updatePlayers(cardObj, room, uid) {
+function updatePlayers(cardObj, room, playerId) {
   for (let i = 0; i < room.players.length; i++) {
 
-    if (room.players[i].id === uid) {
+    if (room.players[i].playerId === playerId) {
       room.players[i].turn = false;
       setNextPlayer(room, i);
       if (cardObj) {

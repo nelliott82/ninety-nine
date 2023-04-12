@@ -44,12 +44,12 @@ const Rooms = {
       }
       return this.generateRoomCode(str + allLetters[Math.floor(Math.random() * 26)]);
   },
-  create: function (roomCode, password, username, limit, uid) {
+  create: function (roomCode, password, username, limit, playerId) {
     let players = [];
 
     for (let i = 0; i < limit; i++) {
       players[i] = {
-        id: i ? undefined : uid,
+        playerId: i ? undefined : playerId,
         owner: i ? false : true,
         username: i ? 'Waiting...' : username,
         hand: [],
@@ -57,6 +57,7 @@ const Rooms = {
         turn: i ? false : true,
         active: i ? false : true,
         playTimer: null,
+        socket: i ? undefined : playerId,
         index: i
       }
     }
@@ -95,40 +96,22 @@ const Rooms = {
     clearTimeout(timeoutId);
     return this.timedDeleteRoom(roomCode);
   },
-  addPlayer: function (roomCode, uid, username = 'Waiting...') {
-    let room = this.data[roomCode];
+  addOrFindPlayer: function (roomCode, playerId, socket, username = 'Waiting...') {
+    let room = this.data[roomCode] || { players: [] };
     let openings = room.players.reduce((accum, player, i) => {
-      console.log('player.id: ', player.id);
-      console.log('uid: ', uid);
-      if ((!player.id || player.id === uid) && !accum.found) {
+      if ((!player.playerId || player.playerId === playerId) && !accum.found) {
         accum.found = true;
         accum.index = Math.max(accum.index, i);
       }
       return accum;
-    }, { found: false, index: 1 });
-    console.log('openings: ', openings);
-    if (openings.found) {
-      room.players[openings.index].id = uid;
-      room.players[openings.index].username = username;
-      room.players[openings.index].active = true;
-      room.inRoom += 1;
-      return room.players;
-    }
-    return false;
-  },
-  findPlayer: function (roomCode, oldUid, newUid) {
-    let room = this.data[roomCode];
-    let openings = room.players.reduce((accum, player, i) => {
-      if ((player.id === oldUid) && !accum.found) {
-        accum.found = true;
-        accum.index = Math.max(accum.index, i);
-      }
-      return accum;
-    }, { found: false, index: 1 });
+    }, { found: false, index: 0 });
 
     if (openings.found) {
-      room.players[openings.index].id = newUid;
+      room.players[openings.index].playerId = playerId;
+      room.players[openings.index].username = username;
       room.players[openings.index].active = true;
+      room.players[openings.index].socket = socket;
+      room.inRoom += 1;
       return room.players;
     }
     return false;
@@ -138,21 +121,26 @@ const Rooms = {
 
     this.updateTurns(room, currentPlayer, nextPlayer);
 
-    let filteredHand = room.players[currentPlayer].hand.filter(inHand => inHand[0] !== cardObj[0]);
+    let filteredHand = room.players[currentPlayer].hand.filter(inHand => {
+      if (inHand) {
+        return inHand[0] !== cardObj[0]
+      }
+    });
     room.players[currentPlayer].hand =[...filteredHand, room.deck.shift()];
 
     return room.players;
   },
-  forcePlay: function(currentPlayer, roomCode, syncTotal, reverse) {
+  forcePlay: function(forcedPlayer, roomCode, syncTotal, reverse) {
+    let room = this.data[roomCode] || {};
     let total = syncTotal;
     let newRound = false;
-    let player = this.data[roomCode].players[currentPlayer];
+    let player = this.data[roomCode].players[forcedPlayer];
     let players = this.data[roomCode].players;
     let gameOver;
     let cardObj = player.hand[0];
 
     if (cardObj[0][0] === '4') {
-      reverse = !reverse;
+      room.reverse = !reverse;
 
     } else if (cardObj[0][0] === 'K') {
       total = 99;
@@ -165,20 +153,31 @@ const Rooms = {
       }
     }
 
-    let nextPlayer = this.calculateNextPlayer(currentPlayer, roomCode, reverse);
-
-    this.playCard(roomCode, cardObj, currentPlayer, nextPlayer);
+    let nextPlayer = this.calculateNextPlayer(forcedPlayer, roomCode, room.reverse);
 
     if (!newRound) {
-      this.playCard(roomCode, cardObj, currentPlayer, nextPlayer);
+      this.playCard(roomCode, cardObj, forcedPlayer, nextPlayer);
     } else {
-      let newRoundResults = this.newRound(roomCode, currentPlayer, nextPlayer);
+      let newRoundResults = this.newRound(roomCode, forcedPlayer, nextPlayer);
       players = newRoundResults.players;
       newRound = newRoundResults.newRound;
       gameOver = !newRound;
     }
 
-    return { total, cardObj, reverseChange: reverse, newPlayer: nextPlayer, newRound, players, gameOver };
+    return { total, cardObj, reverseChange: room.reverse, newPlayer: nextPlayer, newRound, players, gameOver };
+  },
+  replay: function(roomCode) {
+    let room = this.data[roomCode];
+    room.players.forEach(player => {
+      player.strikes = 0;
+      player.active = true;
+      clearTimeout(player.playTimer);
+      player.hand = [];
+      player.turn = player.owner ? true : false;
+    })
+    dealCards(room);
+
+    room.timeoutId = this.restartGame(room.timeoutId, roomCode);
   },
   newRound: function(roomCode, currentPlayer, nextPlayer) {
     let room = this.data[roomCode];
@@ -217,7 +216,7 @@ const Rooms = {
     room.players[oldOwnerIndex].owner = false;
     room.players[newOwnerIndex].owner = true;
 
-    return room.players[newOwnerIndex].id;
+    return room.players[newOwnerIndex].socket;
   },
   setIndex: function(j, change, roomCode) {
     j = j + change;

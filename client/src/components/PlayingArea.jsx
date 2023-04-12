@@ -78,7 +78,7 @@ return (
             <CardArea>
             {played.length ?
               <CardStack
-                  src={`/assets/cards/${played[played.length - 1][0]}.png`} />
+                  src={`/assets/cards/${played[0][0]}.png`} />
             : null}
             </CardArea>
           </PlayedContainer>
