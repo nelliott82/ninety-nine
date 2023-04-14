@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useParams, useLocation } from 'react-router-dom';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
 import RoomComponent from './Room.jsx';
@@ -51,6 +51,7 @@ const ChooseModal = styled.div`
 
 const App = () => {
   let { roomCode } = useParams();
+  const location = useLocation();
   const [chose, setChose] = useState(false);
   const [tempChoice, setTempChoice] = useState('');
   const [opponents, setOpponents] = useState(tempChoice);
@@ -65,15 +66,21 @@ const App = () => {
 
   function saveRoomCode (generatedRoomCode) {
     setRoomCode1(roomCode1 => generatedRoomCode);
-    console.log('roomCode after save: ', roomCode1);
   }
 
   useEffect(() => {
     if (roomCode) {
-      console.log('roomCode found in App');
       setOpponents('humans');
       setReady(true);
       setChose(true);
+    } else if (location.state && location.state.refreshKey) {
+      window.history.replaceState({}, document.title);
+      setStarted(true);
+      setJoining(false);
+      setChose(false);
+      setOpponents(tempChoice);
+      setReady(false);
+      setRoomCode1('');
     }
   }, [])
 

@@ -5,7 +5,8 @@ const WaitingContainer = styled.div`
   z-index: 101;
   position: absolute;
   width: 15rem;
-  height: ${({ owner }) => owner ? '16rem' : '14rem'};
+  height: ${({ owner }) => owner ? '16rem' : '3rem'};
+  border-radius: 10px;
   background-color: white;
   display: ${({ display }) => display ? 'grid' : 'none'};
   grid-template-columns: 1fr;

@@ -4,11 +4,15 @@ function getCookie(name){
   });
 }
 
-function deleteCookie(name) {
-  if(getCookie(name)) {
-    document.cookie = name + "=" +
-      ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+function deleteCookies() {
+  let cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i].split('=')[0].trim();
+
+    document.cookie = cookie + "=; expires=Thu, 01 Jan 1970 00:00:01 GMT" + "; domain=" + document.domain + "; path=/";
+
   }
+  console.log('cookies: ', document.cookie.split(';'));
 }
 
 function makeCookieObject() {
@@ -35,13 +39,13 @@ function setCookies(cookies) {
     }
     console.log('name: ', name);
     console.log('value: ', value);
-    document.cookie = `${name}=${value}${expires}; path=/`;
+    document.cookie = `${name}=${value}${expires}; domain=${document.domain}; path=/`;
   }
 }
 
 module.exports = {
   getCookie,
-  deleteCookie,
+  deleteCookies,
   makeCookieObject,
   setCookies
 }

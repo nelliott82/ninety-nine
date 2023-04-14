@@ -8,6 +8,7 @@ const ChooseContainer = styled.div`
   width: 15rem;
   height: 14rem;
   background-color: white;
+  border-radius: 10px;
   display: ${({ chose }) => chose ? 'none' : 'grid'};
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 0.5fr 0.7fr;
@@ -60,6 +61,7 @@ const ChooseOpponents = ({ setChose, chose, chooseOpponents, setReady, setRoomCo
     if (opponents === 'computers') {
       socket.emit('deleteRoomCode', roomCodeHolder);
       socket.disconnect();
+      navigate('/room/computers');
     } else {
       setReady(true);
       navigate('/select');

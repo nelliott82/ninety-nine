@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import styled from 'styled-components';
-import { setCookies, deleteCookie, makeCookieObject } from '../helperFiles/cookies.js';
+import { setCookies, deleteCookies, makeCookieObject } from '../helperFiles/cookies.js';
 import socket from '../helperFiles/socket.js';
 
 let cookies = makeCookieObject();
@@ -9,11 +9,12 @@ let cookies = makeCookieObject();
 const RoomChoiceContainer = styled.div`
   position: absolute;
   width: 15rem;
-  height: 14rem;
+  height: 16rem;
   background-color: white;
+  border-radius: 10px;
   display: ${({ roomChoice }) => roomChoice ? 'none' : 'grid'};
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1.5fr 1fr 1fr 1fr;
   justify-items: center;
   align-items: center;
   left: 50%;
@@ -23,20 +24,21 @@ const RoomChoiceContainer = styled.div`
 
 const CodeInput = styled.div`
   grid-row: 1;
-  left-margin: 1rem;
+  margin: 5% 17%;
   justify-items: center;
   align-items: center;
 `;
 
 const PasswordInput = styled.div`
   grid-row: 3;
-  left-margin: 1rem;
+  margin: 5% 17%;
   justify-items: center;
   align-items: center;
 `;
 
 const ErrorMsg = styled.p`
   grid-row: ${({ row }) => row};
+  visibile: ${({ display }) => display ? 'visible' : 'hidden'};
 `;
 
 const RoomButton = styled.button`
@@ -53,12 +55,12 @@ const RoomComponent = () => {
   let { state } = useLocation();
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
-  const [noRoom, setNoRoom] = useState(false);
   const [givenRoomCode, setGivenRoomCode] = useState('');
   const [givenPassword, setGivenPassword] = useState('');
   const [create, setCreate] = useState(false);
-  const [incorrect, setIncorrect] = useState(false);
   const [enterPassword, setEnterPassword] = useState(false);
+  const [display, setDisplay] = useState(false);
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
   let [setStarted, started, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1] = useOutletContext();
 
@@ -77,6 +79,7 @@ const RoomComponent = () => {
       setCookies([{ name: 'owner', value: true }]);
     }
     if (givenRoomCode) {
+      console.log(givenRoomCode);
       socket.emit('roomCheck', givenRoomCode, givenPassword);
     } else if (givenPassword) {
       setCreate(false);
@@ -91,26 +94,25 @@ const RoomComponent = () => {
 
   useEffect(() => {
     if (state) {
+      setJoin(true);
+      setDisplay(true);
       if (state.enterPassword) {
+        setMessage('')
         setRoomCode1(state.roomCode);
         setGivenRoomCode(state.roomCode);
         setEnterPassword(true);
-        setJoin(true);
-      } else if (state.message === 'Incorrect password') {
-        setIncorrect(true);
       } else {
-        setNoRoom(true);
+        setMessage(state.message)
       }
-    } else {
-      state = { message: 'That room does not exist.' };
     }
 
     socket.on('roomResult', (passwordResult, room, roomCode) => {
       setJoin(true);
+
       if (!room) {
-        setNoRoom(true);
-      }
-      if (passwordResult) {
+        setDisplay(true);
+        setMessage('That room does not exist.');
+      } else if (passwordResult) {
         setJoining(true);
         setGivenRoomCode(roomCode);
         setRoomChoice(true);
@@ -119,7 +121,8 @@ const RoomComponent = () => {
         navigate(`/room/${roomCode}`,{ state: { setPassword: syncPassword } });
       } else {
         console.log('passwordFail');
-        setIncorrect(true);
+        setDisplay(true);
+        setMessage('Incorrect password');
       }
     })
 
@@ -138,12 +141,11 @@ const RoomComponent = () => {
               <input name="room" onChange={(e) => handleChange(e)} ></input>
             </CodeInput>
             }
-            {noRoom ? <ErrorMsg row={2} >{ state.message }</ErrorMsg> : null}
+            <ErrorMsg display={display} row={2} >{ message }</ErrorMsg>
             <PasswordInput>
               <label for="password">Enter Password:</label>
               <input name="password" onChange={(e) => handleChange(e)} ></input>
             </PasswordInput>
-            {incorrect && !noRoom ? <ErrorMsg row={4} >Incorrect password.</ErrorMsg> : null}
             <RoomButton row={4} onClick={() => (givenRoomCode && givenPassword) && createAndJoinRoom()}>Join</RoomButton>
           </>
           :

@@ -35,6 +35,7 @@ const ComputerArea = styled.div`
   align-items: center;
   animation: ${({turn}) => turn ? fadeIn : fadeOut} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
+  border-radius: 10px;
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
   @media (max-width: 1170px) {
@@ -200,7 +201,7 @@ const FinalMsg = styled.div`
 let placeHolder = [2, 3, 4];
 
 let ComputerComponent = ({ strikes,
-                           computerHand,
+                           hand,
                            human,
                            computer,
                            over,
@@ -223,8 +224,8 @@ let ComputerComponent = ({ strikes,
                                     `Name: ${username} ${active ? '' : ' [Inactive]'}`
                                     :
                                     `Computer ${player}`}</Name>
-      <Strikes botsCount={botsCount}>Strikes: {Array.isArray(strikes) ? strikes[player] : strikes}</Strikes>
-        {computerHand.length && strikes < 3 ? computerHand.map((card, i) => <Holder key={i} index={i + 2} botsCount={botsCount}>
+      <Strikes botsCount={botsCount}>{`Strikes: ${strikes}`}</Strikes>
+        {hand.length && strikes < 3 ? hand.map((card, i) => <Holder key={i} index={i + 2} botsCount={botsCount}>
                                                                 <ComputerCards key={i}
                                                                                index={i + 2}
                                                                                botsCount={botsCount}

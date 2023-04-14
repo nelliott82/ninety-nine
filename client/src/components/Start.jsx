@@ -7,6 +7,7 @@ const StartContainer = styled.div`
   width: 15rem;
   height: 14rem;
   background-color: white;
+  border-radius: 10px;
   display: ${({ display }) => display ? 'grid' : 'none'};
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 0.5fr 0.7fr;

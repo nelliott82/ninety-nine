@@ -134,11 +134,12 @@ const Rooms = {
     let room = this.data[roomCode] || {};
     let total = syncTotal;
     let newRound = false;
-    let player = this.data[roomCode].players[forcedPlayer];
-    let players = this.data[roomCode].players;
+    let player = room.players[forcedPlayer];
+    let players = room.players;
     let gameOver;
     let cardObj = player.hand[0];
-
+    console.log('forcedPlayer: ', forcedPlayer);
+    console.log('player: ', player);
     if (cardObj[0][0] === '4') {
       room.reverse = !reverse;
 

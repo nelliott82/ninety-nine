@@ -35,6 +35,7 @@ const PlayerOneArea = styled.div`
   align-items: center;
   animation: ${({turn}) => turn ? fadeIn : fadeOut} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
+  border-radius: 10px;
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
   @media (max-width: 1000px) {
@@ -90,7 +91,7 @@ PlayerOneCards.defaultProps = {
 
 var placeHolder = [2, 3, 4];
 
-var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, username }) => {
+var PlayerOneComponent = ({ strikes, hand, turn, playCard, username }) => {
   let [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -100,8 +101,8 @@ var PlayerOneComponent = ({ strikes, playerOneHand, turn, playCard, username }) 
 return (
     <PlayerOneArea turn={turn} animate={animate} >
       <Name>{username ? `Name: ${username}` : 'Player One'}</Name>
-      <Strikes>Strikes: {Array.isArray(strikes) ? strikes[0] : strikes}</Strikes>
-        {playerOneHand.length ? playerOneHand.map((card, i) => <Holder key={i} index={i + 2}>
+      <Strikes>{`Strikes: ${strikes}`}</Strikes>
+        {hand.length ? hand.map((card, i) => <Holder key={i} index={i + 2}>
                                                                 <PlayerOneCards key={i}
                                                                                 index={i + 2}
                                                                                 onClick={() => {if (turn) { playCard(card, 0) }}}

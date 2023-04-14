@@ -11,7 +11,7 @@ import StartComponent from './Start.jsx';
 import WaitingComponent from './Waiting.jsx';
 import TotalComponent from './Total.jsx';
 import socket from '../helperFiles/socket.js';
-import { getCookie, setCookies, makeCookieObject } from '../helperFiles/cookies.js';
+import { getCookie, setCookies, deleteCookies, makeCookieObject } from '../helperFiles/cookies.js';
 
 const GlobalStyle1 = createGlobalStyle`
   body {
@@ -124,14 +124,15 @@ const ForfeitButton = styled.button`
   }
 `
 
-const ReplayButton = styled.button`
-  width: 5rem;
+const GameOverButton = styled.button`
+  width: 6rem;
   height: 2rem;
   font-size: 1em;
   visibility: ${({ gameOver }) => gameOver ? 'visible' : 'hidden'};
   position: absolute;
   left: 50%;
-  top: 60%;
+  top: ${({ top }) => top};
+  transform: translate(-50%);
 `
 
 const CenterRowArea = styled.div`
@@ -239,13 +240,17 @@ const RoundMessageModal = styled.div`
 const RoundMessage = styled.div`
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 40%;
   transform: translate(-50%);
   visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
   animation: ${({displayMessage}) => displayMessage ? fadeIn : fadeOut} 0.5s linear;
   transition: visibility 0.5s linear;
   color: red;
   font-size: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 `;
 
 const RoomModal = styled.div`
@@ -273,7 +278,7 @@ const OverMessageModal = styled.div`
 const OverMessage = styled.div`
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 40%;
   transform: translate(-50%);
   visibility: ${({over}) => over ? 'visible' : 'hidden'};
   color: red;
@@ -297,7 +302,12 @@ let timerDelay = 15;
 let syncTotal = 0;
 let syncCountdown = timerDelay;
 let syncHand = [];
-let syncUsernames = [];
+let syncUsernames = new Array(2).fill('')
+                                .map(() => { return { username: 'Waiting...',
+                                                      strikes: 0,
+                                                      active: false,
+                                                      hand: [],
+                                                      turn: false } });
 let timerId;
 
 let roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
@@ -317,34 +327,27 @@ const AppHumans = (props) => {
     state = {};
   }
   let navigate = useNavigate();
-  let [hands, setHands] = useState([{
-    0: [],
-    1: [],
-    2: [],
-    3: []
-  }])
+
   let [display, setDisplay] = useState(false);
   let [on, setOn] = useState(true);
   let [hand, setHand] = useState([]);
   let [opponentHand, setOpponentHand] = useState([]);
-  let [turn, setTurn] = useState(0);
-  let [human, setHuman] = useState(true);
+  let [human, setHuman] = useState(false);
   let [computer, setComputer] = useState(false);
   let [total, setTotal] = useState(0);
-  let [strikes, setStrikes] = useState([0, 0, 0, 0]);
   let [over, setOver] = useState(false);
   let [gameOver, setGameOver] = useState(false);
+  let [endGame, setEndGame] = useState(false);
   let [displayMessage, setDisplayMessage] = useState(false);
-  let [round, setRound] = useState(0);
-  let [players, setPlayers] = useState([0, 1]);
-  let [opponentsArray, setOpponentsArray] = useState([1]);
+  let [overMessage, setOverMessage] = useState(false);
+  //let [players, setPlayers] = useState([0, 1]);
+  //let [opponentsArray, setOpponentsArray] = useState([1]);
   let [owner, setOwner] = useState(false);
   let [waiting, setWaiting] = useState(false);
-  let [yetToJoin, setYetToJoin] = useState(4);
+  let [waitingCount, setWaitingCount] = useState(4);
   let [countdown, setCountdown] = useState(timerDelay);
   let [displayCountdown, setDisplayCountdown] = useState(false);
   let [password, setPassword] = useState('');
-  let [waitingCount, setWaitingCount] = useState(4);
 
   function timer() {
     clearTimeout(timerId);
@@ -356,7 +359,7 @@ const AppHumans = (props) => {
       }, 1000)
     } else {
       if (syncUsernames[0].turn) {
-        playCard(syncHand[0], 0);
+        playCard(syncUsernames[0].hand[0], 0);
       }
     }
   }
@@ -373,12 +376,12 @@ const AppHumans = (props) => {
 
   const [usernameChoice, setUsernameChoice] = useState(true);
   const [usernameMessage, setUsernameMessage] = useState(false);
-  const [usernames, setUsernames] = useState(new Array(4)
-                                                  .fill('')
-                                                  .map(() => { return { username: 'Waiting...',
-                                                                        strikes: 0,
-                                                                        active: false,
-                                                                        turn: false } }));
+  const [usernames, setUsernames] = useState(new Array(2).fill('')
+                                                         .map(() => { return { username: 'Waiting...',
+                                                                               strikes: 0,
+                                                                               active: false,
+                                                                               hand: [],
+                                                                               turn: false } }));
   const [start, setStart] = useState(false);
   let [setStarted, started, setChose, joining, setJoining] = useOutletContext();
   let { roomCode } = useParams();
@@ -398,21 +401,36 @@ const AppHumans = (props) => {
     return cookies;
   }
 
-  function sortUsernames(playerObjects) {
+  function sortUsernames(playerObjects, gameOver) {
     let sorted = false;
 
     while (!sorted) {
-      console.log('chosenName: ', chosenName)
       if (playerObjects[0].username !== chosenName) {
         playerObjects.push(playerObjects.shift());
       } else {
         sorted = true;
       }
     }
-    syncUsernames = [...playerObjects];
 
-    setUsernames([...playerObjects]);
+    playerObjects[0].hand = syncUsernames[0].hand;
+
     return playerObjects;
+  }
+
+  function applyPlayers(players, key) {
+    for (let i = 0; i < players.length; i++) {
+      if (!syncUsernames[i] || !key) {
+        syncUsernames[i] = players[i];
+      } else if (syncUsernames[i].username !== players[i].username) {
+        syncUsernames[i] = players[i];
+      } else {
+        syncUsernames[i][key] = players[i][key];
+      }
+    }
+
+    setUsernames([...syncUsernames]);
+
+    return syncUsernames;
   }
 
   function setIndex(j, change) {
@@ -533,7 +551,6 @@ const AppHumans = (props) => {
       syncCountdown = timerDelay;
       setCountdown(timerDelay);
       timer();
-      // timer();
 
       // let tempHands = hands;
       // tempHands[player] = [...hands[player].filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]
@@ -548,48 +565,56 @@ const AppHumans = (props) => {
     }
   }
 
-  function deal(strikesArr = strikes) {
+  function deal() {
     let deals = 3;
-    let tempHands = {
-      0: [],
-      1: [],
-      2: [],
-      3: []
-    };
+
     while (deals) {
-      players.forEach(player => {
-        if (strikesArr[player] < 3) {
-          tempHands[player] = [...tempHands[player], deck.shift()]
-          setHands(hands => tempHands);
+      syncUsernames.forEach((player, i) => {
+        if (player.strikes < 3) {
+          player.hand = [...player.hand, deck.shift()];
         }
       })
       deals--;
     }
+
+    setUsernames(syncUsernames);
   }
 
-  function startGame(player = undefined, strikesArr = strikes) {
-    deal(strikesArr);
-    setStarted(true);
-    setWaiting(waiting => true);
+  function startGame() {
 
-    setCookies([{ name: 'created', value: true }]);
-    socket.emit('create', roomCode, state.setPassword, usernames[0].username, players.length);
+    if (human) {
+      setWaiting(waiting => true);
 
-    navigator.clipboard
-      .writeText(`Join me for a game of 99 here: http://localhost:99/room/${roomCode}\n\nPsst! The password is '${state.setPassword}'.`)
-      .then(() => {
-        console.log('Invitation link and password saved to clipboard.');
-      })
-      .catch(() => {
-        console.log('Inivitation link and password FAILED to save to clipboard. Sorry about that.');
-      });
+      setCookies([{ name: 'created', value: true }]);
+      socket.emit('create', roomCode, state.setPassword, usernames[0].username, usernames.length);
+      //sortUsernames(setHands(syncUsernames));
+
+      navigator.clipboard
+        .writeText(`Join me for a game of 99 here: http://localhost:99/room/${roomCode}\n\nPsst! The password is '${state.setPassword}'.`)
+        .then(() => {
+          console.log('Invitation link and password saved to clipboard.');
+        })
+        .catch(() => {
+          console.log('Inivitation link and password FAILED to save to clipboard. Sorry about that.');
+        });
+    } else {
+      deal();
+    }
 
   }
 
   function selectBots(e) {
     let num = parseInt(e.target.value);
-    setOpponentsArray(opponentsArray => [...Array(num).keys()]);
-    setPlayers(players => [...Array(num + 1).keys()]);
+    // setOpponentsArray(opponentsArray => [...Array(num).keys()]);
+    syncUsernames = [...syncUsernames.slice(0, 1), ...Array(num).fill('')
+                                                                .map(() => { return { username: 'Waiting...',
+                                                                                      strikes: 0,
+                                                                                      active: false,
+                                                                                      hand: [],
+                                                                                      turn: false } })]
+    console.log(syncUsernames)
+    setUsernames(syncUsernames);
+    //setPlayers(players => [...Array(num + 1).keys()]);
   }
 
   function setAndDisplayMessage(player = undefined, strikes) {
@@ -607,7 +632,7 @@ const AppHumans = (props) => {
     }, 2000)
   }
 
-  function saveUsername (username) {
+  function saveUsername(username) {
     let cookies = getCookieValues();
     chosenName = username;
     setCookies([{ name: 'roomCode', value: roomCode }])
@@ -619,39 +644,68 @@ const AppHumans = (props) => {
     } else {
       setUsernameChoice(false);
       setCookies([{ name: 'username', value: username }])
-      syncUsernames = [{ username, strikes: 0, turn: true }, ...syncUsernames.slice(1)];
-      setUsernames(usernames => [{ username, strikes: 0, turn: true }, ...usernames.slice(1)]);
+      syncUsernames = [{ username, strikes: 0, hand: [], turn: true }, ...syncUsernames.slice(1)];
+      setUsernames(usernames => [{ username, strikes: 0, hand: [], turn: true }, ...usernames.slice(1)]);
       setStart(true);
       setOwner(true);
     }
   }
 
-  function replay () {
-    socket.emit('replay', roomCode);
+  function setHands(players) {
+    return players.map(player => {
+      if (player.username !== chosenName && player.strikes < 3) {
+        player.hand = [1, 2, 3];
+      }
+      console.log(player);
+      return player;
+    })
+  }
+
+  function replay() {
+    if (!endGame) {
+      let cookies = makeCookieObject();
+      socket.emit('replay', roomCode, cookies.playerId);
+    }
+  }
+
+  function endGameFunc() {
+    let cookies = makeCookieObject();
+    socket.emit('endGame', roomCode, cookies.playerId);
   }
 
   useEffect(() => {
     console.log('roomCode: ', roomCode);
     console.log('state: ', state);
-    let cookies = getCookieValues();
-    socket.connect();
+    if (roomCode !== 'computers') {
+      setHuman(true);
+      let cookies = getCookieValues();
+      socket.connect();
 
-    if (cookies.hasOwnProperty('owner')) {
-      setOwner(true);
-      setJoining(false);
-    }
+      if (cookies.hasOwnProperty('owner')) {
+        setOwner(true);
+        setJoining(false);
+      }
 
-    if (!state.hasOwnProperty('setPassword')) {
-      //socket.connect();
+      if (!state.hasOwnProperty('setPassword')) {
+        //socket.connect();
 
-      console.log('does not have setPassword');
+        console.log('does not have setPassword');
 
-      if (document.cookie) {
+        if (document.cookie) {
 
-        if (cookies.playerId) {
-          socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username);
+          if (cookies.playerId) {
+            socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username);
+          } else {
+            console.log('entered here 1')
+            if (!cookies.owner) {
+              navigated = true;
+              navigate('/select', { state: { enterPassword: true, roomCode }})
+            }
+          }
+
         } else {
-          console.log('entered here 1')
+          // socket.connect();
+          console.log('entered here 1.1')
           if (!cookies.owner) {
             navigated = true;
             navigate('/select', { state: { enterPassword: true, roomCode }})
@@ -659,233 +713,262 @@ const AppHumans = (props) => {
         }
 
       } else {
-        // socket.connect();
-        console.log('entered here 1.1')
-        if (!cookies.owner) {
-          navigated = true;
-          navigate('/select', { state: { enterPassword: true, roomCode }})
+        console.log('entered here 2');
+        if ((cookies.playerId && !cookies.owner) || cookies.created) {
+          //setWaiting(true);
+          console.log('entered here 2.1');
+          socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username || 'Waiting...');
+        } else {
+          console.log('entered here 2.2');
+          socket.emit('enter', cookies.roomCode, state.setPassword, cookies.owner, cookies.playerId);
         }
       }
 
-    } else {
-      console.log('entered here 2');
-      if ((cookies.playerId && !cookies.owner) || cookies.created) {
-        //setWaiting(true);
-        console.log('entered here 2.1');
-        socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username || 'Waiting...');
-      } else {
-        console.log('entered here 2.2');
-        socket.emit('enter', cookies.roomCode, state.setPassword, cookies.owner, cookies.playerId);
-      }
-    }
-
-    socket.on('players', (players, restart) => {
-      getCookieValues()
-      console.log('players: ', players);
-      if (restart) {
-        finalStrikes = 0;
-        setOver(false);
-        setGameOver(false);
-      }
-
-      count = players.reduce((accum, player) => {
-        if (player.username === "Waiting...") {
-          accum += 1;
+      socket.on('players', (players, restart) => {
+        getCookieValues()
+        console.log('players: ', players);
+        if (restart) {
+          finalStrikes = 0;
+          setOver(false);
+          setGameOver(false);
         }
-        return accum;
-      }, 0)
-      setWaitingCount(count);
 
-      if (!count) {
-        setWaiting(false);
-        setOn(false);
-        setAndDisplayMessage();
-        restartTimer(2500);
-      }
-      sortUsernames(players);
-      console.log('syncUsernames: ', syncUsernames);
-      setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
-    });
+        count = players.reduce((accum, player) => {
+          if (player.username === "Waiting...") {
+            accum += 1;
+          }
+          return accum;
+        }, 0)
+        setWaitingCount(count);
 
-    socket.on('playerReenter', (players) => {
-      getCookieValues();
-      players = sortUsernames(players);
-      finalStrikes = players[0].strikes;
-      if (finalStrikes === 3) {
-        setOver(true);
-      }
-      setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
-
-      console.log('playerReenter players: ', players);
-      let playerState = players.reduce((accum, player) => {
-        if (player.username === "Waiting...") {
-          accum.waiting = true;
-          accum.count += 1;
+        if (!count) {
+          setWaiting(false);
+          setOn(false);
+          setAndDisplayMessage();
+          restartTimer(2500);
         }
-        if (!player.active) {
-          accum.inactive += 1;
-        }
-        if (player.strikes === 3) {
-          accum.strikes += 1;
-        }
-        return accum;
-      }, { waiting: false, count: 0, inactive: 0, strikes: 0 });
-      chosenName !== 'Waiting...' && setWaiting(playerState.waiting);
-      chosenName !== 'Waiting...' && setOn(playerState.waiting);
-      setWaitingCount(playerState.count);
+        applyPlayers(setHands(sortUsernames(players)));
+        //setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
+      });
 
-      if (((playerState.inactive === players.length - 1) && !playerState.waiting) ||
-          (playerState.strikes === players.length - 1)) {
+      socket.on('playerEnter', (players) => {
+        applyPlayers(sortUsernames(players), 'active');
+      })
+
+      socket.on('usernameSet', (players) => {
+        applyPlayers(setHands(sortUsernames(players)), 'username');
+      })
+
+      socket.on('gameEnded', () => {
+        setEndGame(true);
+        setOverMessage('The room is being closed. You will be redirected in 5 seconds.');
+
+        setTimeout(() => {
+          deleteCookies();
+          console.log('document.title: ', document.title);
+          window.history.replaceState({}, document.title);
+          setStarted(false);
+          const refreshKey = Math.random().toString(36).substring(2);
+          navigate('/', { state: { refreshKey } });
+        }, 5000);
+      })
+
+      socket.on('playerReenter', (players) => {
+        getCookieValues();
+        //setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
+
+        console.log('playerReenter players: ', players);
+        let playerState = players.reduce((accum, player) => {
+          if (player.username === "Waiting...") {
+            accum.waiting = true;
+            accum.count += 1;
+          }
+          if (!player.active) {
+            accum.inactive += 1;
+          }
+          if (player.strikes === 3) {
+            accum.strikes += 1;
+          }
+          return accum;
+        }, { waiting: false, count: 0, inactive: 0, strikes: 0 });
+
+        if (chosenName !== 'Waiting...') {
+          setWaiting(playerState.waiting);
+          setOn(playerState.waiting);
+        }
+
+        setWaitingCount(playerState.count);
+
+        if (!playerState.count) {
+          players = applyPlayers(setHands(sortUsernames(players)));
+        } else {
+          players = applyPlayers(sortUsernames(players), 'active');
+        }
+
+        finalStrikes = players[0].strikes;
+        if (finalStrikes === 3) {
+          setOver(true);
+          setOverMessage('You lose');
+        }
+
+        if (((playerState.inactive === players.length - 1) && !playerState.waiting) ||
+            (playerState.strikes === players.length - 1)) {
+          setDisplayCountdown(false);
+          setTotal(0);
+          syncTotal = 0;
+          setOver(true);
+          setOverMessage('Congrats! You win!');
+          !(playerState.inactive === players.length - 1) && setGameOver(true);
+          played = [];
+        }
+
+      });
+
+      let attempts = 0;
+      socket.on('hand', (newHand) => {
+
+        if (!newHand.length && syncUsernames[0].strikes < 3 && attempts < 3) {
+          attempts += 1;
+          socket.emit('getHand', roomCode, syncUsernames[0].index);
+        } else {
+          syncUsernames[0].hand = [...newHand];
+          setUsernames(usernames => [...syncUsernames]);
+          setOpponentHand([1, 2, 3]);
+        }
+      });
+
+      socket.on('nextTurn', (players, total, discard, reverseChange) => {
+
+        reverse = reverseChange;
+        applyPlayers(sortUsernames(players), 'turn');
+        restartTimer(0);
+        setTotal(total);
+        syncTotal = total;
+        played = [discard];
+      });
+
+      socket.on('newRound', (players, username, strikes) => {
+        console.log('new round')
         setDisplayCountdown(false);
+        players = applyPlayers(setHands(sortUsernames(players)));
         setTotal(0);
         syncTotal = 0;
-        setOver(true);
-        !(playerState.inactive === players.length - 1) && setGameOver(true);
+        if (players[0].strikes === 3) {
+          finalStrikes = 3;
+          setOver(true);
+          setOverMessage('You lose.');
+        } else {
+
+          restartTimer(2500);
+          setAndDisplayMessage(username, strikes);
+        }
         played = [];
-      }
+      });
 
-    });
-
-    let attempts = 0;
-    socket.on('hand', (newHand) => {
-
-      if (!newHand.length && syncUsernames[0].strikes < 3 && attempts < 3) {
-        attempts += 1;
-        socket.emit('getHand', roomCode, syncUsernames[0].index);
-      } else {
-        syncHand = newHand;
-        setHand(hand => [...newHand]);
-        setOpponentHand([1, 2, 3]);
-      }
-    });
-
-    socket.on('nextTurn', (players, total, discard, reverseChange) => {
-
-      reverse = reverseChange;
-      sortUsernames(players, 'nextTurn');
-      restartTimer(0);
-      setTotal(total);
-      syncTotal = total;
-      played = [discard];
-    });
-
-    socket.on('newRound', (players, username, strikes) => {
-      console.log('new round')
-      setDisplayCountdown(false);
-      players = sortUsernames(players);
-      setTotal(0);
-      syncTotal = 0;
-      setRound(round => round + 1);
-      if (players[0].strikes === 3) {
-        finalStrikes = 3;
+      socket.on('gameOver', (players) => {
+        console.log('game over')
+        clearTimeout(timerId);
+        setDisplayCountdown(false);
+        applyPlayers(setHands(sortUsernames(players)));
+        setTotal(0);
+        syncTotal = 0;
+        finalStrikes = players[0].strikes;
+        setOverMessage(finalStrikes === 3 ? 'You lose.' : 'Congrats! You win!');
         setOver(true);
-      } else {
+        setGameOver(true);
+        played = [];
+      });
 
-        restartTimer(2500);
-        setAndDisplayMessage(username, strikes);
-      }
-      played = [];
-    });
+      socket.on('reenterCheck', (message, username, playerId, newHand) => {
+        console.log('reenterCheck')
+        if (message === 'reenter') {
+          if (username !== 'Waiting...') {
+            setUsernameChoice(false);
+          }
+          setStarted(true);
+          syncUsernames[0].hand = [...newHand];
+          setUsernames(usernames => [...syncUsernames]);
+          setOpponentHand([1, 2, 3]);
+          setChose(true);
+          setStart(start => false);
+          !cookies.owner && setJoining(joining => true);
+          setDisplay(true);
+        } else {
+          console.log('oops: ', message);
+          navigated = true;
+          navigate('/select', {state: { message }});
+        }
+      })
 
-    socket.on('gameOver', (players) => {
-      console.log('game over')
-      clearTimeout(timerId);
-      setDisplayCountdown(false);
-      players = sortUsernames(players);
-      setTotal(0);
-      syncTotal = 0;
-      finalStrikes = players[0].strikes;
-      setOver(true);
-      setGameOver(true);
-      played = [];
-    });
+      socket.on('enterCheck', (message) => {
+        if (message === 'OK') {
+          console.log('cool')
+          setStarted(true);
+          setDisplay(true);
+        } else {
+          console.log('enter fail: ', message);
+          navigated = true;
+          navigate('/select', {state: { message }});
+        }
+      })
 
-    socket.on('reenterCheck', (message, username, playerId, newHand) => {
-      console.log('reenterCheck')
-      if (message === 'reenter') {
-        if (username !== 'Waiting...') {
+      socket.on('usernameCheck', (exists, username) => {
+        setUsernameMessage(exists);
+        console.log('exists: ', exists);
+        if (!exists) {
+          chosenName = username;
+          setCookies([{ name: 'username', value: username }])
+          setWaiting(waiting => true);
           setUsernameChoice(false);
         }
-        setStarted(true);
-        syncHand = [...newHand];
-        setHand([...newHand]);
-        setOpponentHand([1, 2, 3]);
-        setChose(true);
-        setStart(start => false);
-        !cookies.owner && setJoining(joining => true);
-        setDisplay(true);
-      } else {
-        console.log('oops: ', message);
-        navigated = true;
-        navigate('/select', {state: { message }});
-      }
-    })
+      })
 
-    socket.on('enterCheck', (message) => {
-      if (message === 'OK') {
-        console.log('cool')
-        setStarted(true);
-        setDisplay(true);
-      } else {
-        console.log('enter fail: ', message);
-        navigated = true;
-        navigate('/select', {state: { message }});
-      }
-    })
+      socket.on('playerId', playerId => {
+        let cookiesObject = getCookieValues();
+        setCookies([{ name: 'playerId', value: playerId }])
+      })
 
-    socket.on('usernameCheck', (exists, username) => {
-      setUsernameMessage(exists);
-      console.log('exists: ', exists);
-      if (!exists) {
-        chosenName = username;
-        syncUsernames = [{ username, strikes: 0, turn: false }, ...syncUsernames.slice(1)];
-        setUsernames(usernames => [{ username, strikes: 0, turn: false }, ...usernames.slice(1)]);
-        setCookies([{ name: 'username', value: username }])
-        setWaiting(waiting => true);
-        setUsernameChoice(false);
-      }
-    })
+      socket.on('owner', () => {
+        setCookies([{ name: 'owner', value: true }]);
+        setOwner(true);
+      })
 
-    socket.on('playerId', playerId => {
-      let cookiesObject = getCookieValues();
-      setCookies([{ name: 'playerId', value: playerId }])
-    })
+      socket.on('getGameState', (index) => {
+        socket.emit('currentGameState', roomCode, syncCountdown, played[0], syncTotal, index);
+      })
 
-    socket.on('owner', () => {
-      setCookies([{ name: 'owner', value: true }]);
-      setOwner(true);
-    })
-
-    socket.on('getGameState', (index) => {
-      socket.emit('currentGameState', roomCode, syncCountdown, played[0], syncTotal, index);
-    })
-
-    socket.on('gotGameState', (gotCountdown, gotPlayed, gotTotal, gotReverse) => {
-      let wait = syncUsernames.reduce((accum, player) => {
-        if (player.username === 'Waiting...') {
-          accum = true;
+      socket.on('gotGameState', (gotCountdown, gotPlayed, gotTotal, gotReverse) => {
+        let wait = syncUsernames.reduce((accum, player) => {
+          if (player.username === 'Waiting...') {
+            accum = true;
+          }
+          return accum;
+        }, false);
+        console.log('********syncUsernames: ', syncUsernames);
+        console.log('********wait: ', wait);
+        if (!wait) {
+          reverse = gotReverse;
+          syncCountdown = gotCountdown;
+          played = gotPlayed ? [gotPlayed] : [];
+          syncTotal = gotTotal || 0;
+          setTotal(gotTotal || 0);
+          setCountdown(gotCountdown);
+          setDisplayCountdown(true);
+          timer();
         }
-        return accum;
-      }, false);
-      console.log('********syncUsernames: ', syncUsernames);
-      console.log('********wait: ', wait);
-      if (!wait) {
-        reverse = gotReverse;
-        syncCountdown = gotCountdown;
-        played = gotPlayed ? [gotPlayed] : [];
-        syncTotal = gotTotal || 0;
-        setTotal(gotTotal || 0);
-        setCountdown(gotCountdown);
-        setDisplayCountdown(true);
-        timer();
-      }
-    })
+      })
 
-    return () => {
-      if (!navigated) {
-        let index = syncUsernames[0] ? syncUsernames[0].index : -1;
-        socket.disconnect(roomCode, index);
+      return () => {
+        if (!navigated) {
+          let index = syncUsernames[0] ? syncUsernames[0].index : -1;
+          socket.disconnect(roomCode, index);
+        }
       }
+    } else {
+      setComputer(true);
+      setDisplay(true);
+      setStarted(true);
+      setUsernameChoice(false);
     }
   }, []);
   console.log('display: ', display);
@@ -896,7 +979,7 @@ const AppHumans = (props) => {
       {usernameChoice ?
         <UsernameComponent saveUsername={saveUsername} usernameMessage={usernameMessage} /> :
         start && !joining ?
-          <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Human'} /> :
+          <StartComponent startGame={startGame} selectBots={selectBots} opponents={human ? 'Human' : 'Computer'} /> :
           null
       }
       {waiting ? <WaitingComponent waiting={waiting} players={waitingCount} owner={owner} roomCode={roomCode} password={state.setPassword} /> : null}
@@ -907,75 +990,73 @@ const AppHumans = (props) => {
       </RoundMessage>
       <OverMessageModal over={over} />
       <OverMessage over={over}>
-        {finalStrikes === 3 ?
-        <div>You lose.</div>
-        :
-        <div>Congrats! You win!</div>}
+        {overMessage}
       </OverMessage>
-      <ReplayButton gameOver={gameOver && owner} onClick={() => replay()} >Replay?</ReplayButton>
+      <GameOverButton gameOver={gameOver && owner && !endGame} top={'60%'} onClick={() => replay()} >Replay</GameOverButton>
+      <GameOverButton gameOver={gameOver && owner && !endGame} top={'65%'} onClick={() => endGameFunc()} >End Game</GameOverButton>
       <Timer turn={usernames[0].turn && displayCountdown && !over}>
         <div>{countdown.toString()}</div>
       </Timer>
       <MainContainer>
         <GameArea>
           <PlayerArea1>
-            <Opponent botsCount={opponentsArray.length} >
-            {opponentsArray[1] ?
+            <Opponent botsCount={usernames.length - 1} >
+            {usernames[2] ?
                 <>
-                {opponentsArray.map((bot, i) => {
+                {usernames.slice(1).map((bot, i) => {
                   return (
                   <BotAreaMobile row={i + 1} key={i}>
                     <ComputerComponent strikes={usernames[i + 1].strikes}
-                                      computerHand={opponentHand}
-                                      human={human}
-                                      computer={computer}
-                                      over={over}
-                                      turn={usernames[i + 1].turn}
-                                      player={i + 1}
-                                      botsCount={opponentsArray.length}
-                                      countdown={countdown}
-                                      username={usernames[i + 1].username}
-                                      displayCountdown={displayCountdown}
-                                      active={usernames[i + 1].active}
-                                      />
+                                       hand={usernames[i + 1].hand}
+                                       human={human}
+                                       computer={computer}
+                                       over={over}
+                                       turn={usernames[i + 1].turn}
+                                       player={i + 1}
+                                       botsCount={usernames.length - 1}
+                                       countdown={countdown}
+                                       username={usernames[i + 1].username}
+                                       displayCountdown={displayCountdown}
+                                       active={usernames[i + 1].active}
+                                       />
                   </BotAreaMobile>
                   )
                 })}
                 <BotArea>
                   <ComputerComponent strikes={usernames[2].strikes}
-                                    computerHand={opponentHand}
-                                    human={human}
-                                    computer={computer}
-                                    over={over}
-                                    turn={usernames[2].turn}
-                                    player={2}
-                                    countdown={countdown}
-                                    username={usernames[2].username}
-                                    displayCountdown={displayCountdown}
-                                    active={usernames[2].active}
-                                    />
+                                     hand={usernames[2].hand}
+                                     human={human}
+                                     computer={computer}
+                                     over={over}
+                                     turn={usernames[2].turn}
+                                     player={2}
+                                     countdown={countdown}
+                                     username={usernames[2].username}
+                                     displayCountdown={displayCountdown}
+                                     active={usernames[2].active}
+                                     />
                 </BotArea>
                 </>
                 :
                 <ComputerComponent strikes={usernames[1].strikes}
-                                  computerHand={opponentHand}
-                                  human={human}
-                                  computer={computer}
-                                  over={over}
-                                  turn={usernames[1].turn}
-                                  player={1}
-                                  countdown={countdown}
-                                  username={usernames[1].username}
-                                  displayCountdown={displayCountdown}
-                                  active={usernames[1].active}
-                                  /> }
+                                   hand={usernames[1].hand}
+                                   human={human}
+                                   computer={computer}
+                                   over={over}
+                                   turn={usernames[1].turn}
+                                   player={1}
+                                   countdown={countdown}
+                                   username={usernames[1].username}
+                                   displayCountdown={displayCountdown}
+                                   active={usernames[1].active}
+                                   /> }
             </Opponent>
           </PlayerArea1>
           <CenterRowArea>
             <OpponentArea column={1}>
-              {opponentsArray[1] ?
+              {usernames[2] ?
                 <ComputerComponent strikes={usernames[1].strikes}
-                                  computerHand={opponentHand}
+                                   hand={usernames[1].hand}
                                   human={human}
                                   computer={computer}
                                   over={over}
@@ -992,9 +1073,9 @@ const AppHumans = (props) => {
               <PlayingArea played={played} deck={deck} />
             </DeckArea>
             <OpponentArea column={3}>
-              {opponentsArray[2] ?
+              {usernames[3] ?
                   <ComputerComponent strikes={usernames[3].strikes}
-                                    computerHand={opponentHand}
+                                    hand={usernames[3].hand}
                                     human={human}
                                     computer={computer}
                                     over={over}
@@ -1012,7 +1093,7 @@ const AppHumans = (props) => {
           <PlayerArea2>
             <Player>
               <PlayerOneComponent strikes={usernames[0].strikes}
-                                  playerOneHand={hand}
+                                  hand={usernames[0].hand}
                                   turn={usernames[0].turn}
                                   playCard={playCard}
                                   username={usernames[0].username} />
