@@ -9,7 +9,7 @@ const ChooseContainer = styled.div`
   height: 14rem;
   background-color: white;
   border-radius: 10px;
-  display: ${({ chose }) => chose ? 'none' : 'grid'};
+  display: ${({ choose }) => choose ? 'none' : 'grid'};
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 0.5fr 0.7fr;
   justify-items: center;
@@ -41,42 +41,46 @@ const ChooseButton = styled.button`
   font-size: 1.5em;
 `;
 
-const ChooseOpponents = ({ setChose, chose, chooseOpponents, setReady, setRoomCode1 }) => {
+let roomCodeHolder;
+
+const ChooseOpponents = ({ setReady, setChooseOpponents, setChooseRoom, setRoomCodeApp }) => {
   const [opponents, setOpponents] = useState('');
+  const [choose, setChoose] = useState(false);
   const navigate = useNavigate();
-  let roomCodeHolder;
 
   function handleChange (e) {
     setOpponents(e.target.value);
-    if (e.target.value === 'humans') {
-      socket.connect();
-
-      socket.emit('getRoomCode');
-    }
   }
 
   function confirmChoice () {
-    setChose(true);
-    chooseOpponents(opponents);
+    setChoose(true);
     if (opponents === 'computers') {
+      setOpponents('');
       socket.emit('deleteRoomCode', roomCodeHolder);
       socket.disconnect();
-      navigate('/room/computers');
-    } else {
+      setChooseOpponents(false);
       setReady(true);
-      navigate('/select');
+      navigate('/computers');
+    } else {
+      setOpponents('');
+      setChooseOpponents(false);
+      setChooseRoom(true);
     }
   }
 
   useEffect(() => {
+    socket.connect();
+
     socket.on('roomCode', (roomCode) => {
       roomCodeHolder = roomCode;
-      setRoomCode1(roomCode);
+      setRoomCodeApp(roomCode);
     })
+
+    socket.emit('getRoomCode');
   }, [])
 
   return (
-    <ChooseContainer chose={chose}>
+    <ChooseContainer choose={choose}>
       <OpponentsDropDownLabel>Choose Your Opponents:</OpponentsDropDownLabel>
       <OpponentsDropDown onChange={(e) => handleChange(e)}>
         <option value='' >-</option>

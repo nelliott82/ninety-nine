@@ -100,7 +100,7 @@ var PlayerOneComponent = ({ strikes, hand, turn, playCard, username }) => {
 
 return (
     <PlayerOneArea turn={turn} animate={animate} >
-      <Name>{username ? `Name: ${username}` : 'Player One'}</Name>
+      <Name>{username ? `Name: ${username !== 'Waiting...' ? username : ''}` : 'Player One'}</Name>
       <Strikes>{`Strikes: ${strikes}`}</Strikes>
         {hand.length ? hand.map((card, i) => <Holder key={i} index={i + 2}>
                                                                 <PlayerOneCards key={i}

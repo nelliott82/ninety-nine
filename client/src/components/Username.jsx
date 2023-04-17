@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const StartContainer = styled.div`
+const UsernameContainer = styled.div`
   z-index: 101;
   position: absolute;
   width: 15rem;
@@ -18,8 +18,9 @@ const StartContainer = styled.div`
   transform: translate(-50%, -50%);
 `;
 
-const CodeInput = styled.div`
-  grid-row: 1;
+const UsernameInput = styled.div`
+  grid-row: 3;
+  margin: 5% 17%;
   justify-items: center;
   align-items: center;
 `;
@@ -31,7 +32,7 @@ const Message = styled.div`
   align-items: center;
 `;
 
-const StartButton = styled.button`
+const UsernameButton = styled.button`
   grid-row: 3;
   width: 10rem;
   height: 4rem;
@@ -46,16 +47,16 @@ const UsernameComponent = ({ saveUsername, usernameMessage }) => {
   }
 
   return (
-    <StartContainer>
-      <CodeInput>
-        <label for="username" >Enter Username:</label>
-        <input name="username" onChange={(e) => handleChange(e)} ></input>
-      </CodeInput>
+    <UsernameContainer>
       <Message usernameMessage={usernameMessage}>
        <p>Username already taken</p>
       </Message>
-      <StartButton onClick={() => username && saveUsername(username) }>Set Username</StartButton>
-    </StartContainer>
+      <UsernameInput>
+        <label for="username" >Enter Username:</label>
+        <input name="username" onChange={(e) => handleChange(e)} ></input>
+      </UsernameInput>
+      <UsernameButton onClick={() => username && saveUsername(username) }>Set Username</UsernameButton>
+    </UsernameContainer>
     )
   }
 

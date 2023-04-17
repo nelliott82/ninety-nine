@@ -73,7 +73,7 @@ const RulesTab = styled.div`
   animation: ${({showMenu}) => showMenu ? MoveUpTab('0.5rem', '20rem') : MoveDownTab('20rem', '0.5rem')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   left: 3rem;
   position: fixed;
-  border-radius: 0 0 40% 40%;
+  border-radius: 0 0 5px 5px;
   :hover {
     cursor: pointer;
   }

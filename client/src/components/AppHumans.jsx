@@ -25,6 +25,7 @@ const MainContainer = styled.div`
   width: 100vw;
   height: 100vh;
   display: grid;
+  margin-top: 1em;
   grid-template-columns: 1fr;
   grid-template-rows: 5fr;
   justify-items: center;
@@ -322,7 +323,8 @@ let playerId = '';
 let finalStrikes = 0;
 
 const AppHumans = (props) => {
-  let { state } = useLocation();
+  const location = useLocation();
+  let { state } = location;
   if (!state) {
     state = {};
   }
@@ -383,7 +385,7 @@ const AppHumans = (props) => {
                                                                                hand: [],
                                                                                turn: false } }));
   const [start, setStart] = useState(false);
-  let [setStarted, started, setChose, joining, setJoining] = useOutletContext();
+  let [setStarted, started, setJoining, joining] = useOutletContext();
   let { roomCode } = useParams();
 
 
@@ -401,11 +403,11 @@ const AppHumans = (props) => {
     return cookies;
   }
 
-  function sortUsernames(playerObjects, gameOver) {
+  function sortUsernames(playerObjects, i) {
     let sorted = false;
 
     while (!sorted) {
-      if (playerObjects[0].username !== chosenName) {
+      if (playerObjects[0].index !== i) {
         playerObjects.push(playerObjects.shift());
       } else {
         sorted = true;
@@ -417,14 +419,16 @@ const AppHumans = (props) => {
     return playerObjects;
   }
 
-  function applyPlayers(players, key) {
+  function applyPlayers(players, keys) {
     for (let i = 0; i < players.length; i++) {
-      if (!syncUsernames[i] || !key) {
+      if (!syncUsernames[i] || !keys) {
         syncUsernames[i] = players[i];
       } else if (syncUsernames[i].username !== players[i].username) {
         syncUsernames[i] = players[i];
       } else {
-        syncUsernames[i][key] = players[i][key];
+        for (let j = 0; j < keys.length; j++) {
+          syncUsernames[i][keys[j]] = players[i][keys[j]];
+        }
       }
     }
 
@@ -529,7 +533,7 @@ const AppHumans = (props) => {
       reverse = !reverse;
 
     } else if (cardObj[0][0] === 'K') {
-      setTotal(total => 99);
+      setTotal(total => 99);        syncUsernames[i][key] = players[i][key];
       syncTotal = 99;
 
     } else {
@@ -670,13 +674,14 @@ const AppHumans = (props) => {
 
   function endGameFunc() {
     let cookies = makeCookieObject();
+    setEndGame(true);
     socket.emit('endGame', roomCode, cookies.playerId);
   }
 
   useEffect(() => {
     console.log('roomCode: ', roomCode);
     console.log('state: ', state);
-    if (roomCode !== 'computers') {
+    if (location.pathname !== '/computers') {
       setHuman(true);
       let cookies = getCookieValues();
       socket.connect();
@@ -694,37 +699,33 @@ const AppHumans = (props) => {
         if (document.cookie) {
 
           if (cookies.playerId) {
-            socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username);
+            socket.emit('reenter', cookies.playerId, cookies.roomCode);
           } else {
             console.log('entered here 1')
-            if (!cookies.owner) {
-              navigated = true;
-              navigate('/select', { state: { enterPassword: true, roomCode }})
-            }
+            navigated = true;
+            navigate('/select', { state: { enterPassword: true, roomCode }})
           }
 
         } else {
           // socket.connect();
           console.log('entered here 1.1')
-          if (!cookies.owner) {
-            navigated = true;
-            navigate('/select', { state: { enterPassword: true, roomCode }})
-          }
+          navigated = true;
+          navigate('/select', { state: { enterPassword: true, roomCode }})
         }
 
       } else {
         console.log('entered here 2');
-        if ((cookies.playerId && !cookies.owner) || cookies.created) {
+        if (cookies.playerId) {
           //setWaiting(true);
           console.log('entered here 2.1');
-          socket.emit('reenter', cookies.playerId, cookies.password, cookies.roomCode, cookies.username || 'Waiting...');
+          socket.emit('reenter', cookies.playerId, cookies.roomCode);
         } else {
           console.log('entered here 2.2');
           socket.emit('enter', cookies.roomCode, state.setPassword, cookies.owner, cookies.playerId);
         }
       }
 
-      socket.on('players', (players, restart) => {
+      socket.on('players', (players, i, restart) => {
         getCookieValues()
         console.log('players: ', players);
         if (restart) {
@@ -751,12 +752,8 @@ const AppHumans = (props) => {
         //setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
       });
 
-      socket.on('playerEnter', (players) => {
-        applyPlayers(sortUsernames(players), 'active');
-      })
-
-      socket.on('usernameSet', (players) => {
-        applyPlayers(setHands(sortUsernames(players)), 'username');
+      socket.on('playerEnter', (players, i) => {
+        applyPlayers(sortUsernames(players, i), ['active']);
       })
 
       socket.on('gameEnded', () => {
@@ -765,7 +762,6 @@ const AppHumans = (props) => {
 
         setTimeout(() => {
           deleteCookies();
-          console.log('document.title: ', document.title);
           window.history.replaceState({}, document.title);
           setStarted(false);
           const refreshKey = Math.random().toString(36).substring(2);
@@ -795,15 +791,12 @@ const AppHumans = (props) => {
         if (chosenName !== 'Waiting...') {
           setWaiting(playerState.waiting);
           setOn(playerState.waiting);
+          players = applyPlayers(setHands(sortUsernames(players)));
+        } else {
+          players = applyPlayers(sortUsernames(players), ['active']);
         }
 
         setWaitingCount(playerState.count);
-
-        if (!playerState.count) {
-          players = applyPlayers(setHands(sortUsernames(players)));
-        } else {
-          players = applyPlayers(sortUsernames(players), 'active');
-        }
 
         finalStrikes = players[0].strikes;
         if (finalStrikes === 3) {
@@ -840,7 +833,7 @@ const AppHumans = (props) => {
       socket.on('nextTurn', (players, total, discard, reverseChange) => {
 
         reverse = reverseChange;
-        applyPlayers(sortUsernames(players), 'turn');
+        applyPlayers(sortUsernames(players), ['turn', 'active']);
         restartTimer(0);
         setTotal(total);
         syncTotal = total;
@@ -889,7 +882,7 @@ const AppHumans = (props) => {
           syncUsernames[0].hand = [...newHand];
           setUsernames(usernames => [...syncUsernames]);
           setOpponentHand([1, 2, 3]);
-          setChose(true);
+          //setChose(true);
           setStart(start => false);
           !cookies.owner && setJoining(joining => true);
           setDisplay(true);
@@ -900,9 +893,13 @@ const AppHumans = (props) => {
         }
       })
 
-      socket.on('enterCheck', (message) => {
+      socket.on('enterCheck', (message, owner) => {
         if (message === 'OK') {
           console.log('cool')
+          if (owner) {
+            setOwner(true);
+            setJoining(false);
+          }
           setStarted(true);
           setDisplay(true);
         } else {
@@ -971,8 +968,8 @@ const AppHumans = (props) => {
       setUsernameChoice(false);
     }
   }, []);
-  console.log('display: ', display);
-  console.log('on: ', on);
+
+
   if (display) {
     return (
       <>
@@ -1018,6 +1015,7 @@ const AppHumans = (props) => {
                                        username={usernames[i + 1].username}
                                        displayCountdown={displayCountdown}
                                        active={usernames[i + 1].active}
+                                       on={on}
                                        />
                   </BotAreaMobile>
                   )
@@ -1034,6 +1032,7 @@ const AppHumans = (props) => {
                                      username={usernames[2].username}
                                      displayCountdown={displayCountdown}
                                      active={usernames[2].active}
+                                     on={on}
                                      />
                 </BotArea>
                 </>
@@ -1049,6 +1048,7 @@ const AppHumans = (props) => {
                                    username={usernames[1].username}
                                    displayCountdown={displayCountdown}
                                    active={usernames[1].active}
+                                   on={on}
                                    /> }
             </Opponent>
           </PlayerArea1>
@@ -1066,6 +1066,7 @@ const AppHumans = (props) => {
                                   username={usernames[1].username}
                                   displayCountdown={displayCountdown}
                                   active={usernames[1].active}
+                                  on={on}
                                   /> :
                                   null}
             </OpponentArea>
@@ -1085,6 +1086,7 @@ const AppHumans = (props) => {
                                     username={usernames[3].username}
                                     displayCountdown={displayCountdown}
                                     active={usernames[3].active}
+                                    on={on}
                                     /> :
                                     null}
             </OpponentArea>

@@ -37,6 +37,7 @@ const ComputerArea = styled.div`
   border: ${({turn}) => turn ? '2px solid blue' : '2px solid transparent' };
   border-radius: 10px;
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
+  background: ${({ active }) => active ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)'};
   transition: border 0.5s linear;
   @media (max-width: 1170px) {
     width: 90vw;
@@ -57,6 +58,37 @@ const ComputerArea = styled.div`
         return '0.1fr 1fr 0.2fr';
       } else {
         return '0.1fr 2fr 0.3fr';
+      }
+    }};
+  }
+`
+const InactiveContainer = styled.div`
+  width: 100%;
+  height: 50%;
+  position: relative;
+`
+
+const Inactive = styled.p`
+  visibility: ${({active}) => active ? 'visible' : 'hidden'};
+  position: absolute;
+  top: 240%;
+  width: 35vw;
+  text-align: center;
+  z-index: 1;
+  font-size: 3rem;
+  color: red;
+  @media (max-width: 1170px) {
+    top: 50%;
+    font-size: ${({botsCount}) => {
+      if (botsCount) {
+        return ' 1.5rem;';
+      }
+    }};
+    width: ${({botsCount}) => {
+      if (botsCount) {
+        return '30vw';
+      } else {
+        return '90vw';
       }
     }};
   }
@@ -211,7 +243,8 @@ let ComputerComponent = ({ strikes,
                            username,
                            countdown,
                            displayCountdown,
-                           active }) => {
+                           active,
+                           on }) => {
   let [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -219,9 +252,12 @@ let ComputerComponent = ({ strikes,
   }, []);
 
   return (
-    <ComputerArea turn={turn} animate={animate} strikes={strikes} botsCount={botsCount} >
+    <ComputerArea turn={turn} active={!active && human && !on && !over} animate={animate} strikes={strikes} botsCount={botsCount} >
+      <InactiveContainer>
+        <Inactive botsCount={botsCount} active={!active && human} >Player not in room</Inactive>
+      </InactiveContainer>
       <Name botsCount={botsCount}>{username ?
-                                    `Name: ${username} ${active ? '' : ' [Inactive]'}`
+                                    `Name: ${(username === 'Waiting...') && !active ? '' : username}`
                                     :
                                     `Computer ${player}`}</Name>
       <Strikes botsCount={botsCount}>{`Strikes: ${strikes}`}</Strikes>

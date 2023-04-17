@@ -83,10 +83,9 @@ const Rooms = {
 
     return this.data[roomCode];
   },
-  deleteRoom: function (roomCode, byTimer) {
-    if (!byTimer) {
-      clearTimeout(this.data[roomCode].timerId);
-    }
+  deleteRoom: function (roomCode) {
+    let room = this.data[roomCode] || { timerId: null }
+    clearTimeout(room.timerId);
     delete this.data[roomCode];
   },
   timedDeleteRoom: function (roomCode) {
@@ -96,7 +95,7 @@ const Rooms = {
     clearTimeout(timeoutId);
     return this.timedDeleteRoom(roomCode);
   },
-  addOrFindPlayer: function (roomCode, playerId, socket, username = 'Waiting...') {
+  addOrFindPlayer: function (roomCode, playerId, socket, username) {
     let room = this.data[roomCode] || { players: [] };
     let openings = room.players.reduce((accum, player, i) => {
       if ((!player.playerId || player.playerId === playerId) && !accum.found) {
@@ -108,10 +107,9 @@ const Rooms = {
 
     if (openings.found) {
       room.players[openings.index].playerId = playerId;
-      room.players[openings.index].username = username;
+      room.players[openings.index].username = username ? username : room.players[openings.index].username;
       room.players[openings.index].active = true;
       room.players[openings.index].socket = socket;
-      room.inRoom += 1;
       return room.players;
     }
     return false;
@@ -138,8 +136,7 @@ const Rooms = {
     let players = room.players;
     let gameOver;
     let cardObj = player.hand[0];
-    console.log('forcedPlayer: ', forcedPlayer);
-    console.log('player: ', player);
+
     if (cardObj[0][0] === '4') {
       room.reverse = !reverse;
 

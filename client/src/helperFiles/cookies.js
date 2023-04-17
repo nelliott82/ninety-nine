@@ -4,15 +4,19 @@ function getCookie(name){
   });
 }
 
-function deleteCookies() {
+function deleteCookies(name) {
   let cookies = document.cookie.split(';');
+
   for (let i = 0; i < cookies.length; i++) {
     let cookie = cookies[i].split('=')[0].trim();
-
-    document.cookie = cookie + "=; expires=Thu, 01 Jan 1970 00:00:01 GMT" + "; domain=" + document.domain + "; path=/";
-
+    let deleteString = cookie + "=; expires=Thu, 01 Jan 1970 00:00:01 GMT" + "; domain=" + document.domain + "; path=/";
+    if (name && (cookie === name)) {
+      document.cookie = deleteString;
+      break;
+    } else if (!name) {
+      document.cookie = deleteString;
+    }
   }
-  console.log('cookies: ', document.cookie.split(';'));
 }
 
 function makeCookieObject() {
@@ -34,12 +38,11 @@ function setCookies(cookies) {
 
   for (let i = 0; i < cookies.length; i++) {
     let { name, value } = cookies[i];
-    if (cookiesObject.hasOwnProperty('uid')) {
-
+    if (!cookiesObject.hasOwnProperty(name)) {
+      document.cookie = `${name}=${value}${expires}; domain=${document.domain}; path=/`;
     }
     console.log('name: ', name);
     console.log('value: ', value);
-    document.cookie = `${name}=${value}${expires}; domain=${document.domain}; path=/`;
   }
 }
 

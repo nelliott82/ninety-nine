@@ -13,14 +13,13 @@ const Utils = require('./utils');
 const port = process.env.PORT || 99;
 const path = require('path');
 
-function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, keepPlaying = true) {
+function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPlaying = true) {
   let forcedPlayer = nextPlayer;
   let room = Rooms.data[roomCode] || {};
 
   io.to(roomCode).emit('check', response => {
-    console.log('forcedPlay response: ', response);
     if (response) {
-      if (!room.players[forcedPlayer].active && keepPlaying) {
+      if ((!room.players[forcedPlayer].active || timeout) && keepPlaying) {
         let username = room.players[forcedPlayer].username;
         clearTimeout(room.players[forcedPlayer].playTimer);
 
@@ -44,15 +43,15 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, keepPlaying = t
         }
 
         let forcedPlayerTimer = setTimeout(() => {
-          forcePlayCard(forcedPlayer, roomCode, syncTotal, reverse);
-        }, 16500);
+          forcePlayCard(forcedPlayer, roomCode, total, reverse, true, true);
+        }, 18200);
 
         room.players[forcedPlayer].playTimer = forcedPlayerTimer;
 
         keepPlaying = !gameOver;
 
         setTimeout(() => {
-          forcePlayCard(forcedPlayer, roomCode, syncTotal, reverse, keepPlaying);
+          forcePlayCard(forcedPlayer, roomCode, total, reverse, false, keepPlaying);
 
           if (newRound) {
             room.players.forEach(player => clearTimeout(player.playTimer));
@@ -69,9 +68,10 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, keepPlaying = t
             room.players.forEach(player => clearTimeout(player.playTimer));
             io.to(roomCode).emit('gameOver', formattedPlayers.playerObjects);
           }
-        }, 2000);
+        }, 3000);
       }
     } else {
+      console.log('clear timeouts');
       room.players.forEach(player => {
         clearTimeout(player.playTimer)
       });
@@ -101,9 +101,11 @@ io.on('connection', (socket) => {
 
         let players = Utils.formatPlayers(room.players, socket.id);
 
-        io.to(roomCode).emit('players', players.playerObjects, true, true);
-
-        room.players.forEach(player => {
+        players.forEach((player, i) => {
+          io.to(player.socket).emit('players', players.playerObjects, i, true);
+        })
+        //*********COMBINE THESE INTO ONE EMIT LATER ***********//
+        players.forEach(player => {
           io.to(player.socket).emit('hand', player.hand);
         })
       }
@@ -125,7 +127,8 @@ io.on('connection', (socket) => {
     let players = Utils.formatPlayers(room.players, socket.id);
 
     if (players) {
-      io.to(socket.id).emit('players', players.playerObjects, true);
+      //********COMBINE THESE INTO ONE EMIT LATER************//
+      io.to(socket.id).emit('players', players.playerObjects, i, false);
       io.to(socket.id).emit('hand', players.hand);
       io.to(socket.id).emit('usernameCheck', true, username);
       io.to(socket.id).emit('playerId', socket.id);
@@ -148,10 +151,10 @@ io.on('connection', (socket) => {
       let players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id), playerId);
 
       if (players) {
-        console.log('emitting players: ', players.playerObjects)
-        console.log('roomCode: ', roomCode);
         io.to(socket.id).emit('enterCheck', 'OK');
-        io.to(roomCode).emit('playerEnter', players.playerObjects, false);
+        players.forEach((player, i) => {
+          io.to(roomCode).emit('playerEnter', players.playerObjects, i, false);
+        })
         io.to(socket.id).emit('playerId', socket.id);
       } else {
         io.to(socket.id).emit('enterCheck', 'That room is full.');
@@ -164,7 +167,7 @@ io.on('connection', (socket) => {
 
   });
 
-  socket.on('reenter', (playerId, password, roomCode, username) => {
+  socket.on('reenter', (playerId, roomCode) => {
     let empty = {};
     let room = Rooms.data[roomCode] || empty;
     let players = {};
@@ -173,14 +176,15 @@ io.on('connection', (socket) => {
       reenter = 'That room does not exist.'
     } else if (room.password === password) {
 
-      players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id, username), playerId);
+      players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id), playerId);
       username = players.username;
 
       if (players) {
         socket.join(roomCode);
         reenter = 'reenter';
-        console.log('playerObjects: ', players.playerObjects);
-        io.to(roomCode).emit('playerReenter', players.playerObjects);
+        players.forEach((player, i) => {
+          io.to(player.socket).emit('playerReenter', players.playerObjects, i);
+        })
       } else if (room.inRoom >= room.limit) {
         reenter = 'That room is full.'
       }
@@ -193,7 +197,6 @@ io.on('connection', (socket) => {
     } else {
       reenter = 'Incorrect password.'
     }
-    console.log('players: ', players);
     io.to(socket.id).emit('reenterCheck', reenter, username, socket.id, players.hand);
 
   });
@@ -210,8 +213,6 @@ io.on('connection', (socket) => {
   })
 
   socket.on('currentGameState', (roomCode, countdown, played, total, index) => {
-    console.log('countdown received: ', countdown)
-    console.log('index: ', index)
     let room = Rooms.data[roomCode] || {};
     let socketId = room.players[index].socket;
 
@@ -223,20 +224,19 @@ io.on('connection', (socket) => {
 
     if (room.players) {
       let exists = room.players.filter(player => player.username === username);
-      console.log('exists: ', exists);
 
       if (!exists.length) {
-        console.log('doesn\'t exist');
 
         io.to(socket.id).emit('usernameCheck', false, username);
         let players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id, username), playerId);
 
         if (players) {
+          players.forEach((player, i) => {
+            io.to(player.socket).emit('players', players.playerObjects, i);
+          })
           io.to(socket.id).emit('hand', players.hand);
-          io.to(roomCode).emit('players', players.playerObjects);
         }
       } else {
-        console.log('it exists');
         io.to(socket.id).emit('usernameCheck', true);
       }
     }
@@ -252,8 +252,8 @@ io.on('connection', (socket) => {
 
     let players = Utils.formatPlayers(Rooms.playCard(roomCode, cardObj, currentPlayer, nextPlayer), playerId);
     let nextPlayerTimer = setTimeout(() => {
-      forcePlayCard(nextPlayer, roomCode, syncTotal, reverse);
-    }, 16500);
+      forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, true);
+    }, 15200);
 
     room.players[nextPlayer].playTimer = nextPlayerTimer;
 
@@ -264,12 +264,12 @@ io.on('connection', (socket) => {
       io.to(room.players[nextPlayer].socket).emit('check', (response) => {
         if (!response) {
           room.players[nextPlayer].active = false;
-          forcePlayCard(nextPlayer, roomCode, syncTotal, reverse);
+          forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, false);
         }
       });
     } else {
       console.log('Force play on: ', nextPlayer);
-      forcePlayCard(nextPlayer, roomCode, syncTotal, reverse);
+      forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, false);
     }
 
   })
@@ -291,8 +291,8 @@ io.on('connection', (socket) => {
 
       let nextPlayerTimer = setTimeout(() => {
         room.players[nextPlayer].active = false;
-        forcePlayCard(nextPlayer, roomCode, 0, reverse);
-      }, 19500);
+        forcePlayCard(nextPlayer, roomCode, 0, reverse, true);
+      }, 18200);
 
       room.players[nextPlayer].playTimer = nextPlayerTimer;
 
@@ -301,11 +301,11 @@ io.on('connection', (socket) => {
           io.to(room.players[nextPlayer].socket).emit('check', (response) => {
             if (!response) {
               room.players[nextPlayer].active = false;
-              forcePlayCard(nextPlayer, roomCode, 0, reverse);
+              forcePlayCard(nextPlayer, roomCode, 0, reverse, false);
             }
           });
         } else {
-          forcePlayCard(nextPlayer, roomCode, 0, reverse);
+          forcePlayCard(nextPlayer, roomCode, 0, reverse, false);
         }
       }, 2500)
 
@@ -377,6 +377,14 @@ app.get('/', (req, res) => {
 })
 
 app.get('/room/:roomCode', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
+app.get('/select', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
+app.get('/computers', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 

@@ -6,6 +6,8 @@ import AppHumans from './AppHumans.jsx';
 import RoomComponent from './Room.jsx';
 import DropDownComponent from './DropDown.jsx';
 import ChooseOpponents from './Opponents.jsx';
+import Room from './Room.jsx';
+
 
 export const TopContext = React.createContext();
 
@@ -52,21 +54,14 @@ const ChooseModal = styled.div`
 const App = () => {
   let { roomCode } = useParams();
   const location = useLocation();
-  const [chose, setChose] = useState(false);
   const [tempChoice, setTempChoice] = useState('');
+  const [chooseOpponents, setChooseOpponents] = useState(true);
+  const [chooseRoom, setChooseRoom] = useState(false);
+  const [ready, setReady] = useState(false);
   const [opponents, setOpponents] = useState(tempChoice);
   const [joining, setJoining] = useState(false);
-  const [ready, setReady] = useState(false);
   const [started, setStarted] = useState(false);
-  const [roomCode1, setRoomCode1] = useState('');
-
-  function chooseOpponents(opponentsChoice) {
-    setOpponents(opponentsChoice);
-  }
-
-  function saveRoomCode (generatedRoomCode) {
-    setRoomCode1(roomCode1 => generatedRoomCode);
-  }
+  const [roomCodeApp, setRoomCodeApp] = useState('');
 
   useEffect(() => {
     if (roomCode) {
@@ -90,21 +85,33 @@ const App = () => {
       <DropDownComponent/>
       <ChooseModal started={started} >
 
-        <ChooseOpponents chooseOpponents={chooseOpponents}
-                         setReady={setReady}
-                         setRoomCode1={setRoomCode1}
-                         setChose={setChose}
-                         chose={chose}
-                         />
+         {chooseOpponents ?
+          <ChooseOpponents setReady={setReady}
+                           setChooseOpponents={setChooseOpponents}
+                           setChooseRoom={setChooseRoom}
+                           setRoomCodeApp={setRoomCodeApp}
+                           />
+          :
+          null}
 
-          {opponents === 'humans' && ready ?
-            <Outlet context={[setStarted, started, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1]} /> :
+         {chooseRoom ?
+          <Room setJoining={setJoining}
+                roomCodeApp={roomCodeApp}
+                setChooseRoom={setChooseRoom}
+                setReady={setReady}
+                />
+          :
+          null}
+
+          {ready ?
+            <Outlet context={[setStarted, started, setJoining, joining, setReady, setRoomCodeApp, roomCodeApp]} /> :
             null
           }
-          {opponents === 'computers' ?
+
+          {/* {opponents === 'computers' ?
             <AppBots setStarted={setStarted}/> :
             null
-          }
+          } */}
 
       </ChooseModal>
     </>

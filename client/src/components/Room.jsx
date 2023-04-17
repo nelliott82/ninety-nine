@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
+import { useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import styled from 'styled-components';
 import { setCookies, deleteCookies, makeCookieObject } from '../helperFiles/cookies.js';
 import socket from '../helperFiles/socket.js';
@@ -39,6 +39,7 @@ const PasswordInput = styled.div`
 const ErrorMsg = styled.p`
   grid-row: ${({ row }) => row};
   visibile: ${({ display }) => display ? 'visible' : 'hidden'};
+  text-align: center;
 `;
 
 const RoomButton = styled.button`
@@ -51,10 +52,11 @@ const RoomButton = styled.button`
 let syncRoomCode = '';
 let syncPassword = '';
 
-const RoomComponent = () => {
-  let { state } = useLocation();
+const RoomComponent = ({ setJoining, roomCodeApp }) => {
+  const cookies = makeCookieObject();
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
+  const [changeRooms, setChangeRooms] = useState(false);
   const [givenRoomCode, setGivenRoomCode] = useState('');
   const [givenPassword, setGivenPassword] = useState('');
   const [create, setCreate] = useState(false);
@@ -62,7 +64,6 @@ const RoomComponent = () => {
   const [display, setDisplay] = useState(false);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  let [setStarted, started, setChose, joining, setJoining, setReady, setRoomCode1, roomCode1] = useOutletContext();
 
   function handleChange (e) {
     if (e.target.name === 'room') {
@@ -75,6 +76,7 @@ const RoomComponent = () => {
   }
 
   function createAndJoinRoom (owner) {
+
     if (owner) {
       setCookies([{ name: 'owner', value: true }]);
     }
@@ -84,27 +86,15 @@ const RoomComponent = () => {
     } else if (givenPassword) {
       setCreate(false);
       setRoomChoice(true);
-      setCookies([{ name: 'roomCode', value: roomCode1 },
+      setCookies([{ name: 'roomCode', value: roomCodeApp },
                   { name: 'password', value: givenPassword }]);
-      navigate(`/room/${roomCode1}`,{ state: { setPassword: givenPassword } });
+      navigate(`/room/${roomCodeApp}`,{ state: { setPassword: givenPassword } });
     } else {
       setCreate(true);
     }
   }
 
   useEffect(() => {
-    if (state) {
-      setJoin(true);
-      setDisplay(true);
-      if (state.enterPassword) {
-        setMessage('')
-        setRoomCode1(state.roomCode);
-        setGivenRoomCode(state.roomCode);
-        setEnterPassword(true);
-      } else {
-        setMessage(state.message)
-      }
-    }
 
     socket.on('roomResult', (passwordResult, room, roomCode) => {
       setJoin(true);
@@ -137,8 +127,8 @@ const RoomComponent = () => {
           <>
             {enterPassword ? null :
             <CodeInput>
-              <label for="room">Enter Room Code:</label>
-              <input name="room" onChange={(e) => handleChange(e)} ></input>
+              <label for="room">Enter 4-character Room Code:</label>
+              <input name="room" maxLength='4' onChange={(e) => handleChange(e)} ></input>
             </CodeInput>
             }
             <ErrorMsg display={display} row={2} >{ message }</ErrorMsg>
@@ -153,13 +143,14 @@ const RoomComponent = () => {
           <>
             <PasswordInput>
                 <label for="password">Create Password:</label>
-                <input name="password" onChange={(e) => handleChange(e)} ></input>
+                <input name="password" maxLength='15' onChange={(e) => handleChange(e)} ></input>
             </PasswordInput>
             <RoomButton row={4} onClick={() => createAndJoinRoom(true)}>Set Password</RoomButton>
           </>
           :
           <>
             <RoomButton row={2} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
+            <ErrorMsg display={display} row={3} >{ message }</ErrorMsg>
             <RoomButton row={4} onClick={() => setJoin(true)}>Join Room</RoomButton>
           </>
         }
