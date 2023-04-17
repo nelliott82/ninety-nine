@@ -136,33 +136,37 @@ io.on('connection', (socket) => {
 
   });
 
-  socket.on('enter', (roomCode, password, owner, playerId) => {
+  socket.on('enter', (roomCode, playerId) => {
+    let error = {}
+    let room = Rooms.data[roomCode] || error;
+
     if (!playerId) {
       playerId = socket.id;
     }
-    let room = Rooms.data[roomCode] || {};
 
-    if (owner && !room.players) {
+    if (room === error) {
+      io.to(socket.id).emit('enterCheck', 'That room does not exist.');
+    } else if (!room.players) {
       socket.join(roomCode);
       io.to(socket.id).emit('enterCheck', 'OK');
     } else if (room.players) {
-      socket.join(roomCode);
 
       let players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id), playerId);
 
       if (players) {
-        io.to(socket.id).emit('enterCheck', 'OK');
+        socket.join(roomCode);
+
+        io.to(socket.id).emit('enterCheck', 'OK', players.hand);
+
         players.forEach((player, i) => {
-          io.to(roomCode).emit('playerEnter', players.playerObjects, i, false);
+          io.to(player.socket).emit('playerEnter', players.playerObjects, i, false);
         })
-        io.to(socket.id).emit('playerId', socket.id);
+
+        //io.to(socket.id).emit('hand', players.hand);
+
       } else {
         io.to(socket.id).emit('enterCheck', 'That room is full.');
       }
-    } else if (room.password !== password) {
-      io.to(socket.id).emit('enterCheck', 'Incorrect password');
-    } else {
-      io.to(socket.id).emit('enterCheck', 'That room does not exist.');
     }
 
   });

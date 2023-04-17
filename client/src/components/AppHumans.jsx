@@ -696,18 +696,12 @@ const AppHumans = (props) => {
 
         console.log('does not have setPassword');
 
-        if (document.cookie) {
 
-          if (cookies.playerId) {
-            socket.emit('reenter', cookies.playerId, cookies.roomCode);
-          } else {
-            console.log('entered here 1')
-            navigated = true;
-            navigate('/select', { state: { enterPassword: true, roomCode }})
-          }
+        if (cookies.playerId) {
+          console.log('entered here 1')
 
+          socket.emit('reenter', cookies.playerId, cookies.roomCode);
         } else {
-          // socket.connect();
           console.log('entered here 1.1')
           navigated = true;
           navigate('/select', { state: { enterPassword: true, roomCode }})
@@ -893,13 +887,15 @@ const AppHumans = (props) => {
         }
       })
 
-      socket.on('enterCheck', (message, owner) => {
+      socket.on('enterCheck', (message, newHand) => {
         if (message === 'OK') {
           console.log('cool')
           if (owner) {
             setOwner(true);
             setJoining(false);
           }
+          syncUsernames[0].hand = [...newHand];
+          setUsernames(usernames => [...syncUsernames]);
           setStarted(true);
           setDisplay(true);
         } else {
