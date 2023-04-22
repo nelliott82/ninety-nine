@@ -44,7 +44,7 @@ const Rooms = {
       }
       return this.generateRoomCode(str + allLetters[Math.floor(Math.random() * 26)]);
   },
-  create: function (roomCode, password, username, limit, playerId) {
+  create: function (roomCode, password, username, limit, playerId, socket) {
     let players = [];
 
     for (let i = 0; i < limit; i++) {
@@ -57,7 +57,7 @@ const Rooms = {
         turn: i ? false : true,
         active: i ? false : true,
         playTimer: null,
-        socket: i ? undefined : playerId,
+        socket: i ? undefined : socket,
         index: i
       }
     }
@@ -125,6 +125,8 @@ const Rooms = {
       }
     });
     room.players[currentPlayer].hand =[...filteredHand, room.deck.shift()];
+    // console.log('player: ', room.players[currentPlayer].username);
+    // console.log('their hand: ', room.players[currentPlayer].hand);
 
     return room.players;
   },

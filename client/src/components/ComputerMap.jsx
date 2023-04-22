@@ -251,20 +251,19 @@ let placeHolder = [2, 3, 4];
 let syncCountdown = 15;
 let timerId;
 
-let ComputerComponent = ({ strikes,
-                           hand,
-                           human,
-                           computer,
-                           over,
-                           turn,
-                           player,
-                           botsCount,
-                           username,
-                           appCountdown,
-                           displayCountdown,
-                           gameStateTimer,
-                           active,
-                           on }) => {
+let ComputerComponentMap = ({ strikes,
+                              hand,
+                              human,
+                              computer,
+                              over,
+                              turn,
+                              player,
+                              botsCount,
+                              username,
+                              displayCountdown,
+                              gameStateTimer,
+                              active,
+                              on }) => {
   let [animate, setAnimate] = useState(false);
   const [countdown, setCountdown] = useState(gameStateTimer);
 
@@ -284,7 +283,6 @@ let ComputerComponent = ({ strikes,
   useEffect(() => {
     setTimeout(() => setAnimate(true), 500);
     setCountdown(countdown => gameStateTimer);
-    syncCountdown = gameStateTimer
     if (displayCountdown && turn) {
       timer();
     }
@@ -330,7 +328,7 @@ let ComputerComponent = ({ strikes,
   )
 }
 
-export default ComputerComponent;
+export default ComputerComponentMap;
 
 
           /* <>

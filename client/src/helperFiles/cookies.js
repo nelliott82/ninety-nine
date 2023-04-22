@@ -30,15 +30,15 @@ function makeCookieObject() {
   return cookies;
 }
 
-function setCookies(cookies) {
+function setCookies(cookies, override) {
   const date = new Date();
-  date.setTime(date.getTime() + (1 * 60 * 60 * 1000));
+  date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
   const expires = `; expires=${date.toUTCString()}`;
   let cookiesObject = makeCookieObject();
 
   for (let i = 0; i < cookies.length; i++) {
     let { name, value } = cookies[i];
-    if (!cookiesObject.hasOwnProperty(name)) {
+    if (override || !cookiesObject.hasOwnProperty(name) || name === 'socketId') {
       document.cookie = `${name}=${value}${expires}; domain=${document.domain}; path=/`;
     }
     console.log('name: ', name);

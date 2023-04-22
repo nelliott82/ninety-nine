@@ -77,6 +77,9 @@ const ChooseOpponents = ({ setReady, setChooseOpponents, setChooseRoom, setRoomC
     })
 
     socket.emit('getRoomCode');
+    return () => {
+      socket.off('roomCode')
+    }
   }, [])
 
   return (

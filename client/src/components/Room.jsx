@@ -52,7 +52,7 @@ const RoomButton = styled.button`
 let syncRoomCode = '';
 let syncPassword = '';
 
-const RoomComponent = ({ setJoining, roomCodeApp }) => {
+const RoomComponent = ({ roomCodeApp, setChooseRoom, setReady }) => {
   const cookies = makeCookieObject();
   const [join, setJoin] = useState(false);
   const [roomChoice, setRoomChoice] = useState(false);
@@ -78,17 +78,18 @@ const RoomComponent = ({ setJoining, roomCodeApp }) => {
   function createAndJoinRoom (owner) {
 
     if (owner) {
-      setCookies([{ name: 'owner', value: true }]);
+      setCookies([{ name: 'creator', value: true }]);
     }
     if (givenRoomCode) {
-      console.log(givenRoomCode);
       socket.emit('roomCheck', givenRoomCode, givenPassword);
     } else if (givenPassword) {
       setCreate(false);
       setRoomChoice(true);
+      setChooseRoom(false);
+      setReady(true);
       setCookies([{ name: 'roomCode', value: roomCodeApp },
                   { name: 'password', value: givenPassword }]);
-      navigate(`/room/${roomCodeApp}`,{ state: { setPassword: givenPassword } });
+      navigate(`/room/${roomCodeApp}`,{ state: { setPassword: givenPassword, creator: true } });
     } else {
       setCreate(true);
     }
@@ -100,12 +101,16 @@ const RoomComponent = ({ setJoining, roomCodeApp }) => {
       setJoin(true);
 
       if (!room) {
+        console.log('room check is not fine')
+
         setDisplay(true);
         setMessage('That room does not exist.');
       } else if (passwordResult) {
-        setJoining(true);
+        console.log('room check is fine')
         setGivenRoomCode(roomCode);
         setRoomChoice(true);
+        setChooseRoom(false);
+        setReady(true);
         setCookies([{ name: 'password', value: syncPassword },
                     { name: 'roomCode', value: roomCode }]);
         navigate(`/room/${roomCode}`,{ state: { setPassword: syncPassword } });

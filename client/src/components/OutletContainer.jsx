@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
-import { Outlet, useOutletContext, useParams, useLocation } from 'react-router-dom';
+import { Outlet, useParams, useLocation, useNavigate } from 'react-router-dom';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
 import RoomComponent from './Room.jsx';
@@ -39,19 +39,17 @@ const fadeOutModal = keyframes`
   }
 `;
 
-const ChooseModal = styled.div`
-  z-index: 100;
+const Container = styled.div`
   display: block;
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: 100vw;
-  background: ${({ started }) => started ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)'};
 `;
 
 
-const App = () => {
+const OutletContainer = () => {
   let { roomCode } = useParams();
   const location = useLocation();
   const [tempChoice, setTempChoice] = useState('');
@@ -61,10 +59,12 @@ const App = () => {
   const [opponents, setOpponents] = useState(tempChoice);
   const [started, setStarted] = useState(false);
   const [roomCodeApp, setRoomCodeApp] = useState('');
-  //let [setStarted, started, setReady, setRoomCodeApp, roomCodeApp] = useOutletContext();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!roomCode) {
+      navigate('/select');
+    }
     // socket.connect();
 
     // if (roomCode) {
@@ -73,53 +73,26 @@ const App = () => {
     //   setStarted(true);
     //   setReady(true);
     // }
-    if (location.state && location.state.refreshKey) {
-      window.history.replaceState({}, document.title);
-      //setStarted(false);
-      setChooseOpponents(true);
-      setChooseRoom(false);
-      setOpponents(tempChoice);
-      setReady(false);
-      setRoomCodeApp('');
-    }
+    // if (location.state && location.state.refreshKey) {
+    //   window.history.replaceState({}, document.title);
+    //   setStarted(true);
+    //   setChooseOpponents(true);
+    //   setChooseRoom(false);
+    //   setOpponents(tempChoice);
+    //   setReady(false);
+    //   setRoomCodeApp('');
+    // }
   }, [])
 
   return (
     <>
-      {/* <GlobalStyle/>
-      <DropDownComponent/> */}
-      <ChooseModal started={false} >
-
-         {chooseOpponents ?
-          <ChooseOpponents setReady={setReady}
-                           setChooseOpponents={setChooseOpponents}
-                           setChooseRoom={setChooseRoom}
-                           setRoomCodeApp={setRoomCodeApp}
-                           />
-          :
-          null}
-
-         {chooseRoom ?
-          <Room roomCodeApp={roomCodeApp}
-                setChooseRoom={setChooseRoom}
-                setReady={setReady}
-                />
-          :
-          null}
-
-          {/* {ready ?
-            <Outlet context={[setStarted, started, setReady, setRoomCodeApp, roomCodeApp]} /> :
-            null
-          } */}
-
-          {/* {opponents === 'computers' ?
-            <AppBots setStarted={setStarted}/> :
-            null
-          } */}
-
-      </ChooseModal>
+      <GlobalStyle/>
+      <DropDownComponent/>
+      <Container>
+        <Outlet context={[setStarted, started, setReady, setRoomCodeApp, roomCodeApp]} />
+      </Container>
     </>
   )
 }
 
-export default App;
+export default OutletContainer;

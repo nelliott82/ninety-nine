@@ -89,18 +89,57 @@ PlayerOneCards.defaultProps = {
   src: ''
 }
 
-var placeHolder = [2, 3, 4];
+const TimerContainer = styled.div`
+  visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
+  color: red;
+  position: absolute;
+  text-align: center;
+  font-size: 3em;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%);
+`;
 
-var PlayerOneComponent = ({ strikes, hand, turn, playCard, username }) => {
+var placeHolder = [2, 3, 4];
+let syncCountdown = 15;
+let timerId;
+
+var PlayerOneComponent = ({ strikes, hand, turn, over, appCountdown, displayCountdown, gameStateTimer, playCard, username, human }) => {
   let [animate, setAnimate] = useState(false);
+  const [countdown, setCountdown] = useState(gameStateTimer);
+
+  function timer() {
+    clearTimeout(timerId);
+    if (syncCountdown > 0) {
+      timerId = setTimeout(() => {
+        syncCountdown -= 1;
+        setCountdown(countdown => countdown - 1);
+        timer();
+      }, 1000)
+    } else {
+      syncCountdown = 15;
+    }
+  }
 
   useEffect(() => {
     setTimeout(() => setAnimate(true), 500);
-  }, []);
+    setCountdown(countdown => gameStateTimer);
+    if (displayCountdown && turn) {
+      timer();
+    }
+    return () => {
+      syncCountdown = 15;
+      setCountdown(countdown => 15);
+      clearTimeout(timerId);
+    }
+  }, [turn, displayCountdown, gameStateTimer]);
 
 return (
     <PlayerOneArea turn={turn} animate={animate} >
-      <Name>{username ? `Name: ${username !== 'Waiting...' ? username : ''}` : 'Player One'}</Name>
+      <TimerContainer turn={turn && displayCountdown && !over} >
+        <div>{countdown.toString()}</div>
+      </TimerContainer>
+      <Name>{human ? `Name: ${username !== 'Waiting...' ? username : ''}` : 'Player One'}</Name>
       <Strikes>{`Strikes: ${strikes}`}</Strikes>
         {hand.length ? hand.map((card, i) => <Holder key={i} index={i + 2}>
                                                                 <PlayerOneCards key={i}

@@ -19,7 +19,7 @@ const UsernameContainer = styled.div`
 `;
 
 const UsernameInput = styled.div`
-  grid-row: 3;
+  grid-row: 1;
   margin: 5% 17%;
   justify-items: center;
   align-items: center;
@@ -53,9 +53,9 @@ const UsernameComponent = ({ saveUsername, usernameMessage }) => {
       </Message>
       <UsernameInput>
         <label for="username" >Enter Username:</label>
-        <input name="username" onChange={(e) => handleChange(e)} ></input>
+        <input maxLength={10} name="username" onChange={(e) => handleChange(e)} ></input>
       </UsernameInput>
-      <UsernameButton onClick={() => username && saveUsername(username) }>Set Username</UsernameButton>
+      <UsernameButton onClick={() => { console.log('saving username'); username && saveUsername(username) } }>Set Username</UsernameButton>
     </UsernameContainer>
     )
   }

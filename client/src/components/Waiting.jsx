@@ -5,7 +5,7 @@ const WaitingContainer = styled.div`
   z-index: 101;
   position: absolute;
   width: 15rem;
-  height: ${({ owner }) => owner ? '16rem' : '3rem'};
+  height: ${({ creator }) => creator ? '16rem' : '3rem'};
   border-radius: 10px;
   background-color: white;
   display: ${({ display }) => display ? 'grid' : 'none'};
@@ -18,12 +18,12 @@ const WaitingContainer = styled.div`
   transform: translate(-50%, -50%);
 `;
 
-const WaitingComponent = ({ waiting, players, owner, roomCode, password }) => {
+const WaitingComponent = ({ waiting, players, creator, roomCode, password }) => {
 
   return (
-    <WaitingContainer display={waiting} owner={owner} >
+    <WaitingContainer display={waiting} creator={creator} >
       <p>Waiting on {players} more player{players > 1 ? 's' : ''}...</p>
-      {owner ?
+      {creator ?
         <>
           <p>Invitation link copied</p>
           <p>to clipboard.</p>
