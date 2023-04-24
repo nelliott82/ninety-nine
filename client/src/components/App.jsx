@@ -19,26 +19,6 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const fadeInModal = keyframes`
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 1;
-  }
-`;
-
-const fadeOutModal = keyframes`
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-`;
-
 const ChooseModal = styled.div`
   z-index: 100;
   display: block;
@@ -50,19 +30,69 @@ const ChooseModal = styled.div`
   background: ${({ started }) => started ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)'};
 `;
 
+const fadeIn = keyframes`
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+  }
+`;
+
+const fadeOut = keyframes`
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+`;
+
+const MessageContainer = styled.div`
+  z-index: 101;
+  position: absolute;
+  visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
+  animation: ${({displayMessage}) => displayMessage ? fadeIn : fadeOut} 0.5s linear;
+  transition: visibility 0.5s linear;
+  width: 15rem;
+  height: 3rem;
+  border-radius: 10px;
+  background-color: white;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+`;
+
 
 const App = () => {
   let { roomCode } = useParams();
   const location = useLocation();
   const [tempChoice, setTempChoice] = useState('');
+  const [message, setMessage] = useState('');
+  const [displayMessage, setDisplayMessage] = useState(false);
+  const [display, setDisplay] = useState(false);
   const [chooseOpponents, setChooseOpponents] = useState(true);
   const [chooseRoom, setChooseRoom] = useState(false);
   const [ready, setReady] = useState(false);
   const [opponents, setOpponents] = useState(tempChoice);
   const [started, setStarted] = useState(false);
   const [roomCodeApp, setRoomCodeApp] = useState('');
-  //let [setStarted, started, setReady, setRoomCodeApp, roomCodeApp] = useOutletContext();
+  // let [setStarted, started, setReady, setRoomCodeApp, roomCodeApp] = useOutletContext();
 
+  function setAndDisplayMessage() {
+    setDisplayMessage(true);
+    setTimeout(() => {
+      setDisplayMessage(displayMessage => false);
+    }, 2000);
+    setTimeout(() => {
+      setChooseOpponents(true);
+    }, 2500)
+  }
 
   useEffect(() => {
     // socket.connect();
@@ -73,10 +103,16 @@ const App = () => {
     //   setStarted(true);
     //   setReady(true);
     // }
-    if (location.state && location.state.refreshKey) {
+    if (location.state && (location.state.refreshKey || location.state.message)) {
       window.history.replaceState({}, document.title);
       //setStarted(false);
-      setChooseOpponents(true);
+      console.log(location.state)
+      if (location.state.message) {
+        setChooseOpponents(false);
+        setAndDisplayMessage();
+        setMessage(location.state.message);
+      }
+      location.state.refreshKey && setChooseOpponents(true);
       setChooseRoom(false);
       setOpponents(tempChoice);
       setReady(false);
@@ -88,7 +124,10 @@ const App = () => {
     <>
       {/* <GlobalStyle/>
       <DropDownComponent/> */}
-      <ChooseModal started={false} >
+      {/* <ChooseModal started={false} > */}
+          <MessageContainer displayMessage={displayMessage}>
+           <p>{message}</p>
+          </MessageContainer>
 
          {chooseOpponents ?
           <ChooseOpponents setReady={setReady}
@@ -117,7 +156,7 @@ const App = () => {
             null
           } */}
 
-      </ChooseModal>
+      {/* </ChooseModal> */}
     </>
   )
 }

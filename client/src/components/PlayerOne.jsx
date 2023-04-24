@@ -103,6 +103,8 @@ const TimerContainer = styled.div`
 var placeHolder = [2, 3, 4];
 let syncCountdown = 15;
 let timerId;
+let playTimer;
+let blurred = false;
 
 var PlayerOneComponent = ({ strikes, hand, turn, over, appCountdown, displayCountdown, gameStateTimer, playCard, username, human }) => {
   let [animate, setAnimate] = useState(false);
@@ -110,6 +112,7 @@ var PlayerOneComponent = ({ strikes, hand, turn, over, appCountdown, displayCoun
 
   function timer() {
     clearTimeout(timerId);
+    console.log('timer in playerOne: ', syncCountdown);
     if (syncCountdown > 0) {
       timerId = setTimeout(() => {
         syncCountdown -= 1;
@@ -121,16 +124,34 @@ var PlayerOneComponent = ({ strikes, hand, turn, over, appCountdown, displayCoun
     }
   }
 
+  function blur() {
+    blurred = true;
+  }
+
+  function focus() {
+    blurred = false;
+  }
+
   useEffect(() => {
+    window.addEventListener("focus", focus);
+    window.addEventListener("blur", blur);
     setTimeout(() => setAnimate(true), 500);
     setCountdown(countdown => gameStateTimer);
     if (displayCountdown && turn) {
+      playTimer = setTimeout(() => {
+        // if (!blurred) {
+          console.log('playing card');
+          playCard(hand[0], 0);
+        // }
+      }, 16000);
       timer();
     }
     return () => {
       syncCountdown = 15;
       setCountdown(countdown => 15);
       clearTimeout(timerId);
+      window.removeEventListener("focus", focus);
+      window.removeEventListener("blur", blur);
     }
   }, [turn, displayCountdown, gameStateTimer]);
 
@@ -139,12 +160,20 @@ return (
       <TimerContainer turn={turn && displayCountdown && !over} >
         <div>{countdown.toString()}</div>
       </TimerContainer>
-      <Name>{human ? `Name: ${username !== 'Waiting...' ? username : ''}` : 'Player One'}</Name>
+      <Name>
+        {human ? `Name: ${username !== 'Waiting...' ? username : ''}` : 'Player One'}
+      </Name>
       <Strikes>{`Strikes: ${strikes}`}</Strikes>
         {hand.length ? hand.map((card, i) => <Holder key={i} index={i + 2}>
                                                                 <PlayerOneCards key={i}
                                                                                 index={i + 2}
-                                                                                onClick={() => {if (turn) { playCard(card, 0) }}}
+                                                                                onClick={() => {
+                                                                                  if (turn) {
+                                                                                    clearTimeout(timerId);
+                                                                                    clearTimeout(playTimer);
+                                                                                    playCard(card, 0);
+                                                                                  }
+                                                                                }}
                                                                                 src={`/assets/cards/${card[0]}.png`} />
                                                                </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}

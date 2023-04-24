@@ -4,7 +4,7 @@ import { makeCookieObject } from '../helperFiles/cookies.js';
 
 
 const PasswordContainer = styled.div`
-  z-index: 101;
+  z-index: 99;
   position: absolute;
   width: 15rem;
   height: 14rem;
@@ -57,7 +57,7 @@ const PasswordComponent = ({ roomCode, setUsernameChoice, setEnterPassword, sock
     let cookies = makeCookieObject();
     socket.on('passwordCheck', (valid) => {
       if (valid) {
-        socket.emit('enter', roomCode, cookies.playerId);
+        socket.emit('enter', roomCode, cookies.playerId, true);
         setEnterPassword(false);
         setUsernameChoice(true);
       } else {

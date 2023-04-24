@@ -8,6 +8,7 @@ const Rooms = {
          DIC: '',
          DIK: '',
          FUC: '',
+         FUK: '',
          PUC: '',
          PUK: '',
          SUC: '',
@@ -16,7 +17,6 @@ const Rooms = {
          SHI: '',
          CUN: '',
          FAG: '',
-         FIST: '',
          NIG: '',
          NGU: '',
          NGA: '',
@@ -24,6 +24,7 @@ const Rooms = {
          NGER: '',
          SPIC: '',
          HOMO: '',
+         TRN: '',
          POR: '',
          VAG: '',
          PUS: '',
@@ -34,7 +35,8 @@ const Rooms = {
          ASH: '',
          GOD: '',
          BAL: '',
-         BUT: ''},
+         BUT: '',
+         KKK: ''},
   generateRoomCode: function (str) {
       if (str in this.data || str.slice(1) in this.data) {
         return this.generateRoomCode(allLetters[Math.floor(Math.random() * 26)]);
@@ -56,7 +58,6 @@ const Rooms = {
         strikes: 0,
         turn: i ? false : true,
         active: i ? false : true,
-        playTimer: null,
         socket: i ? undefined : socket,
         index: i
       }
@@ -70,7 +71,9 @@ const Rooms = {
       total: 0,
       reverse: false,
       inRoom: 1,
-      timeoutId
+      timeoutId,
+      playTimer: null,
+      created: true
     }
 
     if (password) {
@@ -86,6 +89,7 @@ const Rooms = {
   deleteRoom: function (roomCode) {
     let room = this.data[roomCode] || { timerId: null }
     clearTimeout(room.timerId);
+    clearTimeout(room.playTimer);
     delete this.data[roomCode];
   },
   timedDeleteRoom: function (roomCode) {
@@ -106,6 +110,7 @@ const Rooms = {
     }, { found: false, index: 0 });
 
     if (openings.found) {
+      room.inRoom += 1;
       room.players[openings.index].playerId = playerId;
       room.players[openings.index].username = username ? username : room.players[openings.index].username;
       room.players[openings.index].active = true;
@@ -114,7 +119,7 @@ const Rooms = {
     }
     return false;
   },
-  playCard: function(roomCode, cardObj, currentPlayer, nextPlayer) {
+  playCard: function(roomCode, cardObj, currentPlayer, nextPlayer, forced) {
     let room = this.data[roomCode];
 
     this.updateTurns(room, currentPlayer, nextPlayer);
@@ -125,8 +130,15 @@ const Rooms = {
       }
     });
     room.players[currentPlayer].hand =[...filteredHand, room.deck.shift()];
-    // console.log('player: ', room.players[currentPlayer].username);
-    // console.log('their hand: ', room.players[currentPlayer].hand);
+
+    // Every now and then, due to conflict in timers, the player's hand would be more than 3.
+    // This can cause the client to see more than 3 hands, attempt to play one, and break something.
+    // Many attempts to correct this behavior have been made, but on the off chance an edge
+    // case wasn't considered, this will solve for it.
+    let handLength = room.players[currentPlayer].hand.length
+    if (handLength > 3) {
+      room.players[currentPlayer].hand = room.players[currentPlayer].hand.slice(handLength - 3);
+    }
 
     return room.players;
   },
@@ -156,7 +168,7 @@ const Rooms = {
     let nextPlayer = this.calculateNextPlayer(forcedPlayer, roomCode, room.reverse);
 
     if (!newRound) {
-      this.playCard(roomCode, cardObj, forcedPlayer, nextPlayer);
+      this.playCard(roomCode, cardObj, forcedPlayer, nextPlayer, true);
     } else {
       let newRoundResults = this.newRound(roomCode, forcedPlayer, nextPlayer);
       players = newRoundResults.players;

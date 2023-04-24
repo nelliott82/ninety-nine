@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const UsernameContainer = styled.div`
-  z-index: 101;
+  z-index: 99;
   position: absolute;
   width: 15rem;
   height: 14rem;
@@ -53,9 +53,9 @@ const UsernameComponent = ({ saveUsername, usernameMessage }) => {
       </Message>
       <UsernameInput>
         <label for="username" >Enter Username:</label>
-        <input maxLength={10} name="username" onChange={(e) => handleChange(e)} ></input>
+        <input maxLength={11} name="username" onChange={(e) => handleChange(e)} ></input>
       </UsernameInput>
-      <UsernameButton onClick={() => { console.log('saving username'); username && saveUsername(username) } }>Set Username</UsernameButton>
+      <UsernameButton onClick={() => { console.log('saving username'); username && saveUsername(username.slice(0, 8)) } }>Set Username</UsernameButton>
     </UsernameContainer>
     )
   }

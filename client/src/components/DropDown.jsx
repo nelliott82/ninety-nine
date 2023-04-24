@@ -24,7 +24,7 @@ const MoveDown = (from, to) => keyframes`
 
 const TopDropDown = styled.div`
   box-sizing: border-box;
-  z-index: 101;
+  z-index: 102;
   width: 100vw;
   height: 320px;
   border-bottom: 8px solid rgb(245,245,245);
@@ -64,7 +64,7 @@ const MoveDownTab = (from, to) => keyframes`
 `;
 
 const RulesTab = styled.div`
-  z-index: 101;
+  z-index: 102;
   width: 5rem;
   height: 1.5rem;
   text-align: center;
@@ -81,9 +81,13 @@ const RulesTab = styled.div`
     top: ${({showMenu}) => showMenu ? `500px` : `8px`};
     animation: ${({showMenu}) => showMenu ? MoveUpTab('8px', '500px') : MoveDownTab('500px', '8px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   }
+  @media (max-width: 1000px) {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 `
 
-var DropDownComponent = () => {
+var DropDownComponent = ({ opponents }) => {
   var [showMenu, setShowMenu] = useState(false);
   var [animate, setAnimate] = useState(false);
 
@@ -98,7 +102,7 @@ var DropDownComponent = () => {
   return (
     <>
       <TopDropDown showMenu={showMenu} animate={animate} onClick={handleMenuClick}>
-        <RulesComponent/>
+        <RulesComponent opponents={opponents} />
       </TopDropDown>
       <RulesTab showMenu={showMenu} animate={animate} onClick={handleMenuClick}>Da Rules</RulesTab>
     </>

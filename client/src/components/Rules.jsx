@@ -90,22 +90,37 @@ const specialCards = [{ name: 'King' , card: 'K♥', behavior: 'Puts the total a
                       { name: 'Nine' , card: '9♦', behavior: 'Holds the total wherever it\'s at. Think of it as 0.' },
                       { name: 'Ten' , card: '10♣', behavior: 'Negative 10. Subtracts 10 from the total.' }]
 
-const rules = ['Take turns playing a card. Player One (you) always starts.',
-               'All cards are face value, except specialty cards, and add to the total.',
-               'Aces are worth 1, and Queens and Jacks are worth 10.',
-               'The object of the game is to keep the total at, or, below 99.',
-               'First player unable to keep the total at, or, below 99 gets a strike.',
-               'Strikes one and two start a new round.',
-               'Three strikes and that player is out. Game ends if you lose.']
+const botRules = ['Take turns playing a card. Player One (you) always starts.',
+                  'All cards are face value, except specialty cards, and add to the total.',
+                  'Aces are worth 1, and Queens and Jacks are worth 10.',
+                  'The object of the game is to keep the total at, or, below 99.',
+                  'First player unable to keep the total at, or, below 99 gets a strike.',
+                  'Strikes one and two start a new round.',
+                  'Three strikes and that player is out. Game ends if you lose.']
 
-var RulesComponent = () => {
+const humanRules = ['Take turns playing a card.',
+                    'You have 15 seconds to play a card.',
+                    'If a card is not played after 15 seconds, left most card is automatically played.',
+                    'If a player leaves the room, their left most card is automatically played after 3 seconds.',
+                    'All cards are face value, except specialty cards, and add to the total.',
+                    'Aces are worth 1, and Queens and Jacks are worth 10.',
+                    'The object of the game is to keep the total at, or, below 99.',
+                    'First player unable to keep the total at, or, below 99 gets a strike.',
+                    'Strikes one and two for any player start a new round.',
+                    'Three strikes and that player is out.',
+                    'Game ends when only one player is still in.',
+                    'If all players leave the room, the room is automatically closed.',
+                    'The creator of the room has the choice to restart the game or end it at conclusion.']
+
+var RulesComponent = ({ opponents }) => {
 
 return (
     <RulesDropDown>
       <Title>99</Title>
       <Rules>
         <h3>How to Play:</h3>
-        {rules.map(rule => <p>{rule}</p>)}
+        {opponents === 'computers' ? botRules.map(rule => <p>{rule}</p>) : null}
+        {opponents === 'humans' ? humanRules.map(rule => <p>{rule}</p>) : null}
       </Rules>
       <SpecialsContainer>
         <Specials>

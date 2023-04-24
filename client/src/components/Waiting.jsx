@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const WaitingContainer = styled.div`
-  z-index: 101;
+  z-index: 99;
   position: absolute;
   width: 15rem;
   height: ${({ creator }) => creator ? '16rem' : '3rem'};
@@ -18,15 +18,30 @@ const WaitingContainer = styled.div`
   transform: translate(-50%, -50%);
 `;
 
+const CopyButton = styled.button`
+  width: 10rem;
+  height: 4rem;
+  font-size: 1em;
+`;
+
 const WaitingComponent = ({ waiting, players, creator, roomCode, password }) => {
+
+  function copyLink() {
+    navigator.clipboard
+    .writeText(`Join me for a game of 99 here: http://localhost:99/room/${roomCode}\n\nPsst! The password is '${password}'.`)
+    .then(() => {
+    })
+    .catch(() => {
+      alert('Invitation link and password failed to save to clipboard. Sorry about that.');
+    });
+  }
 
   return (
     <WaitingContainer display={waiting} creator={creator} >
       <p>Waiting on {players} more player{players > 1 ? 's' : ''}...</p>
       {creator ?
         <>
-          <p>Invitation link copied</p>
-          <p>to clipboard.</p>
+          <CopyButton onClick={copyLink}>Copy Invitation Link to Clipboard</CopyButton>
           <p>Room Code: {roomCode}</p>
           <p>Password: {password}</p>
         </>

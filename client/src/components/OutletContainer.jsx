@@ -48,6 +48,17 @@ const Container = styled.div`
   width: 100vw;
 `;
 
+const ChooseModal = styled.div`
+  z-index: 100;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: ${({ started }) => started ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)'};
+`;
+
 
 const OutletContainer = () => {
   let { roomCode } = useParams();
@@ -87,10 +98,12 @@ const OutletContainer = () => {
   return (
     <>
       <GlobalStyle/>
-      <DropDownComponent/>
-      <Container>
-        <Outlet context={[setStarted, started, setReady, setRoomCodeApp, roomCodeApp]} />
-      </Container>
+      <ChooseModal started={started}>
+
+        <Container>
+          <Outlet context={[setStarted, started, setReady, setRoomCodeApp, roomCodeApp, opponents, setOpponents]} />
+        </Container>
+      </ChooseModal>
     </>
   )
 }

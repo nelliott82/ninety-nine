@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const StartContainer = styled.div`
-  z-index: 101;
+  z-index: 99;
   position: absolute;
   width: 15rem;
   height: 14rem;

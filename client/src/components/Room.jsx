@@ -9,10 +9,10 @@ let cookies = makeCookieObject();
 const RoomChoiceContainer = styled.div`
   position: absolute;
   width: 15rem;
-  height: 16rem;
+  height: ${({ join }) => join ? '16rem' : '14rem'};
   background-color: white;
   border-radius: 10px;
-  display: ${({ roomChoice }) => roomChoice ? 'none' : 'grid'};
+  display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1.5fr 1fr 1fr 1fr;
   justify-items: center;
@@ -30,7 +30,7 @@ const CodeInput = styled.div`
 `;
 
 const PasswordInput = styled.div`
-  grid-row: 3;
+  grid-row: ${({ row }) => row};
   margin: 5% 17%;
   justify-items: center;
   align-items: center;
@@ -38,8 +38,9 @@ const PasswordInput = styled.div`
 
 const ErrorMsg = styled.p`
   grid-row: ${({ row }) => row};
-  visibile: ${({ display }) => display ? 'visible' : 'hidden'};
+  visibile: 'visible';
   text-align: center;
+  height: 0.5rem;
 `;
 
 const RoomButton = styled.button`
@@ -47,6 +48,7 @@ const RoomButton = styled.button`
   width: 10rem;
   height: 4rem;
   font-size: 1.5em;
+  margin-bottom: ${({ margin }) => margin ? '5px' : '0' };
 `;
 
 let syncRoomCode = '';
@@ -87,9 +89,7 @@ const RoomComponent = ({ roomCodeApp, setChooseRoom, setReady }) => {
       setRoomChoice(true);
       setChooseRoom(false);
       setReady(true);
-      setCookies([{ name: 'roomCode', value: roomCodeApp },
-                  { name: 'password', value: givenPassword }]);
-      navigate(`/room/${roomCodeApp}`,{ state: { setPassword: givenPassword, creator: true } });
+      navigate(`/room/${roomCodeApp}`,{ state: { setPassword: givenPassword } });
     } else {
       setCreate(true);
     }
@@ -111,8 +111,6 @@ const RoomComponent = ({ roomCodeApp, setChooseRoom, setReady }) => {
         setRoomChoice(true);
         setChooseRoom(false);
         setReady(true);
-        setCookies([{ name: 'password', value: syncPassword },
-                    { name: 'roomCode', value: roomCode }]);
         navigate(`/room/${roomCode}`,{ state: { setPassword: syncPassword } });
       } else {
         console.log('passwordFail');
@@ -127,7 +125,7 @@ const RoomComponent = ({ roomCodeApp, setChooseRoom, setReady }) => {
   }, [])
 
   return (
-      <RoomChoiceContainer roomChoice={roomChoice} >
+      <RoomChoiceContainer join={join} >
         {join ?
           <>
             {enterPassword ? null :
@@ -136,8 +134,8 @@ const RoomComponent = ({ roomCodeApp, setChooseRoom, setReady }) => {
               <input name="room" maxLength='4' onChange={(e) => handleChange(e)} ></input>
             </CodeInput>
             }
-            <ErrorMsg display={display} row={2} >{ message }</ErrorMsg>
-            <PasswordInput>
+            <ErrorMsg row={2} >{ message }</ErrorMsg>
+            <PasswordInput row={3}>
               <label for="password">Enter Password:</label>
               <input name="password" onChange={(e) => handleChange(e)} ></input>
             </PasswordInput>
@@ -146,16 +144,15 @@ const RoomComponent = ({ roomCodeApp, setChooseRoom, setReady }) => {
           :
           create ?
           <>
-            <PasswordInput>
+            <PasswordInput row={1}>
                 <label for="password">Create Password:</label>
                 <input name="password" maxLength='15' onChange={(e) => handleChange(e)} ></input>
             </PasswordInput>
-            <RoomButton row={4} onClick={() => createAndJoinRoom(true)}>Set Password</RoomButton>
+            <RoomButton row={5} margin={true} onClick={() => createAndJoinRoom(true)}>Set Password</RoomButton>
           </>
           :
           <>
             <RoomButton row={2} onClick={() => createAndJoinRoom()}>Create Room</RoomButton>
-            <ErrorMsg display={display} row={3} >{ message }</ErrorMsg>
             <RoomButton row={4} onClick={() => setJoin(true)}>Join Room</RoomButton>
           </>
         }
