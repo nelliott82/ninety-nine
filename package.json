@@ -6,9 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --watch --mode development",
-    "build": "webpack --mode production",
+    "build": "npm install",
     "server-dev": "npx nodemon --watch server server/index.js",
-    "start": "npm run server-dev"
+    "start": "webpack --mode production npm run server-dev"
   },
   "repository": {
     "type": "git",
