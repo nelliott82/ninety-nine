@@ -777,15 +777,14 @@ const AppHumans = (props) => {
           }
           return accum;
         }, { waiting: false, count: 0, inactive: 0, strikes: 0 });
-
         if (chosenName !== 'Waiting...') {
           setWaiting(playerState.waiting);
           setOn(playerState.waiting);
-          setStarted(playerState.waiting);
           //players = applyPlayers(setHands(sortUsernames(players)));
         } else {
           //players = applyPlayers(sortUsernames(players), ['active']);
         }
+        setStarted(true);
 
         setWaitingCount(playerState.count);
 
