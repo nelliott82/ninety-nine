@@ -50,7 +50,7 @@ const PlayerArea1 = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   gap: 5px;
-  @media (max-width: 1000px) {
+  @media (max-width: 1170px) {
     height: auto;
   }
 `;
@@ -1161,7 +1161,15 @@ const AppHumans = (props) => {
                                    null}
             </OpponentArea>
             <DeckArea column={2}>
-              <PlayingArea played={played} deck={deck} />
+              <PlayingArea played={played}
+                           deck={deck}
+                           turn={usernames[0].turn}
+                           displayCountdown={displayCountdown}
+                           gameStateTimer={gameStateTimer}
+                           playCard={playCard}
+                           hand={usernames[0].hand}
+                           over={over}
+                           />
             </DeckArea>
             <OpponentArea column={3}>
               {usernames[3] ?
