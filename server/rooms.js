@@ -109,8 +109,11 @@ const Rooms = {
       return accum;
     }, { found: false, index: 0 });
 
+    if (openings.index === room.players.length - 1) {
+      room.full = true;
+    }
+
     if (openings.found) {
-      room.inRoom += 1;
       room.players[openings.index].playerId = playerId;
       room.players[openings.index].username = username ? username : room.players[openings.index].username;
       room.players[openings.index].active = true;

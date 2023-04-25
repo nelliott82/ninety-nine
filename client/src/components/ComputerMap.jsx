@@ -43,7 +43,7 @@ const ComputerArea = styled.div`
     width: 90vw;
     height: ${({botsCount}) => {
       if (botsCount) {
-        return '120px';
+        return '95px';
       } else {
         return '95%';
       }
@@ -212,7 +212,7 @@ ComputerCards.defaultProps = {
 const Thinking = styled.div`
   visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
   grid-column: 3;
-  grid-row: 3;
+  grid-row: 1;
   @media (max-width: 1170px) {
     ${({botsCount}) => {
       if (botsCount) {
@@ -236,7 +236,7 @@ const FinalMsg = styled.div`
 const TimerContainer = styled.div`
   visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
   grid-column: 3;
-  grid-row: 3;
+  grid-row: 1;
   @media (max-width: 1170px) {
       ${({botsCount}) => {
         if (botsCount) {

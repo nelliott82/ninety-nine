@@ -26,7 +26,7 @@ const fadeOut = keyframes`
 
 const ComputerArea = styled.div`
   width: 100%;
-  height: 50%;
+  height: 14.5rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 5px;
@@ -212,7 +212,7 @@ ComputerCards.defaultProps = {
 const Thinking = styled.div`
   visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
   grid-column: 3;
-  grid-row: 3;
+  grid-row: 1;
   @media (max-width: 1170px) {
     ${({botsCount}) => {
       if (botsCount) {
@@ -224,7 +224,7 @@ const Thinking = styled.div`
 `
 const ThinkingNull = styled.div`
   grid-column: 3;
-  grid-row: 3;
+  grid-row: 1;
   height: 1rem;
 `
 
@@ -236,7 +236,7 @@ const FinalMsg = styled.div`
 const TimerContainer = styled.div`
   visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
   grid-column: 3;
-  grid-row: 3;
+  grid-row: 1;
   @media (max-width: 1170px) {
       ${({botsCount}) => {
         if (botsCount) {

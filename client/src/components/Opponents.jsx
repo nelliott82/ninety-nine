@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import styled from 'styled-components';
 import socket from '../helperFiles/socket.js';
 
@@ -46,6 +46,7 @@ let roomCodeHolder;
 const ChooseOpponents = ({ setReady, setChooseOpponents, setChooseRoom, setRoomCodeApp }) => {
   const [opponents, setOpponents] = useState('');
   const [choose, setChoose] = useState(false);
+  let [setStarted] = useOutletContext();
   const navigate = useNavigate();
 
   function handleChange (e) {
@@ -69,6 +70,7 @@ const ChooseOpponents = ({ setReady, setChooseOpponents, setChooseRoom, setRoomC
   }
 
   useEffect(() => {
+    setStarted(false);
     socket.connect();
 
     socket.on('roomCode', (roomCode) => {

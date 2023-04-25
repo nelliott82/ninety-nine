@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+app.use(cors());
+
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 //const http = require('http').createServer(app);
@@ -211,7 +214,7 @@ io.on('connection', (socket) => {
         } else {
           io.to(socket.id).emit('enterCheck', 'That room is full.');
         }
-      } else if (room.inRoom < room.limit) {
+      } else if (!room.full) {
         io.to(socket.id).emit('getPassword');
       } else {
         io.to(socket.id).emit('enterCheck', 'That room is full.');
