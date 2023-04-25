@@ -45,6 +45,7 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
         forcedPlayer = newPlayer;
         if (room.players[forcedPlayer].active) {
           io.to(room.players[forcedPlayer].socket).emit('check', (response) => {
+            console.log(response);
             if (!response) {
               room.players[forcedPlayer].active = false;
             }
@@ -53,7 +54,7 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
 
         let playTimer = setTimeout(() => {
           forcePlayCard(forcedPlayer, roomCode, total, reverse, true, true);
-        }, timerDelay + 16500);
+        }, timerDelay + 17000);
         // console.log('created timer: ', forcedPlayerTimer);
 
         clearTimeout(room.playTimer);
@@ -166,7 +167,7 @@ io.on('connection', (socket) => {
 
     let playTimer = setTimeout(() => {
       forcePlayCard(0, roomCode, 0, false, true);
-    }, 19500);
+    }, 20000);
 
     // console.log('created START timer: ', timer['Symbol(asyncId)']);
 
@@ -368,7 +369,7 @@ io.on('connection', (socket) => {
     let playTimer = setTimeout(() => {
       // console.log('timer ran for: ', nextPlayer);
       forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, true);
-    }, 16500);
+    }, 17000);
 
     // console.log('created timer: ', nextPlayerTimer);
 
@@ -408,7 +409,6 @@ io.on('connection', (socket) => {
     players = Utils.formatPlayers(players, playerId);
 
     if (newRound) {
-      clearTimeout(room.playTimer)
 
       room.players.forEach((player, i) => {
         // console.log('cleared timer: ', player.playTimer)
@@ -418,9 +418,10 @@ io.on('connection', (socket) => {
       let playTimer = setTimeout(() => {
         room.players[nextPlayer].active = false;
         forcePlayCard(nextPlayer, roomCode, 0, reverse, true);
-      }, 19500);
+      }, 20000);
       // console.log('created timer: ', nextPlayerTimer);
 
+      clearTimeout(room.playTimer)
       room.playTimer = playTimer;
 
       setTimeout(() => {

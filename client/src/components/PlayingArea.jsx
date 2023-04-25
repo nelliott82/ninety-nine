@@ -77,7 +77,6 @@ let playTimer;
 var PlayingArea = ({ played, deck, turn, displayCountdown, gameStateTimer, playCard, hand, over }) => {
 const [countdown, setCountdown] = useState(gameStateTimer);
 
-
 function timer() {
   clearTimeout(timerId);
 
@@ -93,13 +92,11 @@ function timer() {
 }
 
 useEffect(() => {
+  clearTimeout(playTimer);
   setCountdown(countdown => gameStateTimer);
   if (displayCountdown && turn) {
     playTimer = setTimeout(() => {
-      // if (!blurred) {
-
       playCard(hand[0], 0);
-      // }
     }, 16000);
     timer();
   }
@@ -107,6 +104,7 @@ useEffect(() => {
     syncCountdown = 15;
     setCountdown(countdown => 15);
     clearTimeout(timerId);
+    clearTimeout(playTimer);
   }
 }, [turn, displayCountdown, gameStateTimer]);
 
