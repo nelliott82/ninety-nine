@@ -1057,6 +1057,33 @@ const AppHumans = (props) => {
       setUsernameChoice(false);
       setOn(true);
       setStarted(true);
+
+      return () => {
+        syncUsernames = dummyUsernames;
+        setDisplay(false);
+        setStarted(false);
+        setOn(true);
+        setHuman(false);
+        setComputer(false);
+        setTotal(0);
+        setOver(false);
+        setGameOver(false);
+        setEndGame(false);
+        setDisplayMessage(false);
+        setOverMessage(false);
+        setWaitingCount(4);
+        setDisplayCountdown(false);
+        setPassword('');
+        setGameStateTimer(timerDelay);
+        setEnterPassword(false);
+        setUsernameChoice(true);
+        setUsernameMessage(false);
+        setWaiting(false);
+        setUsernames(dummyUsernames);
+        setStart(false);
+        setCreated(false);
+        setCreator(false);
+      }
     }
   }, []);
 
