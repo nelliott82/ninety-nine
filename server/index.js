@@ -7,7 +7,10 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 //const http = require('http').createServer(app);
 const httpServer = createServer(app);
-const io = new Server(httpServer, { pingTimeout: 300000 });
+const io = new Server(httpServer, { pingTimeout: 300000,
+                                    cors: { origin: "https://ninety-nine.onrender.com/",
+                                            methods: ["GET"]
+                                          } });
 
 const Rooms = require('./rooms');
 const Utils = require('./utils');
