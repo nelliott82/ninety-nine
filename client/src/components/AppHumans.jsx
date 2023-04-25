@@ -467,12 +467,12 @@ const AppHumans = (props) => {
 
     if (computer) {
       // let tempStrikes = strikes;
-      let countDone = syncUsernames.length - 1;
+      let countDone = syncUsernames.length;
 
       if (syncUsernames[player].strikes === 3) {
         for (let i = 1; i <syncUsernames.length; i++) {
-          if (syncUsernames[i] === 3) {
-            countDone--;
+          if (syncUsernames[i].strikes === 3) {
+            countDone -= 1;
           }
         }
       }
@@ -586,6 +586,9 @@ const AppHumans = (props) => {
       syncUsernames.forEach((player, i) => {
         if (player.strikes < 3) {
           player.hand = [...player.hand, deck.shift()];
+        }
+        if (player.hand.length > 3) {
+          player.hand = player.hand.slice(player.hand.length - 3);
         }
       })
       deals--;
