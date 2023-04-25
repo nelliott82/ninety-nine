@@ -28,7 +28,7 @@ const WaitingComponent = ({ waiting, players, creator, roomCode, password }) => 
 
   function copyLink() {
     navigator.clipboard
-    .writeText(`Join me for a game of 99 here: ${window.location.protocol}://${window.location.host}/room/${roomCode}\n\nPsst! The password is '${password}'.`)
+    .writeText(`Join me for a game of 99 here: ${window.location.host}/room/${roomCode}\n\nPsst! The password is '${password}'.`)
     .then(() => {
     })
     .catch(() => {

@@ -11,7 +11,7 @@ const Container = styled.div`
   justify-items: center;
   align-items: center;
   box-sizing: border-box;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 95vw;
   }
 `
@@ -39,7 +39,7 @@ const CardArea = styled.div`
   height: 200px;
   margin: 0px 15px;
   border: 2px solid black;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 90px;
     height: 150px;
     grid-row: 2;
@@ -50,7 +50,7 @@ const CardStack = styled.img`
   width: 130px;
   height: 195px;
   margin-top: 3px;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     margin-top: 2.25px;
     width: 90px;
     height: 146.5px;

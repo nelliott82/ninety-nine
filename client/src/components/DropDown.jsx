@@ -81,7 +81,7 @@ const RulesTab = styled.div`
     top: ${({showMenu}) => showMenu ? `500px` : `8px`};
     animation: ${({showMenu}) => showMenu ? MoveUpTab('8px', '500px') : MoveDownTab('500px', '8px')} ${({animate}) => animate ? '0.5s' : '0s' } linear;
   }
-  @media (max-width: 1000px) {
+  @media (max-width: 1240px) {
     left: 50%;
     transform: translateX(-50%);
   }

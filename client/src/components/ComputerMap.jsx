@@ -39,7 +39,7 @@ const ComputerArea = styled.div`
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   background: ${({ active }) => active ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)'};
   transition: border 0.5s linear;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 90vw;
     height: ${({botsCount}) => {
       if (botsCount) {
@@ -77,8 +77,10 @@ const Inactive = styled.p`
   z-index: 1;
   font-size: 3rem;
   color: red;
-  @media (max-width: 1170px) {
-    top: 50%;
+  @media (max-width: 1240px) {
+    top: -90px;
+    left: 150%;
+    transform: translate(-50%);
     font-size: ${({botsCount}) => {
       if (botsCount) {
         return ' 1.5rem;';
@@ -97,7 +99,7 @@ const Inactive = styled.p`
 const Name = styled.div`
   grid-column: 2;
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     ${({botsCount}) => {
       if (botsCount) {
         return 'grid-column: 1;';
@@ -108,7 +110,7 @@ const Name = styled.div`
 const Strikes = styled.div`
   grid-column: 4;
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     ${({botsCount}) => {
       if (botsCount) {
         return 'grid-column: 3;';
@@ -125,7 +127,7 @@ const Holder = styled.div`
   width: 130px;
   height: 200px;
   border: 2px solid black;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     ${({botsCount, index}) => {
       if (botsCount) {
         return `grid-column: ${index - 1};`;
@@ -168,7 +170,7 @@ const ComputerCards = styled.img`
   margin-top: 3px;
   grid-column: ${({index}) => index};
   grid-row: 2;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     margin-top: 1px;
     ${({botsCount, index}) => {
       if (botsCount) {
@@ -213,7 +215,7 @@ const Thinking = styled.div`
   visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
   grid-column: 3;
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     ${({botsCount}) => {
       if (botsCount) {
         return 'grid-column: 2;';
@@ -237,7 +239,7 @@ const TimerContainer = styled.div`
   visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
   grid-column: 3;
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
       ${({botsCount}) => {
         if (botsCount) {
           return 'grid-column: 2;';

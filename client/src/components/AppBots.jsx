@@ -47,7 +47,7 @@ const PlayerArea2 = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   gap: 5px;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 0.1fr;
   }
@@ -58,7 +58,7 @@ const Opponent = styled.div`
   height: 195%;
   grid-column: 2;
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 90vw;
     height: 1%;
     display: grid;
@@ -81,7 +81,7 @@ const Opponent = styled.div`
 
 const BotAreaMobile = styled.div`
   display: none;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     display: unset;
     width: 90vw;
     height: 60%;
@@ -90,7 +90,7 @@ const BotAreaMobile = styled.div`
   }
 `;
 const BotArea = styled.div`
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     display: none;
   }
 `;
@@ -100,7 +100,7 @@ const Player = styled.div`
   height: 195%;
   grid-column: 2;
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 90vw;
   }
 `;
@@ -113,7 +113,7 @@ const ForfeitButton = styled.button`
   grid-row: 1;
   justify-self: left;
   align-self: center;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     justify-self: center;
     grid-column: 2;
     grid-row: 2;
@@ -138,7 +138,7 @@ const DeckArea = styled.div`
   height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 95vw;
   }
 `
@@ -148,7 +148,7 @@ const OpponentArea = styled.div`
   height: 195%;
   grid-column: ${({column}) => column};
   grid-row: 1;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     display: none;
   }
 `

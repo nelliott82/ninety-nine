@@ -38,7 +38,7 @@ const PlayerOneArea = styled.div`
   border-radius: 10px;
   box-shadow: ${({turn}) => turn ? '0 0 10px blue' : '0 0 10px transparent' };
   transition: border 0.5s linear;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 90vw;
   }
 `
@@ -58,7 +58,7 @@ const Holder = styled.div`
   width: 130px;
   height: 200px;
   border: 2px solid black;
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     width: 90px;
     height: 150px;
     grid-row: 2;
@@ -78,7 +78,7 @@ const PlayerOneCards = styled.img`
     border-radius: 5%;
     transform: scale(1.1);
   }
-  @media (max-width: 1170px) {
+  @media (max-width: 1240px) {
     margin-top: 2.25px;
     width: 90px;
     height: 146.5px;
