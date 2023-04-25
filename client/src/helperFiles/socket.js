@@ -2,7 +2,7 @@ const { io } = require("socket.io-client");
 import { getCookie, setCookies } from './cookies.js';
 
 
-const URL = `http://${window.location.host}`;
+const URL = `https://${window.location.host}`;
 const socket = io(URL, { autoConnect: false });
 
 socket.on('connect', () => {
