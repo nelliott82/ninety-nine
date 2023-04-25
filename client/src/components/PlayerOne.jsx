@@ -89,71 +89,11 @@ PlayerOneCards.defaultProps = {
   src: ''
 }
 
-const TimerContainer = styled.div`
-  visibility: ${({ turn }) => turn ? 'visible' : 'hidden'};
-  color: red;
-  position: fixed;
-  text-align: center;
-  font-size: 3em;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%);
-`;
 
 var placeHolder = [2, 3, 4];
-let syncCountdown = 15;
-let timerId;
-let playTimer;
-let blurred = false;
 
-var PlayerOneComponent = ({ strikes, hand, turn, over, appCountdown, displayCountdown, gameStateTimer, playCard, username, human }) => {
+var PlayerOneComponent = ({ strikes, hand, turn, playCard, username, human }) => {
   let [animate, setAnimate] = useState(false);
-  const [countdown, setCountdown] = useState(gameStateTimer);
-
-  function timer() {
-    clearTimeout(timerId);
-
-    if (syncCountdown > 0) {
-      timerId = setTimeout(() => {
-        syncCountdown -= 1;
-        setCountdown(countdown => countdown - 1);
-        timer();
-      }, 1000)
-    } else {
-      syncCountdown = 15;
-    }
-  }
-
-  function blur() {
-    blurred = true;
-  }
-
-  function focus() {
-    blurred = false;
-  }
-
-  useEffect(() => {
-    window.addEventListener("focus", focus);
-    window.addEventListener("blur", blur);
-    setTimeout(() => setAnimate(true), 500);
-    setCountdown(countdown => gameStateTimer);
-    if (displayCountdown && turn) {
-      playTimer = setTimeout(() => {
-        // if (!blurred) {
-
-        playCard(hand[0], 0);
-        // }
-      }, 16000);
-      timer();
-    }
-    return () => {
-      syncCountdown = 15;
-      setCountdown(countdown => 15);
-      clearTimeout(timerId);
-      window.removeEventListener("focus", focus);
-      window.removeEventListener("blur", blur);
-    }
-  }, [turn, displayCountdown, gameStateTimer]);
 
 return (
     <PlayerOneArea turn={turn} animate={animate} >

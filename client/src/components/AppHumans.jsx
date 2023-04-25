@@ -1195,9 +1195,6 @@ const AppHumans = (props) => {
               <PlayerOneComponent strikes={usernames[0].strikes}
                                   hand={usernames[0].hand}
                                   turn={usernames[0].turn}
-                                  over={over}
-                                  displayCountdown={displayCountdown}
-                                  gameStateTimer={gameStateTimer}
                                   playCard={playCard}
                                   username={usernames[0].username}
                                   human={human}
