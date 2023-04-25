@@ -109,8 +109,6 @@ return (
                                                                                 index={i + 2}
                                                                                 onClick={() => {
                                                                                   if (turn) {
-                                                                                    clearTimeout(timerId);
-                                                                                    clearTimeout(playTimer);
                                                                                     playCard(card, 0);
                                                                                   }
                                                                                 }}
