@@ -234,7 +234,7 @@ const fadeOutModal = keyframes`
 `;
 
 const RoundMessageModal = styled.div`
-  z-index: auto;
+  z-index: 99;
   visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
   animation: ${({displayMessage}) => displayMessage ? fadeInModal : fadeOutModal} 0.5s linear;
   transition: visibility 0.5s linear;
@@ -247,6 +247,7 @@ const RoundMessageModal = styled.div`
 `;
 
 const RoundMessage = styled.div`
+  z-index: 100;
   position: absolute;
   left: 50%;
   top: 40%;
@@ -1202,7 +1203,7 @@ const AppHumans = (props) => {
                                   human={human}
                                   />
             </Player>
-            <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0) }}} >Forfeit</ForfeitButton>
+            <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0, cookies.playerId) }}} >Forfeit</ForfeitButton>
           </PlayerArea2>
         </GameArea>
         <Attribution>
