@@ -6,7 +6,6 @@ app.use(cors());
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 //const http = require('http').createServer(app);
-const cors = require('cors');
 const httpServer = createServer(app);
 const io = new Server(httpServer, { pingTimeout: 300000 });
 
@@ -507,7 +506,6 @@ io.on('connection', (socket) => {
 
 })
 
-app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../client/dist')));
 app.use(express.urlencoded({extended:true}));
