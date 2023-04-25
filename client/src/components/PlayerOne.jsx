@@ -112,7 +112,7 @@ var PlayerOneComponent = ({ strikes, hand, turn, over, appCountdown, displayCoun
 
   function timer() {
     clearTimeout(timerId);
-    console.log('timer in playerOne: ', syncCountdown);
+
     if (syncCountdown > 0) {
       timerId = setTimeout(() => {
         syncCountdown -= 1;
@@ -140,8 +140,8 @@ var PlayerOneComponent = ({ strikes, hand, turn, over, appCountdown, displayCoun
     if (displayCountdown && turn) {
       playTimer = setTimeout(() => {
         // if (!blurred) {
-          console.log('playing card');
-          playCard(hand[0], 0);
+
+        playCard(hand[0], 0);
         // }
       }, 16000);
       timer();

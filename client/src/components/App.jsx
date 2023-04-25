@@ -106,7 +106,6 @@ const App = () => {
     if (location.state && (location.state.refreshKey || location.state.message)) {
       window.history.replaceState({}, document.title);
       //setStarted(false);
-      console.log(location.state)
       if (location.state.message) {
         setChooseOpponents(false);
         setAndDisplayMessage();

@@ -461,7 +461,7 @@ const AppBots = ({ setStarted }) => {
       setDisplayMessage(displayMessage => false);
     }, 2000)
   }
-  console.log('botsArray: ', botsArray);
+
   return (
     <>
     <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Computer'} />

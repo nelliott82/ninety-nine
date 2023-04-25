@@ -101,19 +101,15 @@ const RoomComponent = ({ roomCodeApp, setChooseRoom, setReady }) => {
       setJoin(true);
 
       if (!room) {
-        console.log('room check is not fine')
-
         setDisplay(true);
         setMessage('That room does not exist.');
       } else if (passwordResult) {
-        console.log('room check is fine')
         setGivenRoomCode(roomCode);
         setRoomChoice(true);
         setChooseRoom(false);
         setReady(true);
         navigate(`/room/${roomCode}`,{ state: { setPassword: syncPassword } });
       } else {
-        console.log('passwordFail');
         setDisplay(true);
         setMessage('Incorrect password');
       }

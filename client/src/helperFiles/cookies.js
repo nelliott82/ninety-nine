@@ -41,8 +41,6 @@ function setCookies(cookies, override) {
     if (override || !cookiesObject.hasOwnProperty(name) || name === 'socketId') {
       document.cookie = `${name}=${value}${expires}; domain=${document.domain}; path=/`;
     }
-    console.log('name: ', name);
-    console.log('value: ', value);
   }
 }
 

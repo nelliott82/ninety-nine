@@ -55,7 +55,7 @@ const UsernameComponent = ({ saveUsername, usernameMessage }) => {
         <label for="username" >Enter Username:</label>
         <input maxLength={11} name="username" onChange={(e) => handleChange(e)} ></input>
       </UsernameInput>
-      <UsernameButton onClick={() => { console.log('saving username'); username && saveUsername(username.slice(0, 8)) } }>Set Username</UsernameButton>
+      <UsernameButton onClick={() => { username && saveUsername(username.slice(0, 8)) } }>Set Username</UsernameButton>
     </UsernameContainer>
     )
   }
