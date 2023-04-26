@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useOutletContext, useParams, useLocation, useNavigate } from 'react-router-dom';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
-import styled, { createGlobalStyle, keyframes } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import ComputerComponentMap from './ComputerMap.jsx';
 import ComputerComponent from './Computer.jsx';
 import PlayingArea from './PlayingArea.jsx';
@@ -15,14 +15,6 @@ import TotalComponent from './Total.jsx';
 import nikkoBot from '../helperFiles/computer.js';
 import socket from '../helperFiles/socket.js';
 import { getCookie, setCookies, deleteCookies, makeCookieObject } from '../helperFiles/cookies.js';
-
-const GlobalStyle1 = createGlobalStyle`
-  body {
-    overflow-x: hidden;
-    background: #C0DCC0;
-    position: relative;
-  }
-`;
 
 const MainContainer = styled.div`
   width: 100vw;

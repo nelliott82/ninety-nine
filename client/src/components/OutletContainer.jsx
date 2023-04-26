@@ -14,8 +14,11 @@ export const TopContext = React.createContext();
 const GlobalStyle = createGlobalStyle`
   body {
     overflow-x: hidden;
-    background: #C0DCC0;
+    ${'' /* background: #C0DCC0; */}
     position: relative;
+    background-color: #b4b4b4;
+    background-image: -webkit-linear-gradient(200deg, #f0f0f0 0%, #b4b4b4 90%);
+    background-image: linear-gradient(200deg, #f0f0f0 0%, #b4b4b4 90%);
   }
 `;
 
