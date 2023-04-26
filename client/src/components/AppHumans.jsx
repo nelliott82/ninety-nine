@@ -253,6 +253,7 @@ const RoundMessage = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
+  width: 100vw;
 `;
 
 const RoomModal = styled.div`
@@ -286,6 +287,7 @@ const OverMessage = styled.div`
   color: red;
   font-size: 3em;
   text-align: center;
+  width: 100vw;
 `;
 
 let navigated = false;
@@ -473,7 +475,7 @@ const AppHumans = (props) => {
         setOver(true);
         setGameOver(true);
         let message = countDone === 1 ? 'You win!' : 'You lose!'
-        setOverMessage(`Game over! ${message}`);
+        setOverMessage(`Game over!\n\n${message}`);
       } else {
 
         // if (tempStrikes[player] < 3) {
@@ -627,7 +629,7 @@ const AppHumans = (props) => {
       message = `You ${strikeOrLost}! New round!`;
     } else if (player) {
       let append = integer ? 'Computer ' : '';
-      message = `${append + player} ${strikeOrLost}! New round!`;
+      message = `${append + player}\n\n${strikeOrLost}!\n\nNew round!`;
     } else {
       message = 'Begin!';
     }

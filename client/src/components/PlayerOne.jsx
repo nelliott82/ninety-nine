@@ -72,11 +72,21 @@ const PlayerOneCards = styled.img`
   cursor: pointer;
   grid-column: ${({index}) => index};
   grid-row: 2;
-  &:hover {
-    border: 2px solid blue;
-    box-shadow: 0 0 10px blue;
-    border-radius: 5%;
-    transform: scale(1.1);
+  @media (hover: hover) {
+    &:hover {
+      border: 2px solid blue;
+      box-shadow: 0 0 10px blue;
+      border-radius: 5%;
+      transform: scale(1.1);
+    }
+  }
+  @media (hover: none) {
+    &:active {
+      border: 2px solid blue;
+      box-shadow: 0 0 10px blue;
+      border-radius: 5%;
+      transform: scale(1.1);
+    }
   }
   @media (max-width: 1240px) {
     margin-top: 2.25px;

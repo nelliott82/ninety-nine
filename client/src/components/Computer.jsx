@@ -219,7 +219,7 @@ const Thinking = styled.div`
         return 'grid-column: 2;';
       }
     }}
-    font-size: 0.7em;
+    ${'' /* font-size: 0.7em; */}
   }
 `
 const ThinkingNull = styled.div`
@@ -243,7 +243,7 @@ const TimerContainer = styled.div`
           return 'grid-column: 2;';
         }
       }}
-      font-size: 0.7em;
+      ${'' /* font-size: 0.7em; */}
   }
 `;
 

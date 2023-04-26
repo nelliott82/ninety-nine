@@ -16,9 +16,6 @@ const GlobalStyle = createGlobalStyle`
     overflow-x: hidden;
     background: #93CAED;
     position: relative;
-    ${'' /* background-color: #96a7cf; */}
-    ${'' /* background-image: -webkit-linear-gradient(200deg, #e3efe8 0%, #96a7cf 90%);
-    background-image: linear-gradient(200deg, #e3efe8 0%, #96a7cf 90%); */}
   }
 `;
 
@@ -52,7 +49,7 @@ const Container = styled.div`
 `;
 
 const ChooseModal = styled.div`
-  z-index: 100;
+  z-index: 99;
   display: block;
   position: fixed;
   top: 0;
@@ -79,30 +76,12 @@ const OutletContainer = () => {
     if (!roomCode) {
       navigate('/select');
     }
-    // socket.connect();
-
-    // if (roomCode) {
-    //   setOpponents('humans');
-    //   setChooseOpponents(false);
-    //   setStarted(true);
-    //   setReady(true);
-    // }
-    // if (location.state && location.state.refreshKey) {
-    //   window.history.replaceState({}, document.title);
-    //   setStarted(true);
-    //   setChooseOpponents(true);
-    //   setChooseRoom(false);
-    //   setOpponents(tempChoice);
-    //   setReady(false);
-    //   setRoomCodeApp('');
-    // }
   }, [])
 
   return (
     <>
       <GlobalStyle/>
       <ChooseModal started={started}>
-
         <Container>
           <Outlet context={[setStarted, started, setReady, setRoomCodeApp, roomCodeApp, opponents, setOpponents]} />
         </Container>
