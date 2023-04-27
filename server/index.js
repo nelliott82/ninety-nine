@@ -309,6 +309,8 @@ io.on('connection', (socket) => {
 
     let { players, newRound } = Rooms.newRound(roomCode, currentPlayer, nextPlayer);
     players = Utils.formatPlayers(players, playerId);
+    room.total = 0;
+    room.discard = null;
 
     if (newRound) {
 

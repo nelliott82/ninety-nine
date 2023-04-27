@@ -167,7 +167,7 @@ const Rooms = {
       if (total + cardObj[1] > 99) {
         newRound = true;
         total = 0;
-        room.discard = [];
+        room.discard = null;
       } else {
         total += cardObj[1];
       }
