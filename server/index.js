@@ -214,9 +214,8 @@ io.on('connection', (socket) => {
                 let activePlayers = room.players.filter(player => player.playerId !== playerId && player.active);
 
                 if (activePlayers.length) {
-                  let index = room.players.filter(player => player.playerId === playerId)[0].index;
 
-                  io.to(socket.id).emit('playerEnter', players.playerObjects, index, room.playTimer._idleTimeout);
+                  io.to(socket.id).emit('playerEnter', players.playerObjects, players.index, room.playTimer._idleTimeout);
                   io.to(activePlayers[0].socket).emit('getGameState', players.index);
 
                 } else {
