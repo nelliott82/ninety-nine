@@ -277,7 +277,7 @@ const AppBots = ({ setStarted }) => {
     2: [],
     3: []
   })
-  // MAKE TURN A TRUE/FALSE VALUE ON PLAYER/OPPONENT OBJECTS
+
   let [turn, setTurn] = useState(true);
   let [thinking, setThinking] = useState(false);
   let [total, setTotal] = useState(0);

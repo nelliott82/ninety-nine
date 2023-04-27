@@ -5,7 +5,6 @@ app.use(cors());
 
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-//const http = require('http').createServer(app);
 const httpServer = createServer(app);
 const io = new Server(httpServer, { pingTimeout: 300000,
                                     cors: { origin: "*",
@@ -29,7 +28,7 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
     if (response) {
       if ((!room.players[forcedPlayer].active || timeout) && keepPlaying) {
         let username = room.players[forcedPlayer].username;
-        // console.log('cleared timer: ', room.players[forcedPlayer].playTimer)
+
         clearTimeout(room.playTimer);
 
         let { total,
@@ -45,7 +44,6 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
         forcedPlayer = newPlayer;
         if (room.players[forcedPlayer].active) {
           io.to(room.players[forcedPlayer].socket).emit('check', (response) => {
-            console.log(response);
             if (!response) {
               room.players[forcedPlayer].active = false;
             }
@@ -55,7 +53,6 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
         let playTimer = setTimeout(() => {
           forcePlayCard(forcedPlayer, roomCode, total, reverse, true, true);
         }, timerDelay + 17000);
-        // console.log('created timer: ', forcedPlayerTimer);
 
         clearTimeout(room.playTimer);
         room.playTimer = playTimer;
@@ -82,14 +79,12 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
             clearTimeout(room.playTimer);
 
             room.players.forEach((player, i) => {
-              // console.log('cleared timer: ', player.playTimer);
               io.to(player.socket).emit('gameOver', formattedPlayers.playerObjects, i);
             })
           }
         }, timerDelay);
       }
     } else {
-      // console.log('clear timeout');
       Rooms.deleteRoom(roomCode);
     }
   })
@@ -169,14 +164,11 @@ io.on('connection', (socket) => {
       forcePlayCard(0, roomCode, 0, false, true);
     }, 20000);
 
-    // console.log('created START timer: ', timer['Symbol(asyncId)']);
-
     clearTimeout(room.playTimer);
     room.playTimer = playTimer;
   });
 
   socket.on('enter', (roomCode, playerId, hasPassword) => {
-    // console.log('softEnter player: ', playerId);
     let error = {}
     let room = Rooms.data[roomCode] || error;
 
@@ -206,10 +198,8 @@ io.on('connection', (socket) => {
           io.to(socket.id).emit('enterCheck', 'OK', owner, players.username !== 'Waiting...' ? players.hand : undefined, players.username);
 
           room.players.forEach((player, i) => {
-            io.to(player.socket).emit('playerEnter', players.playerObjects, i);
+            io.to(player.socket).emit('playerEnter', players.playerObjects, i, room.playTimer._idleTimeout);
           })
-
-          //io.to(socket.id).emit('hand', players.hand);
 
           let activePlayers = room.players.filter(player => player.playerId !== playerId && player.active);
           activePlayers.push({ socket: socket.id });
@@ -227,86 +217,6 @@ io.on('connection', (socket) => {
     }
   })
 
-  // socket.on('enter', (roomCode, playerId) => {
-  //   let error = {}
-  //   let room = Rooms.data[roomCode] || error;
-
-  //   if (!playerId) {
-  //     playerId = socket.id;
-  //   }
-  //   io.to(socket.id).emit('playerId', playerId);
-
-  //   if (room === error) {
-
-  //     io.to(socket.id).emit('enterCheck', 'That room does not exist.');
-
-  //   } else if (!room.players) {
-
-  //     socket.join(roomCode);
-  //     io.to(socket.id).emit('enterCheck', 'OK', true);
-
-  //   } else if (room.players) {
-
-  //     let players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id), playerId);
-
-  //     if (players) {
-  //       socket.join(roomCode);
-
-  //       let owner = room.players[0].socket === socket.id;
-
-  //       io.to(socket.id).emit('enterCheck', 'OK', owner, players.username !== 'Waiting...' ? players.hand : undefined, players.username);
-
-  //       room.players.forEach((player, i) => {
-  //         io.to(player.socket).emit('playerEnter', players.playerObjects, i);
-  //       })
-
-  //       //io.to(socket.id).emit('hand', players.hand);
-
-  //       let activePlayers = room.players.filter(player => player.playerId !== playerId && player.active);
-  //       activePlayers.push({ socket: socket.id });
-  //       io.to(activePlayers[0].socket).emit('getGameState', players.index);
-
-  //     } else {
-  //       io.to(socket.id).emit('enterCheck', 'That room is full.');
-  //     }
-  //   }
-
-  // });
-
-  // socket.on('reenter', (playerId, roomCode) => {
-  //   let empty = {};
-  //   let room = Rooms.data[roomCode] || empty;
-  //   let players = {};
-  //   let reenter = '';
-  //   if (room === empty) {
-  //     reenter = 'That room does not exist.'
-  //   } else if (room.password === password) {
-
-  //     players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id), playerId);
-  //     username = players.username;
-
-  //     if (players) {
-  //       socket.join(roomCode);
-  //       reenter = 'reenter';
-  //       room.players.forEach((player, i) => {
-  //         io.to(player.socket).emit('playerReenter', players.playerObjects, i);
-  //       })
-  //     } else if (room.inRoom >= room.limit) {
-  //       reenter = 'That room is full.'
-  //     }
-  //     if (reenter === 'reenter') {
-  //       let activePlayers = room.players.filter(player => player.playerId !== playerId && player.active);
-  //       activePlayers.push({ socket: socket.id });
-  //       io.to(activePlayers[0].socket).emit('getGameState', players.index);
-  //     }
-
-  //   } else {
-  //     reenter = 'Incorrect password.'
-  //   }
-  //   io.to(socket.id).emit('reenterCheck', reenter, username, socket.id, players.hand);
-
-  // });
-
   socket.on('disconnect', (roomCode, index) => {
     if (roomCode) {
       socket.leave(roomCode);
@@ -315,10 +225,9 @@ io.on('connection', (socket) => {
         room.players[index].active = false;
       }
     }
-    // console.log('disconnected: ', socket.id)
   })
 
-  socket.on('currentGameState', (roomCode, playerId, countdown, played, total, index) => {
+  socket.on('currentGameState', (roomCode, playerId, countdown, index) => {
     let room = Rooms.data[roomCode] || {};
     if (!room.players.some((player) => player.playerId === playerId)) {
       return;
@@ -326,7 +235,7 @@ io.on('connection', (socket) => {
 
     let socketId = room.players[index].socket;
 
-    io.to(socketId).emit('gotGameState', countdown, played, total, room.reverse);
+    io.to(socketId).emit('gotGameState', countdown, room.total, room.reverse, room.discard);
   })
 
   socket.on('username', (roomCode, username, playerId) => {
@@ -357,31 +266,25 @@ io.on('connection', (socket) => {
   socket.on('playCard', (cardObj, roomCode, reverse, syncTotal, currentPlayer, nextPlayer, playerId) => {
     let room = Rooms.data[roomCode] || {};
     if (!room.players[currentPlayer].turn || !room.players.some((player) => player.playerId === playerId)) {
-      // console.log('not players turn: ', currentPlayer);
       return;
     }
     room.reverse = reverse;
     io.to(socket.id).emit('playerId', playerId);
 
     clearTimeout(room.playTimer);
+    room.total = syncTotal;
+    room.discard = cardObj;
 
     let players = Utils.formatPlayers(Rooms.playCard(roomCode, cardObj, currentPlayer, nextPlayer), playerId);
     let playTimer = setTimeout(() => {
-      // console.log('timer ran for: ', nextPlayer);
       forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, true);
     }, 17000);
-
-    // console.log('created timer: ', nextPlayerTimer);
 
     room.playTimer = playTimer;
 
     room.players.forEach((player, i) => {
       socket.to(player.socket).emit('nextTurn', players.playerObjects, i, syncTotal, cardObj, reverse);
     })
-    // console.log('******************************')
-    // console.log('socket.id: ', socket.id);
-    // console.log('playerId: ', playerId);
-    // console.log('players hand: ', players.hand);
 
     io.to(socket.id).emit('hand', players.hand);
 
@@ -393,7 +296,6 @@ io.on('connection', (socket) => {
         }
       });
     } else {
-      // console.log('Force play on: ', nextPlayer);
       forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, false);
     }
   })
@@ -411,7 +313,6 @@ io.on('connection', (socket) => {
     if (newRound) {
 
       room.players.forEach((player, i) => {
-        // console.log('cleared timer: ', player.playTimer)
         io.to(player.socket).emit('newRound', players.playerObjects, i, room.players[currentPlayer].username, room.players[currentPlayer].strikes, player.hand);
       })
 
@@ -419,7 +320,6 @@ io.on('connection', (socket) => {
         room.players[nextPlayer].active = false;
         forcePlayCard(nextPlayer, roomCode, 0, reverse, true);
       }, 20000);
-      // console.log('created timer: ', nextPlayerTimer);
 
       clearTimeout(room.playTimer)
       room.playTimer = playTimer;
@@ -441,7 +341,6 @@ io.on('connection', (socket) => {
       clearTimeout(room.playTimer);
 
       room.players.forEach((player, i) => {
-        // console.log('cleared timer: ', player.playTimer)
         io.to(player.socket).emit('gameOver', players.playerObjects, i);
       });
     }
@@ -482,30 +381,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnection', (data) => {
-    // let { roomCode, owner, playerIndex, playersRemain, players } = data;
 
-    // socket.leave(roomCode);
-    // let room = Rooms.data[roomCode];
-
-    // if (owner) {
-    //   if (playersRemain) {
-    //     console.log('disconnection');
-    //     console.log(JSON.stringify(players));
-    //     let newOwnerId = Rooms.assignNewOwner(room, playerIndex, players[0].index);
-    //     let players = Utils.formatPlayers(room.players);
-
-    //     io.to(roomCode).emit('players', players.playerObjects);
-    //     io.to(newOwnerId).emit('owner');
-    //   } else {
-    //     Rooms.deleteRoom(roomCode);
-    //   }
-    // } else {
-    //   room.players[playerIndex].active = false;
-    //   let players = Utils.formatPlayers(room.players);
-
-    //   io.to(roomCode).emit('players', players.playerObjects);
-    //   console.log('player left. active is set to: ', room.players[playerIndex].active);
-    // }
   });
 
 })
@@ -531,5 +407,5 @@ app.get('/computers', (req, res) => {
 });
 
 httpServer.listen(port, () => {
-  console.log(`Listening on port ${port}`)
+  console.log(`Listening on port ${port}`);
 });

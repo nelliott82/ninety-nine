@@ -368,20 +368,6 @@ const AppHumans = (props) => {
     }, delay);
   }
 
-
-  function getCookieValues() {
-    let cookies = {};
-    // if (document.cookie) {
-    //   cookies = makeCookieObject();
-
-    //   chosenName = cookies.username ? cookies.username : chosenName;
-    //   playerId = cookies.playerId ? cookies.playerId : playerId;
-    //   cookies.creator && setCreator(true);
-    // }
-
-    return cookies;
-  }
-
   const cookies = makeCookieObject();
 
   function sortUsernames(playerObjects, i) {
@@ -444,12 +430,6 @@ const AppHumans = (props) => {
     syncUsernames[j].turn = true;
     setUsernames(usernames => [...syncUsernames]);
     return syncUsernames[j].index;
-
-    // setTurn(turn => nextPlayer);
-
-    // if (nextPlayer !== 0) {
-    //   computer(nextPlayer);
-    // }
   }
 
   function setNewRound(player, playerId) {
@@ -460,7 +440,6 @@ const AppHumans = (props) => {
     human && socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, playerId, reverse);
 
     if (computer) {
-      // let tempStrikes = strikes;
       let countDone = syncUsernames.length;
 
       if (syncUsernames[player].strikes === 3) {
@@ -478,25 +457,12 @@ const AppHumans = (props) => {
         setOverMessage(`Game over!\n\n${message}`);
       } else {
 
-        // if (tempStrikes[player] < 3) {
-        //   tempStrikes[player] += 1;
-        // }
-
-        // setStrikes(strikes => [...tempStrikes]);
-
-        // if (player === 0) {
-        //   winner = 1;
-        // } else {
-        //   winner = 0;
-        // }
-
         deck = shuffleDeck(createDeck());
         played = [];
 
         setTotal(total => 0);
         syncTotal = 0;
 
-        // setTurn(turn => turn = 0);
         syncUsernames.forEach(player => {
           player.turn = false;
           player.hand = [];
@@ -598,7 +564,6 @@ const AppHumans = (props) => {
       setWaiting(waiting => true);
 
       socket.emit('create', roomCode, cookies.playerId, state.setPassword, usernames[0].username, usernames.length);
-      //sortUsernames(setHands(syncUsernames));
 
     } else {
       syncUsernames.forEach((player, i) => player.index = i);
@@ -610,7 +575,6 @@ const AppHumans = (props) => {
 
   function selectBots(e) {
     let num = parseInt(e.target.value);
-    // setOpponentsArray(opponentsArray => [...Array(num).keys()]);
     syncUsernames = [...syncUsernames.slice(0, 1), ...Array(num).fill('')
                                                                 .map(() => { return { username: 'Waiting...',
                                                                                       strikes: 0,
@@ -619,7 +583,6 @@ const AppHumans = (props) => {
                                                                                       turn: false } })]
 
     setUsernames(usernames => [...syncUsernames]);
-    //setPlayers(players => [...Array(num + 1).keys()]);
   }
 
   function setAndDisplayMessage(player = undefined, strikes) {
@@ -640,16 +603,12 @@ const AppHumans = (props) => {
   }
 
   function saveUsername(username) {
-    //let cookies = getCookieValues();
     chosenName = username;
-    //setCookies([{ name: 'roomCode', value: roomCode }])
 
     if (!creator) {
-      // setStarted(true);
       socket.emit('username', roomCode, username, cookies.playerId);
     } else {
       setUsernameChoice(false);
-      //setCookies([{ name: 'username', value: username }])
       syncUsernames = [{ username, strikes: 0, hand: [], turn: true }, ...syncUsernames.slice(1)];
       setUsernames(usernames => [...syncUsernames]);
       setStart(true);
@@ -657,7 +616,6 @@ const AppHumans = (props) => {
   }
 
   function setHands(players) {
-    // console.log('in set hands: ', players)
     return players.map((player, i) => {
       if (i && player.strikes < 3 &&
           chosenName !== 'Waiting...') {
@@ -699,16 +657,38 @@ const AppHumans = (props) => {
     }
   }
 
+  function resetState() {
+    syncUsernames = dummyUsernames;
+    setDisplay(false);
+    setStarted(false);
+    setOn(true);
+    setHuman(false);
+    setComputer(false);
+    setTotal(0);
+    setOver(false);
+    setGameOver(false);
+    setEndGame(false);
+    setDisplayMessage(false);
+    setOverMessage(false);
+    setWaitingCount(4);
+    setDisplayCountdown(false);
+    setPassword('');
+    setGameStateTimer(timerDelay);
+    setEnterPassword(false);
+    setUsernameChoice(true);
+    setUsernameMessage(false);
+    setWaiting(false);
+    setUsernames(dummyUsernames);
+    setStart(false);
+    setCreated(false);
+    setCreator(false);
+  }
+
   useEffect(() => {
 
     if (location.pathname !== '/computers') {
       socket.connect();
       setHuman(true);
-
-      // if (state.hasOwnProperty('creator')) {
-      //   setCreator(true);
-      //   setCookies([{ name: 'creator', value: true }]);
-      // }
 
       if (cookies.playerId) {
         let hasPassword = !state.hasOwnProperty('setPassword') ? false : true;
@@ -721,7 +701,6 @@ const AppHumans = (props) => {
       }
 
       socket.on('players', (players, i, restart, newHand, creating) => {
-        //getCookieValues()
         if (creating) {
           setCreated(true);
         }
@@ -755,14 +734,10 @@ const AppHumans = (props) => {
         }
 
         applyPlayers(setHands(sortUsernames(players, i)));
-        //setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
       });
 
-      socket.on('playerEnter', (players, i) => {
-        // console.log('chosenName: ', chosenName)
-        // console.log('players: ', players)
+      socket.on('playerEnter', (players, i, playTimer) => {
         players = applyPlayers(setHands(sortUsernames(players, i)), ['active', 'username', 'hand', 'index']);
-        // console.log('players set hands: ', players)
 
         let playerState = players.reduce((accum, player) => {
           if (player.username === "Waiting...") {
@@ -777,12 +752,10 @@ const AppHumans = (props) => {
           }
           return accum;
         }, { waiting: false, count: 0, inactive: 0, strikes: 0 });
+
         if (chosenName !== 'Waiting...') {
           setWaiting(playerState.waiting);
           setOn(playerState.waiting);
-          //players = applyPlayers(setHands(sortUsernames(players)));
-        } else {
-          //players = applyPlayers(sortUsernames(players), ['active']);
         }
         setStarted(true);
 
@@ -791,17 +764,19 @@ const AppHumans = (props) => {
         finalStrikes = players[0].strikes;
         if (finalStrikes === 3) {
           setOver(true);
-          setOverMessage('You lose');
+          setOverMessage('You lose.');
         }
 
-        if (((playerState.inactive === players.length - 1) && !playerState.waiting) ||
-            (playerState.strikes === players.length - 1)) {
+        if ((playerState.strikes === players.length - 1) ||
+            (playerState.inactive === players.length - 1) &&
+             !playerState.waiting &&
+             playTimer === -1) {
           setDisplayCountdown(false);
           setTotal(0);
           syncTotal = 0;
           setOver(true);
-          setOverMessage('Congrats! You win!');
-          !(playerState.inactive === players.length - 1) && setGameOver(true);
+          finalStrikes < 3 && setOverMessage('Congrats! You win!');
+          setGameOver(true);
           played = [];
         }
       })
@@ -812,58 +787,11 @@ const AppHumans = (props) => {
 
         setTimeout(() => {
           window.history.replaceState({}, document.title);
-          //setStarted(false);
+
           const refreshKey = Math.random().toString(36).substring(2);
           navigate('/select', { state: { refreshKey } });
         }, 5000);
       })
-
-      // socket.on('playerReenter', (players) => {
-      //   //getCookieValues();
-      //   //setOpponentsArray(opponentsArray => [...Array(players.length - 1).keys()]);
-
-      //   let playerState = players.reduce((accum, player) => {
-      //     if (player.username === "Waiting...") {
-      //       accum.waiting = true;
-      //       accum.count += 1;
-      //     }
-      //     if (!player.active) {
-      //       accum.inactive += 1;
-      //     }
-      //     if (player.strikes === 3) {
-      //       accum.strikes += 1;
-      //     }
-      //     return accum;
-      //   }, { waiting: false, count: 0, inactive: 0, strikes: 0 });
-
-      //   if (chosenName !== 'Waiting...') {
-      //     setWaiting(playerState.waiting);
-      //     setOn(playerState.waiting);
-      //     players = applyPlayers(setHands(sortUsernames(players)));
-      //   } else {
-      //     players = applyPlayers(sortUsernames(players), ['active']);
-      //   }
-
-      //   setWaitingCount(playerState.count);
-
-      //   finalStrikes = players[0].strikes;
-      //   if (finalStrikes === 3) {
-      //     setOver(true);
-      //     setOverMessage('You lose');
-      //   }
-
-      //   if (((playerState.inactive === players.length - 1) && !playerState.waiting) ||
-      //       (playerState.strikes === players.length - 1)) {
-      //     setDisplayCountdown(false);
-      //     setTotal(0);
-      //     syncTotal = 0;
-      //     setOver(true);
-      //     setOverMessage('Congrats! You win!');
-      //     !(playerState.inactive === players.length - 1) && setGameOver(true);
-      //     played = [];
-      //   }
-
-      // });
 
       let attempts = 0;
       socket.on('hand', (newHand) => {
@@ -950,7 +878,6 @@ const AppHumans = (props) => {
           setStarted(true);
           setDisplay(true);
         } else {
-          // console.log('enter fail: ', message);
           navigate('/select', {state: { message }});
         }
       })
@@ -959,14 +886,12 @@ const AppHumans = (props) => {
         setUsernameMessage(exists);
         if (!exists) {
           chosenName = username;
-          //setCookies([{ name: 'username', value: username }])
           setWaiting(waiting => true);
           setUsernameChoice(false);
         }
       })
 
       socket.on('playerId', playerId => {
-        //let cookiesObject = getCookieValues();
         setCookies([{ name: 'playerId', value: playerId }], true)
       })
 
@@ -978,10 +903,10 @@ const AppHumans = (props) => {
       })
 
       socket.on('getGameState', (index) => {
-        socket.emit('currentGameState', roomCode, cookies.playerId, syncCountdown, played[0], syncTotal, index);
+        socket.emit('currentGameState', roomCode, cookies.playerId, syncCountdown, index);
       })
 
-      socket.on('gotGameState', (gotCountdown, gotPlayed, gotTotal, gotReverse) => {
+      socket.on('gotGameState', (gotCountdown, gotTotal, gotReverse, gotPlayed) => {
         let wait = syncUsernames.reduce((accum, player) => {
           if (player.username === 'Waiting...') {
             accum = true;
@@ -1002,30 +927,7 @@ const AppHumans = (props) => {
       })
 
       return () => {
-        syncUsernames = dummyUsernames;
-        setDisplay(false);
-        setStarted(false);
-        setOn(true);
-        setHuman(false);
-        setComputer(false);
-        setTotal(0);
-        setOver(false);
-        setGameOver(false);
-        setEndGame(false);
-        setDisplayMessage(false);
-        setOverMessage(false);
-        setWaitingCount(4);
-        setDisplayCountdown(false);
-        setPassword('');
-        setGameStateTimer(timerDelay);
-        setEnterPassword(false);
-        setUsernameChoice(true);
-        setUsernameMessage(false);
-        setWaiting(false);
-        setUsernames(dummyUsernames);
-        setStart(false);
-        setCreated(false);
-        setCreator(false);
+        resetState();
 
         socket.off('players');
         socket.off('playerEnter');
@@ -1053,30 +955,7 @@ const AppHumans = (props) => {
       setStarted(true);
 
       return () => {
-        syncUsernames = dummyUsernames;
-        setDisplay(false);
-        setStarted(false);
-        setOn(true);
-        setHuman(false);
-        setComputer(false);
-        setTotal(0);
-        setOver(false);
-        setGameOver(false);
-        setEndGame(false);
-        setDisplayMessage(false);
-        setOverMessage(false);
-        setWaitingCount(4);
-        setDisplayCountdown(false);
-        setPassword('');
-        setGameStateTimer(timerDelay);
-        setEnterPassword(false);
-        setUsernameChoice(true);
-        setUsernameMessage(false);
-        setWaiting(false);
-        setUsernames(dummyUsernames);
-        setStart(false);
-        setCreated(false);
-        setCreator(false);
+        resetState();
       }
     }
   }, []);

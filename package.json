@@ -22,10 +22,8 @@
   },
   "homepage": "https://github.com/nelliott82/ninety-nine#readme",
   "dependencies": {
-    "axios": "^0.27.2",
     "cors": "^2.8.5",
     "express": "^4.18.1",
-    "mongoose": "^6.4.0",
     "morgan": "^1.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

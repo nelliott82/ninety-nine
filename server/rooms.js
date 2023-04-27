@@ -69,10 +69,11 @@ const Rooms = {
       limit,
       players,
       total: 0,
+      discard: null,
       reverse: false,
       inRoom: 1,
       timeoutId,
-      playTimer: null,
+      playTimer: { _idleTimeout: true },
       created: true
     }
 
@@ -134,7 +135,7 @@ const Rooms = {
     });
     room.players[currentPlayer].hand =[...filteredHand, room.deck.shift()];
 
-    // Every now and then, due to conflict in timers, the player's hand would be more than 3.
+    // Every now and then, due to conflict in timers, the player's hand would have more than 3.
     // This can cause the client to see more than 3 hands, attempt to play one, and break something.
     // Many attempts to correct this behavior have been made, but on the off chance an edge
     // case wasn't considered, this will solve for it.
@@ -154,6 +155,8 @@ const Rooms = {
     let gameOver;
     let cardObj = player.hand[0];
 
+    room.discard = cardObj;
+
     if (cardObj[0][0] === '4') {
       room.reverse = !reverse;
 
@@ -163,10 +166,13 @@ const Rooms = {
     } else {
       if (total + cardObj[1] > 99) {
         newRound = true;
+        total = 0;
+        room.discard = [];
       } else {
         total += cardObj[1];
       }
     }
+    room.total = total;
 
     let nextPlayer = this.calculateNextPlayer(forcedPlayer, roomCode, room.reverse);
 
@@ -257,11 +263,6 @@ const Rooms = {
 
     return this.data[roomCode].players[j].index;
 
-    // setTurn(turn => nextPlayer);
-
-    // if (nextPlayer !== 0) {
-    //   computer(nextPlayer);
-    // }
   }
 }
 
