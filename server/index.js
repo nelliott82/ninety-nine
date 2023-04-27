@@ -229,7 +229,6 @@ io.on('connection', (socket) => {
                   room.playTimer = playTimer;
 
                   let updatePlayers = Utils.formatPlayers(room.players, playerId);
-                  console.log(updatePlayers);
                   io.to(socket.id).emit('playerEnter', updatePlayers.playerObjects, updatePlayers.index, room.playTimer._idleTimeout);
                   io.to(socket.id).emit('gotGameState', -1, room.total, room.reverse, room.discard, waiting);
                 }

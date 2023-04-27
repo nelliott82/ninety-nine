@@ -294,13 +294,12 @@ let navigated = false;
 let timerDelay = 15;
 let syncTotal = 0;
 let syncCountdown = timerDelay;
-let dummyUsernames = new Array(2).fill('')
-                                 .map(() => { return { username: 'Waiting...',
-                                                       strikes: 0,
-                                                       active: false,
-                                                       hand: [],
-                                                       turn: false } });
-let syncUsernames = dummyUsernames;
+let syncUsernames = new Array(2).fill('')
+                                .map(() => { return { username: 'Waiting...',
+                                                      strikes: 0,
+                                                      active: false,
+                                                      hand: [],
+                                                      turn: false } });
 let timerId;
 
 let message;
@@ -338,7 +337,7 @@ const AppHumans = (props) => {
   const [usernameChoice, setUsernameChoice] = useState(true);
   const [usernameMessage, setUsernameMessage] = useState(false);
   const [waiting, setWaiting] = useState(false);
-  const [usernames, setUsernames] = useState(dummyUsernames);
+  const [usernames, setUsernames] = useState(syncUsernames);
   const [start, setStart] = useState(false);
   const [created, setCreated] = useState(false);
   const [creator, setCreator] = useState(false);
@@ -655,32 +654,32 @@ const AppHumans = (props) => {
     }
   }
 
-  function resetState() {
-    syncUsernames = dummyUsernames;
-    setDisplay(false);
-    setStarted(false);
-    setOn(true);
-    setHuman(false);
-    setComputer(false);
-    setTotal(0);
-    setOver(false);
-    setGameOver(false);
-    setEndGame(false);
-    setDisplayMessage(false);
-    setOverMessage(false);
-    setWaitingCount(4);
-    setDisplayCountdown(false);
-    setPassword('');
-    setGameStateTimer(timerDelay);
-    setEnterPassword(false);
-    setUsernameChoice(true);
-    setUsernameMessage(false);
-    setWaiting(false);
-    setUsernames(dummyUsernames);
-    setStart(false);
-    setCreated(false);
-    setCreator(false);
-  }
+  // function resetState() {
+  //   syncUsernames = dummyUsernames;
+  //   setDisplay(false);
+  //   setStarted(false);
+  //   setOn(true);
+  //   setHuman(false);
+  //   setComputer(false);
+  //   setTotal(0);
+  //   setOver(false);
+  //   setGameOver(false);
+  //   setEndGame(false);
+  //   setDisplayMessage(false);
+  //   setOverMessage(false);
+  //   setWaitingCount(4);
+  //   setDisplayCountdown(false);
+  //   setPassword('');
+  //   setGameStateTimer(timerDelay);
+  //   setEnterPassword(false);
+  //   setUsernameChoice(true);
+  //   setUsernameMessage(false);
+  //   setWaiting(false);
+  //   setUsernames(dummyUsernames);
+  //   setStart(false);
+  //   setCreated(false);
+  //   setCreator(false);
+  // }
 
   useEffect(() => {
 
@@ -905,7 +904,6 @@ const AppHumans = (props) => {
       })
 
       socket.on('gotGameState', (gotCountdown, gotTotal, gotReverse, gotPlayed, waiting) => {
-        console.log(waiting)
         if (!waiting) {
           reverse = gotReverse;
           played = gotPlayed ? gotPlayed : [];
@@ -917,14 +915,42 @@ const AppHumans = (props) => {
           } else {
             setGameStateTimer(syncCountdown);
           }
-          console.log('starting countdown got game state')
           setDisplayCountdown(true);
           timer();
         }
       })
 
       return () => {
-        resetState();
+        // resetState();
+        syncUsernames = new Array(2).fill('')
+                                    .map(() => { return { username: 'Waiting...',
+                                                          strikes: 0,
+                                                          active: false,
+                                                          hand: [],
+                                                          turn: false } });
+        setDisplay(false);
+        setStarted(false);
+        setOn(true);
+        setHuman(false);
+        setComputer(false);
+        setTotal(0);
+        setOver(false);
+        setGameOver(false);
+        setEndGame(false);
+        setDisplayMessage(false);
+        setOverMessage(false);
+        setWaitingCount(4);
+        setDisplayCountdown(false);
+        setPassword('');
+        setGameStateTimer(timerDelay);
+        setEnterPassword(false);
+        setUsernameChoice(true);
+        setUsernameMessage(false);
+        setWaiting(false);
+        setUsernames(syncUsernames);
+        setStart(false);
+        setCreated(false);
+        setCreator(false);
 
         socket.off('players');
         socket.off('playerEnter');
@@ -953,7 +979,36 @@ const AppHumans = (props) => {
       setStarted(true);
 
       return () => {
-        resetState();
+        // resetState();
+        syncUsernames = new Array(2).fill('')
+                                    .map(() => { return { username: 'Waiting...',
+                                                          strikes: 0,
+                                                          active: false,
+                                                          hand: [],
+                                                          turn: false } });
+        setDisplay(false);
+        setStarted(false);
+        setOn(true);
+        setHuman(false);
+        setComputer(false);
+        setTotal(0);
+        setOver(false);
+        setGameOver(false);
+        setEndGame(false);
+        setDisplayMessage(false);
+        setOverMessage(false);
+        setWaitingCount(4);
+        setDisplayCountdown(false);
+        setPassword('');
+        setGameStateTimer(timerDelay);
+        setEnterPassword(false);
+        setUsernameChoice(true);
+        setUsernameMessage(false);
+        setWaiting(false);
+        setUsernames(syncUsernames);
+        setStart(false);
+        setCreated(false);
+        setCreator(false);
       }
     }
   }, []);
