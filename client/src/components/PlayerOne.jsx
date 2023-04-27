@@ -122,7 +122,9 @@ return (
                                                                                     playCard(card, 0);
                                                                                   }
                                                                                 }}
-                                                                                src={`/assets/cards/${card[0]}.png`} />
+                                                                                src={`/assets/cards/${card[0]}.png`}
+                                                                                alt={`This card is the ${card[0].slice(0, card[0].length - 1)} of ${card[0].slice(card[0].length - 1)}.`}
+                                                                                />
                                                                </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} />)}
     </PlayerOneArea>
