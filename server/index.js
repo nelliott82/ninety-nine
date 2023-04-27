@@ -197,6 +197,7 @@ io.on('connection', (socket) => {
 
           io.to(socket.id).emit('enterCheck', 'OK', owner, players.username !== 'Waiting...' ? players.hand : undefined, players.username);
 
+          // PRIORITIZE REFACTORING THIS
           let waiting = false;
           room.players.forEach((player, i) => {
             waiting = player.username === 'Waiting...';
@@ -213,7 +214,9 @@ io.on('connection', (socket) => {
                 let activePlayers = room.players.filter(player => player.playerId !== playerId && player.active);
 
                 if (activePlayers.length) {
-                  io.to(socket.id).emit('playerEnter', players.playerObjects, i, room.playTimer._idleTimeout);
+                  let index = room.players.filter(player => player.playerId === playerId)[0].index;
+
+                  io.to(socket.id).emit('playerEnter', players.playerObjects, index, room.playTimer._idleTimeout);
                   io.to(activePlayers[0].socket).emit('getGameState', players.index);
 
                 } else {
@@ -227,6 +230,7 @@ io.on('connection', (socket) => {
                   room.playTimer = playTimer;
 
                   let updatePlayers = Utils.formatPlayers(room.players, playerId);
+                  console.log(updatePlayers);
                   io.to(socket.id).emit('playerEnter', updatePlayers.playerObjects, updatePlayers.index, room.playTimer._idleTimeout);
                   io.to(socket.id).emit('gotGameState', -1, room.total, room.reverse, room.discard, waiting);
                 }
