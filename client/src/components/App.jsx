@@ -76,7 +76,7 @@ const App = () => {
   const [message, setMessage] = useState('');
   const [displayMessage, setDisplayMessage] = useState(false);
   const [display, setDisplay] = useState(false);
-  const [chooseOpponents, setChooseOpponents] = useState(true);
+  const [chooseOpponents, setChooseOpponents] = useState(false);
   const [chooseRoom, setChooseRoom] = useState(false);
   const [ready, setReady] = useState(false);
   const [opponents, setOpponents] = useState(tempChoice);
@@ -98,7 +98,6 @@ const App = () => {
     if (location.state && (location.state.refreshKey || location.state.message)) {
       window.history.replaceState({}, document.title);
       if (location.state.message) {
-        setChooseOpponents(false);
         setAndDisplayMessage();
         setMessage(location.state.message);
       }
@@ -107,6 +106,8 @@ const App = () => {
       setOpponents(tempChoice);
       setReady(false);
       setRoomCodeApp('');
+    } else {
+      setChooseOpponents(true);
     }
   }, [])
 
