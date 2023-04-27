@@ -69,7 +69,7 @@ const Rooms = {
       limit,
       players,
       total: 0,
-      discard: null,
+      discard: [],
       reverse: false,
       inRoom: 1,
       timeoutId,
@@ -155,7 +155,7 @@ const Rooms = {
     let gameOver;
     let cardObj = player.hand[0];
 
-    room.discard = cardObj;
+    room.discard.push(cardObj);
 
     if (cardObj[0][0] === '4') {
       room.reverse = !reverse;
@@ -167,7 +167,7 @@ const Rooms = {
       if (total + cardObj[1] > 99) {
         newRound = true;
         total = 0;
-        room.discard = null;
+        room.discard = [];
       } else {
         total += cardObj[1];
       }

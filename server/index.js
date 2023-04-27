@@ -197,13 +197,43 @@ io.on('connection', (socket) => {
 
           io.to(socket.id).emit('enterCheck', 'OK', owner, players.username !== 'Waiting...' ? players.hand : undefined, players.username);
 
+          let waiting = false;
           room.players.forEach((player, i) => {
-            io.to(player.socket).emit('playerEnter', players.playerObjects, i, room.playTimer._idleTimeout);
+            waiting = player.username === 'Waiting...';
+
+            io.to(player.socket).emit('check', (response) => {
+
+              if (!response) {
+                player.active = false;
+
+              } else if (player.playerId !== playerId) {
+                io.to(player.socket).emit('playerEnter', players.playerObjects, i, room.playTimer._idleTimeout);
+              }
+              if (i === room.players.length - 1) {
+                let activePlayers = room.players.filter(player => player.playerId !== playerId && player.active);
+
+                if (activePlayers.length) {
+                  io.to(socket.id).emit('playerEnter', players.playerObjects, i, room.playTimer._idleTimeout);
+                  io.to(activePlayers[0].socket).emit('getGameState', players.index);
+
+                } else {
+                  let nextPlayer = room.players.filter(player => player.turn)[0];
+
+                  let playTimer = setTimeout(() => {
+                    forcePlayCard(nextPlayer.index, roomCode, room.total, room.reverse, false);
+                  }, 3000);
+
+                  clearTimeout(room.playTimer);
+                  room.playTimer = playTimer;
+
+                  let updatePlayers = Utils.formatPlayers(room.players, playerId);
+                  io.to(socket.id).emit('playerEnter', updatePlayers.playerObjects, updatePlayers.index, room.playTimer._idleTimeout);
+                  io.to(socket.id).emit('gotGameState', -1, room.total, room.reverse, room.discard, waiting);
+                }
+              }
+            })
           })
 
-          let activePlayers = room.players.filter(player => player.playerId !== playerId && player.active);
-          activePlayers.push({ socket: socket.id });
-          io.to(activePlayers[0].socket).emit('getGameState', players.index);
         } else {
           io.to(socket.id).emit('enterCheck', 'That room is full.');
         }
@@ -234,8 +264,9 @@ io.on('connection', (socket) => {
     }
 
     let socketId = room.players[index].socket;
+    let waiting = room.players.some(player => player.username === 'Waiting...');
 
-    io.to(socketId).emit('gotGameState', countdown, room.total, room.reverse, room.discard);
+    io.to(socketId).emit('gotGameState', countdown, room.total, room.reverse, room.discard, waiting);
   })
 
   socket.on('username', (roomCode, username, playerId) => {
@@ -273,7 +304,7 @@ io.on('connection', (socket) => {
 
     clearTimeout(room.playTimer);
     room.total = syncTotal;
-    room.discard = cardObj;
+    room.discard.push(cardObj);
 
     let players = Utils.formatPlayers(Rooms.playCard(roomCode, cardObj, currentPlayer, nextPlayer), playerId);
     let playTimer = setTimeout(() => {
@@ -310,7 +341,7 @@ io.on('connection', (socket) => {
     let { players, newRound } = Rooms.newRound(roomCode, currentPlayer, nextPlayer);
     players = Utils.formatPlayers(players, playerId);
     room.total = 0;
-    room.discard = null;
+    room.discard = [];
 
     if (newRound) {
 

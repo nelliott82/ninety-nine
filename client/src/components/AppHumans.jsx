@@ -509,7 +509,7 @@ const AppHumans = (props) => {
 
     if (!newRound) {
       let nextPlayer = calculateNextPlayer(player);
-      played = [cardObj];
+      played.push(cardObj);
 
       if (human) {
         socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId)
@@ -532,8 +532,6 @@ const AppHumans = (props) => {
           deck = shuffleDeck(played);
           played = [];
         }
-
-        played = [...played, cardObj];
 
       }
     }
@@ -812,7 +810,7 @@ const AppHumans = (props) => {
         restartTimer(0);
         setTotal(total);
         syncTotal = total;
-        played = [cardObj];
+        played.push(cardObj);
       });
 
       socket.on('newRound', (players, i, username, strikes, newHand) => {
@@ -906,21 +904,20 @@ const AppHumans = (props) => {
         socket.emit('currentGameState', roomCode, cookies.playerId, syncCountdown, index);
       })
 
-      socket.on('gotGameState', (gotCountdown, gotTotal, gotReverse, gotPlayed) => {
-        let wait = syncUsernames.reduce((accum, player) => {
-          if (player.username === 'Waiting...') {
-            accum = true;
-          }
-          return accum;
-        }, false);
-
-        if (!wait) {
+      socket.on('gotGameState', (gotCountdown, gotTotal, gotReverse, gotPlayed, waiting) => {
+        console.log(waiting)
+        if (!waiting) {
           reverse = gotReverse;
-          syncCountdown = gotCountdown;
-          played = gotPlayed ? [gotPlayed] : [];
+          played = gotPlayed ? gotPlayed : [];
           syncTotal = gotTotal || 0;
           setTotal(gotTotal || 0);
-          setGameStateTimer(gotCountdown);
+          if (gotCountdown > -1) {
+            syncCountdown = gotCountdown;
+            setGameStateTimer(gotCountdown);
+          } else {
+            setGameStateTimer(syncCountdown);
+          }
+          console.log('starting countdown got game state')
           setDisplayCountdown(true);
           timer();
         }
@@ -943,6 +940,7 @@ const AppHumans = (props) => {
         socket.off('getPassword');
         socket.off('getGameState');
         socket.off('gotGameState');
+        socket.off('startTimer');
         socket.disconnect(roomCode);
       }
     } else {

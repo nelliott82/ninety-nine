@@ -76,6 +76,7 @@ let playTimer;
 
 var PlayingArea = ({ played, deck, turn, displayCountdown, gameStateTimer, playCard, hand, over }) => {
 const [countdown, setCountdown] = useState(gameStateTimer);
+let lastCard = played[played.length - 1];
 
 function timer() {
   clearTimeout(timerId);
@@ -127,7 +128,9 @@ return (
             <CardArea>
             {played.length ?
               <CardStack
-                  src={`/assets/cards/${played[0][0]}.png`} />
+                  src={`/assets/cards/${lastCard[0]}.png`}
+                  alt={`This card is the ${lastCard[0].slice(0, lastCard[0].length - 1)} of ${lastCard[0].slice(lastCard[0].length - 1)}.`}
+                  />
             : null}
             </CardArea>
           </PlayedContainer>
