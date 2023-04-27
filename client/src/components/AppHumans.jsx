@@ -987,8 +987,8 @@ const AppHumans = (props) => {
       <OverMessage over={over}>
         {overMessage}
       </OverMessage>
-      <GameOverButton gameOver={gameOver && creator && !endGame} top={'60%'} onClick={() => replay()} >Replay</GameOverButton>
-      <GameOverButton gameOver={gameOver && creator && !endGame} top={'65%'} onClick={() => endGameFunc()} >End Game</GameOverButton>
+      <GameOverButton gameOver={gameOver && creator && !endGame} top={'50%'} onClick={() => replay()} >Replay</GameOverButton>
+      <GameOverButton gameOver={gameOver && creator && !endGame} top={'55%'} onClick={() => endGameFunc()} >End Game</GameOverButton>
       <MainContainer>
         <GameArea>
           <PlayerArea1>

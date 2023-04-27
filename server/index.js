@@ -179,10 +179,12 @@ io.on('connection', (socket) => {
 
     if (room === error) {
       io.to(socket.id).emit('enterCheck', 'That room does not exist.');
+
     } else if (!room.players) {
       socket.join(roomCode);
       room.players = true;
       io.to(socket.id).emit('enterCheck', 'OK', true);
+
     } else if (room.players && room.created) {
       if (!hasPassword) {
         hasPassword = room.players.some(player => player.playerId === playerId);
@@ -220,10 +222,15 @@ io.on('connection', (socket) => {
 
                 } else {
                   let nextPlayer = room.players.filter(player => player.turn)[0];
+                  let delay = 0;
+
+                  if (nextPlayer.playerId === playerId) {
+                    delay = 17000;
+                  }
 
                   let playTimer = setTimeout(() => {
                     forcePlayCard(nextPlayer.index, roomCode, room.total, room.reverse, false);
-                  }, 3000);
+                  }, delay);
 
                   clearTimeout(room.playTimer);
                   room.playTimer = playTimer;
