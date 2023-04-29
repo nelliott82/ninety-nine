@@ -21,50 +21,62 @@ const LandingMessage = styled.div`
 
 const scrollUp = keyframes`
   0% {
-    transform: translateY(0%);
+    transform: translateY(0vh);
   }
   100% {
-    transform: translateY(-200%);
+    transform: translateY(-280vh);
+  }
+`;
+
+const scrollUpMobile = keyframes`
+  0% {
+    transform: translateY(0vh);
+  }
+  100% {
+    transform: translateY(-250vh);
   }
 `;
 
 const buttonScrollUp = keyframes`
   0% {
-    transform: translateY(0%);
+    transform: translateY(0vh);
   }
   100% {
-    transform: translateY(-137%);
+    transform: translateY(-240vh);
   }
 `;
 
 const buttonScrollUpMobile = keyframes`
   0% {
-    transform: translateY(0%);
+    transform: translateY(0vh);
   }
   100% {
-    transform: translateY(-120%);
+    transform: translateY(-195vh);
   }
 `
 
 const MessageScroll = styled.div`
   height: 170vh;
   position: relative;
-  animation: ${scrollUp} 45s linear 1s forwards;
+  animation: ${scrollUp} 40s linear forwards;
+  @media (max-width: 1240px) {
+    animation: ${scrollUpMobile} 40s linear forwards;
+  }
 `
 
 const ButtonContainer = styled.div`
   height: 170vh;
   position: relative;
-  animation: ${buttonScrollUp} 30.825s linear 1s forwards;
-  @media (max-width: 1240px) {
-    animation: ${buttonScrollUpMobile} 27s linear 1s forwards;
+  animation: ${buttonScrollUp} 34.28s linear forwards;
+  @media (max-width: 1000px) {
+    animation: ${buttonScrollUpMobile} 31.2s linear forwards;
   }
 `
 
 const BeginButton = styled.button`
-  width: 9em;
-  height: 2em;
-  font-size: 1em;
+  width: 16rem;
+  height: 8rem;
+  font-size: 3rem;
   position: absolute;
   top: 0;
   left: 50%;
@@ -72,8 +84,11 @@ const BeginButton = styled.button`
   &:hover {
     cursor: pointer;
   }
-  @media (max-width: 1240px) {
-    top: -25%;
+  @media (max-width: 1000px) {
+    top: -50vh;
+    width: 12rem;
+    height: 7rem;
+    font-size: 2rem;
   }
 `
 
@@ -93,7 +108,7 @@ const LandingMessageComponent = () => {
         </p>
         <p>
           I made this site so I could play against friends from a distance and
-          also teach newcomers how to play. You can play against bots to practice
+          also teach newcomers how to play. You can play against computers to practice
           and learn, or, if you're feeling brave, against humans (humans not included).
         </p>
         <p>
