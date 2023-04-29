@@ -28,42 +28,6 @@ const scrollUpFunc = (scroll) => keyframes`
   }
 `;
 
-const scrollUp = keyframes`
-  0% {
-    transform: translateY(0vh);
-  }
-  100% {
-    transform: translateY(-280vh);
-  }
-`;
-
-const scrollUpMobile = keyframes`
-  0% {
-    transform: translateY(0vh);
-  }
-  100% {
-    transform: translateY(-250vh);
-  }
-`;
-
-const buttonScrollUp = keyframes`
-  0% {
-    transform: translateY(0vh);
-  }
-  100% {
-    transform: translateY(-240vh);
-  }
-`;
-
-const buttonScrollUpMobile = keyframes`
-  0% {
-    transform: translateY(0vh);
-  }
-  100% {
-    transform: translateY(-240vh);
-  }
-`
-
 const MessageScroll = styled.div`
   position: relative;
   display: inline-block;
@@ -88,9 +52,8 @@ const BeginButton = styled.button`
     cursor: pointer;
   }
   @media (max-width: 1000px) {
-    ${'' /* top: -50vh; */}
     width: 12rem;
-    height: 7rem;
+    height: 8rem;
     font-size: 2rem;
   }
 `
@@ -102,14 +65,6 @@ const LandingMessageComponent = () => {
   const buttonContainerElement = useRef(null);
   const buttonElement = useRef(null);
   const [buttonScroll, setButtonScroll] = useState(0);
-
-  // Get  the height of the text inside the div
-  let textHeight = document.getElementById('test1');
-
-  // Calculate the new distance based on the current scroll position and the height of the text
-  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  let newDistance = (scrollTop + window.innerHeight) * (textHeight / window.innerHeight);
-
 
   function handleReadyClick () {
     navigate('/select');
