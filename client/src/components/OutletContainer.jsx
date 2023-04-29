@@ -19,26 +19,6 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const fadeInModal = keyframes`
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 1;
-  }
-`;
-
-const fadeOutModal = keyframes`
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-`;
-
 const Container = styled.div`
   display: block;
   position: fixed;
@@ -49,6 +29,7 @@ const Container = styled.div`
 `;
 
 const ChooseModal = styled.div`
+  overflow-y: auto;
   z-index: 99;
   display: block;
   position: fixed;
@@ -58,7 +39,6 @@ const ChooseModal = styled.div`
   width: 100vw;
   background: ${({ started }) => started ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)'};
 `;
-
 
 const OutletContainer = () => {
   let { roomCode } = useParams();
@@ -70,13 +50,6 @@ const OutletContainer = () => {
   const [opponents, setOpponents] = useState(tempChoice);
   const [started, setStarted] = useState(false);
   const [roomCodeApp, setRoomCodeApp] = useState('');
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!roomCode) {
-      navigate('/select');
-    }
-  }, [])
 
   return (
     <>
