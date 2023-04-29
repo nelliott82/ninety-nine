@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
@@ -16,6 +16,15 @@ const LandingMessage = styled.div`
   @media (max-width: 1240px) {
     font-size: 1.5em;
     width: 90vw;
+  }
+`;
+
+const scrollUpFunc = (scroll) => keyframes`
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-${scroll}px);
   }
 `;
 
@@ -51,26 +60,20 @@ const buttonScrollUpMobile = keyframes`
     transform: translateY(0vh);
   }
   100% {
-    transform: translateY(-195vh);
+    transform: translateY(-240vh);
   }
 `
 
 const MessageScroll = styled.div`
-  height: 170vh;
   position: relative;
-  animation: ${scrollUp} 40s linear forwards;
-  @media (max-width: 1240px) {
-    animation: ${scrollUpMobile} 40s linear forwards;
-  }
+  display: inline-block;
+  animation: ${({ scroll }) => scrollUpFunc(scroll)} 35s linear forwards;
 `
 
 const ButtonContainer = styled.div`
   height: 170vh;
   position: relative;
-  animation: ${buttonScrollUp} 34.28s linear forwards;
-  @media (max-width: 1000px) {
-    animation: ${buttonScrollUpMobile} 31.2s linear forwards;
-  }
+  animation: ${({ scroll }) => scrollUpFunc(scroll)} ${({ seconds }) => seconds}s linear forwards;
 `
 
 const BeginButton = styled.button`
@@ -85,7 +88,7 @@ const BeginButton = styled.button`
     cursor: pointer;
   }
   @media (max-width: 1000px) {
-    top: -50vh;
+    ${'' /* top: -50vh; */}
     width: 12rem;
     height: 7rem;
     font-size: 2rem;
@@ -94,14 +97,41 @@ const BeginButton = styled.button`
 
 const LandingMessageComponent = () => {
   const navigate = useNavigate();
+  const msgScrollElement = useRef(null);
+  const [scroll, setScroll] = useState(0);
+  const buttonContainerElement = useRef(null);
+  const buttonElement = useRef(null);
+  const [buttonScroll, setButtonScroll] = useState(0);
+
+  // Get  the height of the text inside the div
+  let textHeight = document.getElementById('test1');
+
+  // Calculate the new distance based on the current scroll position and the height of the text
+  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  let newDistance = (scrollTop + window.innerHeight) * (textHeight / window.innerHeight);
+
 
   function handleReadyClick () {
     navigate('/select');
   }
 
+  function setScrolls () {
+    setScroll(window.innerHeight + msgScrollElement.current.offsetHeight);
+    setButtonScroll(msgScrollElement.current.offsetHeight + ((window.innerHeight + buttonElement.current.offsetHeight) / 2));
+  }
+
+  useEffect(() => {
+    setScrolls();
+    window.addEventListener('resize', setScrolls)
+
+    return () => {
+      window.removeEventListener('resize', setScrolls)
+    }
+  })
+
   return (
     <LandingMessage>
-      <MessageScroll>
+      <MessageScroll ref={msgScrollElement} scroll={scroll} >
         <p>
           Welcome to the game of 99! This is a simple but fun card game
           that is near and dear to my heart.
@@ -130,8 +160,8 @@ const LandingMessageComponent = () => {
           -Nikko
         </p>
       </MessageScroll>
-      <ButtonContainer>
-        <BeginButton onClick={handleReadyClick}>Click here to begin</BeginButton>
+      <ButtonContainer ref={buttonContainerElement} scroll={buttonScroll} seconds={(buttonScroll / scroll) * 35}>
+        <BeginButton ref={buttonElement} onClick={handleReadyClick}>Click here to begin</BeginButton>
       </ButtonContainer>
     </LandingMessage>
     )
