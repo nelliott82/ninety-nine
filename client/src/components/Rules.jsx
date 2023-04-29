@@ -98,7 +98,7 @@ const botRules = ['Take turns playing a card. Player One (you) always starts.',
                   'Strikes one and two start a new round.',
                   'Three strikes and that player is out. Game ends if you lose.']
 
-const humanRules = ['The object of the game is to keep the total at, or, below 99.',
+const humanRules = ['The object is to keep the round total at, or, below 99.',
                     'All cards are face value, except specialty cards, and add to the total.',
                     'Aces are worth 1, and Queens and Jacks are worth 10.',
                     'Take turns playing a card.',
