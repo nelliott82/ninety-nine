@@ -30,6 +30,7 @@ const scrollUpFunc = (scroll) => keyframes`
 
 const MessageScroll = styled.div`
   position: relative;
+  top: ${({ top }) => top };
   display: inline-block;
   animation: ${({ scroll }) => scrollUpFunc(scroll)} 35s linear forwards;
 `
@@ -61,7 +62,9 @@ const BeginButton = styled.button`
 const LandingMessageComponent = () => {
   const navigate = useNavigate();
   const msgScrollElement = useRef(null);
+  const startTime = useRef(new Date().getTime());
   const [scroll, setScroll] = useState(0);
+  const [top, setTop] = useState(0);
   const buttonContainerElement = useRef(null);
   const buttonElement = useRef(null);
   const [buttonScroll, setButtonScroll] = useState(0);
@@ -71,11 +74,16 @@ const LandingMessageComponent = () => {
   }
 
   function setScrolls () {
-    setScroll(window.innerHeight + msgScrollElement.current.offsetHeight);
-    setButtonScroll(msgScrollElement.current.offsetHeight + ((window.innerHeight + buttonElement.current.offsetHeight) / 2));
+    let endTime = new Date().getTime();
+    let timePassed = endTime - startTime.current;
+    console.log('endTime: ', endTime);
+
+    setScroll(scroll => (window.innerHeight + msgScrollElement.current.offsetHeight) * 1.1);
+    setButtonScroll(buttonScroll => msgScrollElement.current.offsetHeight + ((window.innerHeight + buttonElement.current.offsetHeight) / 2));
   }
 
   useEffect(() => {
+    console.log('startTime: ', startTime.current);
     setScrolls();
     window.addEventListener('resize', setScrolls)
 
@@ -86,7 +94,7 @@ const LandingMessageComponent = () => {
 
   return (
     <LandingMessage>
-      <MessageScroll ref={msgScrollElement} scroll={scroll} >
+      <MessageScroll ref={msgScrollElement} scroll={scroll} top={top} >
         <p>
           Welcome to the game of 99! This is a simple but fun card game
           that is near and dear to my heart.
