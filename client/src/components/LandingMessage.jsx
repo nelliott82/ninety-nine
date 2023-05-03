@@ -55,7 +55,7 @@ const SkipButton = styled.button`
   z-index: 100;
   border-radius: 10px;
   display: inline-block;
-  font-size: 5vh;
+  font-size: 3vh;
   position: fixed;
   top: 90%;
   left: 95%;
