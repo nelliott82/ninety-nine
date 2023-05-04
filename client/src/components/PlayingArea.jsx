@@ -71,25 +71,31 @@ const TimerContainer = styled.div`
 `;
 
 let syncCountdown = 15;
-let timerId;
 let playTimer;
 
 var PlayingArea = ({ played, deck, turn, displayCountdown, gameStateTimer, playCard, hand, over }) => {
 const [countdown, setCountdown] = useState(gameStateTimer);
 let lastCard = played[played.length - 1];
 
-function timer() {
-  clearTimeout(timerId);
+function timer () {
+  const endTime = new Date().getTime() + 1000 + (gameStateTimer * 1000);
 
-  if (syncCountdown > 0) {
-    timerId = setTimeout(() => {
-      syncCountdown -= 1;
-      setCountdown(countdown => countdown - 1);
-      timer();
-    }, 1000)
-  } else {
-    syncCountdown = 15;
+  function showTime() {
+    const currentTime = new Date().getTime();
+    const remainingTime = endTime - currentTime;
+    const seconds = Math.floor((remainingTime / 1000) % 60);
+
+    syncCountdown = seconds;
+    setCountdown(seconds);
+
+    if (remainingTime >= 1000 && syncCountdown > 0) {
+      requestAnimationFrame(showTime);
+    } else if (syncCountdown === 0) {
+      syncCountdown = 15;
+    }
   }
+
+  requestAnimationFrame(showTime);
 }
 
 useEffect(() => {
@@ -104,7 +110,6 @@ useEffect(() => {
   return () => {
     syncCountdown = 15;
     setCountdown(countdown => 15);
-    clearTimeout(timerId);
     clearTimeout(playTimer);
   }
 }, [turn, displayCountdown, gameStateTimer]);

@@ -251,7 +251,6 @@ const TimerContainer = styled.div`
 
 let placeHolder = [2, 3, 4];
 let syncCountdown = 15;
-let timerId;
 
 let ComputerComponentMap = ({ strikes,
                               hand,
@@ -269,17 +268,25 @@ let ComputerComponentMap = ({ strikes,
   let [animate, setAnimate] = useState(false);
   const [countdown, setCountdown] = useState(gameStateTimer);
 
-  function timer() {
-    clearTimeout(timerId);
-    if (syncCountdown > 0) {
-      timerId = setTimeout(() => {
-        syncCountdown -= 1;
-        setCountdown(countdown => countdown - 1);
-        timer();
-      }, 1000)
-    } else {
-      syncCountdown = 15;
+  function timer () {
+    const endTime = new Date().getTime() + 1000 + (gameStateTimer * 1000);
+
+    function showTime() {
+      const currentTime = new Date().getTime();
+      const remainingTime = endTime - currentTime;
+      const seconds = Math.floor((remainingTime / 1000) % 60);
+
+      syncCountdown = seconds;
+      setCountdown(seconds);
+
+      if (remainingTime >= 1000 && syncCountdown > 0) {
+        requestAnimationFrame(showTime);
+      } else if (syncCountdown === 0) {
+        syncCountdown = 15;
+      }
     }
+
+    requestAnimationFrame(showTime);
   }
 
   useEffect(() => {
@@ -291,7 +298,6 @@ let ComputerComponentMap = ({ strikes,
     return () => {
       syncCountdown = 15;
       setCountdown(countdown => 15);
-      clearTimeout(timerId);
     }
   }, [turn, displayCountdown, gameStateTimer]);
 

@@ -300,7 +300,6 @@ let syncUsernames = new Array(2).fill('')
                                                       active: false,
                                                       hand: [],
                                                       turn: false } });
-let timerId;
 
 let message;
 let deck = shuffleDeck(createDeck());
@@ -344,22 +343,27 @@ const AppHumans = (props) => {
   let [setStarted, started] = useOutletContext();
   let { roomCode } = useParams();
 
-  function timer() {
-    clearTimeout(timerId);
-    if (syncCountdown > 0) {
-      timerId = setTimeout(() => {
-        syncCountdown -= 1;
-        timer();
-      }, 1000)
-    } else {
-      if (syncUsernames[0].turn) {
-        //playCard(syncUsernames[0].hand[0], 0);
+  function timer () {
+    const endTime = new Date().getTime() + 1000 + (gameStateTimer * 1000);
+
+    function showTime() {
+      const currentTime = new Date().getTime();
+      const remainingTime = endTime - currentTime;
+      const seconds = Math.floor((remainingTime / 1000) % 60);
+
+      syncCountdown = seconds;
+
+      if (remainingTime >= 1000 && syncCountdown > 0) {
+        requestAnimationFrame(showTime);
+      } else if (syncCountdown === 0) {
+        syncCountdown = 15;
       }
     }
+
+    requestAnimationFrame(showTime);
   }
 
   function restartTimer(delay) {
-    clearTimeout(timerId);
     syncCountdown = timerDelay;
     setTimeout(() => {
       setDisplayCountdown(true);
@@ -484,7 +488,7 @@ const AppHumans = (props) => {
   }
 
   function playCard(cardObj, player) {
-    human && clearTimeout(timerId);
+    // human && clearTimeout(timerId);
     let newRound = false;
     if (!syncUsernames[player].turn) {
       return;
@@ -842,7 +846,7 @@ const AppHumans = (props) => {
       });
 
       socket.on('gameOver', (players, i) => {
-        clearTimeout(timerId);
+        // clearTimeout(timerId);
         setDisplayCountdown(false);
         applyPlayers(setHands(sortUsernames(players, i)));
         setTotal(0);
