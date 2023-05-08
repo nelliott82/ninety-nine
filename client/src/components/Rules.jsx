@@ -96,6 +96,7 @@ const botRules = ['Take turns playing a card. Player One (you) always starts.',
                   'The object of the game is to keep the total at, or, below 99.',
                   'First player unable to keep the total at, or, below 99 gets a strike.',
                   'Strikes one and two start a new round.',
+                  'All players\' hands are shown at end of round/game during a brief pause.',
                   'Three strikes and that player is out. Game ends if you lose.']
 
 const humanRules = ['The object is to keep the round total at, or, below 99.',
@@ -109,8 +110,9 @@ const humanRules = ['The object is to keep the round total at, or, below 99.',
                     'Strikes one and two for any player start a new round.',
                     'Three strikes and that player is out.',
                     'Game ends when only one player is still in.',
+                    'All players\' hands are shown at end of round/game during a brief pause.',
                     'If all players leave the room, the room is automatically closed.',
-                    'The creator of the room has the choice to restart the game or end it at conclusion.']
+                    'The creator of the room has the choice to restart the game, or, end it at conclusion.']
 
 var RulesComponent = ({ opponents }) => {
 
