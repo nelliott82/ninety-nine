@@ -199,6 +199,7 @@ const Rooms = {
     dealCards(room);
 
     room.timeoutId = this.restartGame(room.timeoutId, roomCode);
+    return room.players;
   },
   newRound: function(roomCode, currentPlayer, nextPlayer) {
     let room = this.data[roomCode];

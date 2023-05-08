@@ -263,6 +263,7 @@ let ComputerComponent = ({ strikes,
                            displayCountdown,
                            gameStateTimer,
                            active,
+                           newRoundDisplay,
                            on }) => {
   let [animate, setAnimate] = useState(false);
   const [countdown, setCountdown] = useState(gameStateTimer);
@@ -299,7 +300,7 @@ let ComputerComponent = ({ strikes,
       syncCountdown = 15;
       setCountdown(countdown => 15);
     }
-  }, [turn, displayCountdown, gameStateTimer]);
+  }, [turn, displayCountdown, gameStateTimer, newRoundDisplay]);
 
   return (
     <ComputerArea turn={turn} active={!active && human && !on && !over} animate={animate} strikes={strikes} botsCount={botsCount} >
@@ -311,11 +312,14 @@ let ComputerComponent = ({ strikes,
                                     :
                                     `Computer ${player}`}</Name>
       <Strikes botsCount={botsCount}>{`Strikes: ${strikes}`}</Strikes>
-        {hand.length && strikes < 3 ? hand.map((card, i) => <Holder key={i} index={i + 2} botsCount={botsCount}>
+        {hand.length ? hand.map((card, i) => <Holder key={i} index={i + 2} botsCount={botsCount}>
                                                                 <ComputerCards key={i}
                                                                                index={i + 2}
                                                                                botsCount={botsCount}
-                                                                               src='/assets/cards/back.jpg' />
+                                                                               src={newRoundDisplay ? `/assets/cards/${card[0]}.png` : '/assets/cards/back.jpg'}
+                                                                               alt={`The ${card[0]?.slice(0, card[0].length - 1)} of ${card[0]?.slice(card[0].length - 1)}.`}
+                                                                               title={`The ${card[0]?.slice(0, card[0].length - 1)} of ${card[0]?.slice(card[0].length - 1)}.`}
+                                                                               />
                                                             </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} botsCount={botsCount}/>)}
         {human ?

@@ -112,9 +112,9 @@ io.on('connection', (socket) => {
       }
 
       if (room.players[0].playerId === playerId) {
-        Rooms.replay(roomCode);
+        let players = Rooms.replay(roomCode);
 
-        let players = Utils.formatPlayers(room.players, socket.id);
+        players = Utils.formatPlayers(players, socket.id);
 
         room.players.forEach((player, i) => {
           io.to(player.socket).emit('players', players.playerObjects, i, true, player.hand);
@@ -347,6 +347,9 @@ io.on('connection', (socket) => {
       return;
     }
 
+    let playersOldHands = Utils.formatPlayers(room.players, playerId, true);
+    playersOldHands.playerObjects[currentPlayer].strikes += 1;
+
     let { players, newRound } = Rooms.newRound(roomCode, currentPlayer, nextPlayer);
     players = Utils.formatPlayers(players, playerId);
     room.total = 0;
@@ -355,15 +358,21 @@ io.on('connection', (socket) => {
     if (newRound) {
 
       room.players.forEach((player, i) => {
-        io.to(player.socket).emit('newRound', players.playerObjects, i, room.players[currentPlayer].username, room.players[currentPlayer].strikes, player.hand);
+        io.to(player.socket).emit('newRound', players.playerObjects,
+                                              playersOldHands.playerObjects,
+                                              i,
+                                              room.players[currentPlayer].username,
+                                              room.players[currentPlayer].strikes,
+                                              player.hand,
+                                              player.strikes);
       })
 
       let playTimer = setTimeout(() => {
         room.players[nextPlayer].active = false;
         forcePlayCard(nextPlayer, roomCode, 0, reverse, true);
-      }, 20000);
+      }, 27500);
 
-      clearTimeout(room.playTimer)
+      clearTimeout(room.playTimer);
       room.playTimer = playTimer;
 
       setTimeout(() => {
@@ -377,13 +386,13 @@ io.on('connection', (socket) => {
         } else {
           forcePlayCard(nextPlayer, roomCode, 0, reverse, false);
         }
-      }, 2500)
+      }, 12500);
 
     } else {
       clearTimeout(room.playTimer);
 
       room.players.forEach((player, i) => {
-        io.to(player.socket).emit('gameOver', players.playerObjects, i);
+        io.to(player.socket).emit('gameOver', playersOldHands.playerObjects, i);
       });
     }
 

@@ -1,11 +1,11 @@
 const { shuffleDeck, createDeck } = require('../client/src/helperFiles/deck.js');;
 
-function formatPlayers(players, currentPlayerId) {
+function formatPlayers(players, currentPlayerId, showHands = false) {
 
   return players ?
     players.reduce((accum, player, i) => {
       let { playerId, username, strikes, turn, index, active, hand } = player;
-      accum.playerObjects.push({ username, strikes, turn, index, active, hand: [] });
+      accum.playerObjects.push({ username, strikes, turn, index, active, hand: showHands ? hand : [] });
 
       if (playerId === currentPlayerId) {
         accum.hand = hand;
