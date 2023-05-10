@@ -101,10 +101,10 @@ const LandingMessageComponent = () => {
     let percentRemaining = 1 - percentElapsed;
 
     let newStart = window.innerHeight / 2;
-    let startOffset = percentElapsed * ((window.innerHeight + msgScrollElement.current.offsetHeight) * 1.1);
+    let newScroll = Math.floor((window.innerHeight + msgScrollElement.current.offsetHeight) * 1.1);
+    let startOffset = percentElapsed * newScroll;
     newStart = newStart - startOffset;
 
-    let newScroll = Math.floor((window.innerHeight + msgScrollElement.current.offsetHeight) * 1.1);
     newScroll = (newScroll - startOffset) * -1;
 
     setTop(top => newStart);
@@ -112,7 +112,8 @@ const LandingMessageComponent = () => {
     setSeconds(seconds => maxSeconds - secondsElapsed);
 
     let newButtonScroll = window.innerHeight / 2 + msgScrollElement.current.offsetHeight + buttonElement.current.offsetHeight / 2;
-    newButtonScroll = (newButtonScroll - startOffset) * -1;
+    let buttonOffset = percentElapsed * newButtonScroll;
+    newButtonScroll = (newButtonScroll - buttonOffset) * -1;
 
     let distance = Math.abs(newScroll * percentRemaining);
     let buttonDistance = Math.abs(newButtonScroll * percentRemaining);
