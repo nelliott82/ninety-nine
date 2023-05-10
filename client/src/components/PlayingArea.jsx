@@ -40,8 +40,8 @@ const CardArea = styled.div`
   margin: 0px 15px;
   border: 2px solid black;
   @media (max-width: 1240px) {
-    width: 70px;
-    height: 108px;
+    width: ${({ botsCount }) => botsCount > 2 ? '70px' : '90px'};
+    height: ${({ botsCount }) => botsCount > 2 ? '108px' : '150px'};
     grid-row: 2;
   }
 `
@@ -51,9 +51,9 @@ const CardStack = styled.img`
   height: 195px;
   margin-top: 3px;
   @media (max-width: 1240px) {
+    width: ${({ botsCount }) => botsCount > 2 ? '70px' : '90px'};
+    height: ${({ botsCount }) => botsCount > 2 ? '105.5px' : '146.5px'};
     margin-top: 2.25px;
-    width: 70px;
-    height: 105.5px;
   }
 `
 
@@ -73,7 +73,7 @@ const TimerContainer = styled.div`
 let syncCountdown = 15;
 let playTimer;
 
-var PlayingArea = ({ played, deck, turn, displayCountdown, gameStateTimer, playCard, hand, over }) => {
+var PlayingArea = ({ played, deck, botsCount, turn, displayCountdown, gameStateTimer, playCard, hand, over }) => {
 const [countdown, setCountdown] = useState(gameStateTimer);
 let lastCard = played[played.length - 1];
 
@@ -118,10 +118,12 @@ return (
     <Container>
           <DeckName>Deck</DeckName>
           <DeckContainer>
-            <CardArea>
+            <CardArea botsCount={botsCount}>
             {deck.length ?
               <CardStack
-                  src='/assets/cards/back.jpg' />
+                  src='/assets/cards/back.jpg'
+                  botsCount={botsCount}
+                  />
             : null}
             </CardArea>
           </DeckContainer>
@@ -130,11 +132,12 @@ return (
           </TimerContainer>
           <DiscardName>Discard Pile</DiscardName>
           <PlayedContainer>
-            <CardArea>
+            <CardArea botsCount={botsCount}>
             {played.length ?
               <CardStack
                   src={`/assets/cards/${lastCard[0]}.png`}
                   alt={`This card is the ${lastCard[0].slice(0, lastCard[0].length - 1)} of ${lastCard[0].slice(lastCard[0].length - 1)}.`}
+                  botsCount={botsCount}
                   />
             : null}
             </CardArea>

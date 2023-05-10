@@ -12,6 +12,7 @@ import StartComponent from './Start.jsx';
 import WaitingComponent from './Waiting.jsx';
 import PasswordComponent from './Password.jsx';
 import TotalComponent from './Total.jsx';
+import RoundMessageComponent from './RoundMessage.jsx';
 import nikkoBot from '../helperFiles/computer.js';
 import socket from '../helperFiles/socket.js';
 import { getCookie, setCookies, deleteCookies, makeCookieObject } from '../helperFiles/cookies.js';
@@ -144,7 +145,7 @@ const CenterRowArea = styled.div`
   grid-template-rows: 1fr;
   @media (max-width: 1240px) {
     grid-template-columns: 1fr 0fr 1fr;
-    height: 9.5rem;
+    height: ${({ botsCount }) => botsCount > 2 ? '9.5rem' : '11.5rem'};
     margin-top: 5px;
   }
 `
@@ -480,7 +481,7 @@ const AppHumans = (props) => {
           });
           setUsernames(usernames => [...syncUsernames]);
 
-          startGame();
+          startGame(true);
         }, 10000);
       }
     }
@@ -567,7 +568,7 @@ const AppHumans = (props) => {
     setUsernames(usernames => [...syncUsernames]);
   }
 
-  function startGame() {
+  function startGame(newRound) {
 
     if (human) {
       setWaiting(waiting => true);
@@ -576,6 +577,7 @@ const AppHumans = (props) => {
 
     } else {
       syncUsernames.forEach((player, i) => player.index = i);
+      !newRound && setAndDisplayMessage(undefined, 0, 2000);
       setOn(false);
       deal();
     }
@@ -598,10 +600,10 @@ const AppHumans = (props) => {
     let strikeOrLost = strikes < 3 ? 'got a strike' : 'lost';
     let integer = Number.isInteger(player);
     if (player === chosenName || (integer && !player)) {
-      message = `You ${strikeOrLost}! New round!`;
+      message = `You ${strikeOrLost}! New round will start in: `;
     } else if (player) {
       let append = integer ? 'Computer ' : '';
-      message = `${append + player}\n\n${strikeOrLost}!\n\nNew round!`;
+      message = `${append + player}\n\n${strikeOrLost}!\n\nNew round will start in: `;
     } else {
       message = 'Begin!';
     }
@@ -1010,10 +1012,11 @@ const AppHumans = (props) => {
         :
         null}
       <RoomModal on={on} />
-      <RoundMessageModal displayMessage={displayMessage} />
+      <RoundMessageComponent displayMessage={displayMessage} message={message} />
+      {/* <RoundMessageModal displayMessage={displayMessage} />
       <RoundMessage displayMessage={displayMessage} >
         {message}
-      </RoundMessage>
+      </RoundMessage> */}
       <OverMessageModal over={over} />
       <OverMessage over={over}>
         {overMessage}
@@ -1082,7 +1085,7 @@ const AppHumans = (props) => {
                                    /> }
             </Opponent>
           </PlayerArea1>
-          <CenterRowArea>
+          <CenterRowArea botsCount={usernames.length - 1}>
             <OpponentArea column={1}>
               {usernames[2] ?
                 <ComputerComponent strikes={usernames[1].strikes}
@@ -1104,6 +1107,7 @@ const AppHumans = (props) => {
             <DeckArea column={2}>
               <PlayingArea played={played}
                            deck={deck}
+                           botsCount={usernames.length - 1}
                            turn={usernames[0].turn}
                            displayCountdown={displayCountdown}
                            gameStateTimer={gameStateTimer}

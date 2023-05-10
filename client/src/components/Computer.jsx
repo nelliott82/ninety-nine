@@ -341,19 +341,3 @@ let ComputerComponent = ({ strikes,
 }
 
 export default ComputerComponent;
-
-
-          /* <>
-          {player === 1 ? <Timer1Component turn={turn}
-                                           over={over}
-                                           displayCountdown={displayCountdown}
-                                           botsCount={botsCount} /> : null}
-          {player === 2 ? <Timer2Component turn={turn}
-                                           over={over}
-                                           displayCountdown={displayCountdown}
-                                           botsCount={botsCount} /> : null}
-          {player === 3 ? <Timer3Component turn={turn}
-                                           over={over}
-                                           displayCountdown={displayCountdown}
-                                           botsCount={botsCount} /> : null}
-          </> */
