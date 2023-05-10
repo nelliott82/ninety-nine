@@ -26,9 +26,9 @@ const MainContainer = styled.div`
   justify-items: center;
   align-items: center;
   overflow-y: auto;
-  ${'' /* @media (max-width: 1000px) {
-    width: 90vw;
-  } */}
+  @media (max-width: 1000px) {
+    margin-top: 0px;
+  }
 `;
 
 const GameArea = styled.div`
@@ -143,6 +143,7 @@ const CenterRowArea = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   @media (max-width: 1240px) {
+    grid-template-columns: 1fr 0fr 1fr;
     height: 9.5rem;
     margin-top: 5px;
   }
