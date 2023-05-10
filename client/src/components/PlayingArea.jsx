@@ -40,8 +40,8 @@ const CardArea = styled.div`
   margin: 0px 15px;
   border: 2px solid black;
   @media (max-width: 1240px) {
-    width: 90px;
-    height: 150px;
+    width: 70px;
+    height: 108px;
     grid-row: 2;
   }
 `
@@ -52,8 +52,8 @@ const CardStack = styled.img`
   margin-top: 3px;
   @media (max-width: 1240px) {
     margin-top: 2.25px;
-    width: 90px;
-    height: 146.5px;
+    width: 70px;
+    height: 105.5px;
   }
 `
 

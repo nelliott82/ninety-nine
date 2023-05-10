@@ -143,7 +143,7 @@ const CenterRowArea = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   @media (max-width: 1240px) {
-    height: 11.5rem;
+    height: 9.5rem;
     margin-top: 5px;
   }
 `
