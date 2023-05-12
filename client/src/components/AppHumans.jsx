@@ -127,12 +127,12 @@ const ForfeitButton = styled.button`
 `
 
 const GameOverButton = styled.button`
-  width: 6rem;
-  height: 2rem;
-  font-size: 1em;
+  display: inline-block;
+  font-size: 4vh;
   visibility: ${({ gameOver }) => gameOver ? 'visible' : 'hidden'};
   position: absolute;
   left: 50%;
+  margin-top: ${({ margin }) => margin + 'rem' };
   top: ${({ top }) => top};
   transform: translate(-50%);
 `
@@ -1021,8 +1021,14 @@ const AppHumans = (props) => {
       <OverMessage over={over}>
         {overMessage}
       </OverMessage>
-      <GameOverButton gameOver={gameOver && creator && !endGame} top={'50%'} onClick={() => replay()} >Replay</GameOverButton>
-      <GameOverButton gameOver={gameOver && creator && !endGame} top={'55%'} onClick={() => endGameFunc()} >End Game</GameOverButton>
+      <GameOverButton gameOver={gameOver && creator && !endGame}
+                      top={'50%'}
+                      margin={1}
+                      onClick={() => replay()} >Replay</GameOverButton>
+      <GameOverButton gameOver={gameOver && creator && !endGame}
+                      top={'55%'}
+                      margin={2}
+                      onClick={() => endGameFunc()} >End Game</GameOverButton>
       <MainContainer>
         <GameArea>
           <PlayerArea1>

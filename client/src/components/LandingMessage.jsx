@@ -69,17 +69,15 @@ const SkipButton = styled.button`
   }
 `
 
-let maxSeconds = 40;
+let maxSeconds = 50;
 
 const LandingMessageComponent = () => {
   const navigate = useNavigate();
   const startTime = useRef(new Date().getTime());
   const msgScrollElement = useRef(null);
-  const [start, setStart] = useState(window.innerHeight / 2);
   const [scroll, setScroll] = useState(0);
   const buttonContainerElement = useRef(null);
   const buttonElement = useRef(null);
-  const [buttonStart, setButtonStart] = useState(100);
   const [buttonScroll, setButtonScroll] = useState(0);
   const [seconds, setSeconds] = useState(maxSeconds);
   const [buttonSeconds, setButtonSeconds] = useState(maxSeconds);
@@ -95,10 +93,10 @@ const LandingMessageComponent = () => {
   function setScrolls () {
     if (window.innerHeight > window.innerWidth) {
       setFontSize(4);
-      maxSeconds = 50;
+      maxSeconds = 60;
     } else {
       setFontSize(6);
-      maxSeconds = 40;
+      maxSeconds = 50;
     }
     let endTime = new Date().getTime();
     let secondsElapsed = (endTime - startTime.current) / 1000;
@@ -129,11 +127,13 @@ const LandingMessageComponent = () => {
     let secondsThreshold = maxSeconds * (originalButtonDistance / originalDistance);
 
     if (secondsElapsed <= secondsThreshold) {
-      setButtonSeconds(buttonSeconds => (maxSeconds - secondsElapsed) * (buttonDistance / distance));
+      let newButtonTop = Math.max(newStart + msgScrollElement.current.offsetHeight, -buttonElement.current.offsetHeight / 2);
+      let newButtonScroll = newButtonTop + buttonElement.current.offsetHeight / 2;
 
-      setButtonTop(buttonTop => Math.max(newStart + msgScrollElement.current.offsetHeight, Math.min(-buttonElement.current.offsetHeight / 2, newButtonScroll)));
-      setButtonScroll(buttonScroll => Math.min(-buttonElement.current.offsetHeight / 2, newButtonScroll));
+      setButtonSeconds(buttonSeconds => (maxSeconds - secondsElapsed) * ((newButtonScroll * percentRemaining) / distance));
+      setButtonTop(buttonTop => newButtonTop);
 
+      setButtonScroll(buttonScroll => -newButtonScroll);
     } else {
       setButtonSeconds(buttonSeconds => 0);
       setButtonTop(buttonTop => -buttonElement.current.offsetHeight / 2);
