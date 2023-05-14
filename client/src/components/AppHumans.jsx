@@ -311,6 +311,7 @@ let chosenName = 'Waiting...';
 let count = 4;
 let playerId = '';
 let finalStrikes = 0;
+let frameId;
 
 const AppHumans = (props) => {
   const location = useLocation();
@@ -347,7 +348,7 @@ const AppHumans = (props) => {
   let { roomCode } = useParams();
 
   function timer () {
-    const endTime = new Date().getTime() + 1000 + (gameStateTimer * 1000);
+    const endTime = new Date().getTime() + 1000 + (syncCountdown * 1000);
 
     function showTime() {
       const currentTime = new Date().getTime();
@@ -357,17 +358,17 @@ const AppHumans = (props) => {
       syncCountdown = seconds;
 
       if (remainingTime >= 1000 && syncCountdown > 0) {
-        requestAnimationFrame(showTime);
+        frameId = requestAnimationFrame(showTime);
       } else if (syncCountdown === 0) {
         syncCountdown = 15;
       }
     }
 
-    requestAnimationFrame(showTime);
+    frameId = requestAnimationFrame(showTime);
   }
 
-  function restartTimer(delay) {
-    syncCountdown = timerDelay;
+  function restartTimer(delay, start = timerDelay) {
+    syncCountdown = start;
     setTimeout(() => {
       setDisplayCountdown(true);
       timer();
@@ -523,10 +524,10 @@ const AppHumans = (props) => {
       played.push(cardObj);
 
       if (human) {
-        socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId)
-        syncCountdown = timerDelay;
-        setGameStateTimer(timerDelay);
-        timer();
+        socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId);
+        cancelAnimationFrame(frameId);
+        restartTimer(0);
+        setGameStateTimer(gameStateTimer => timerDelay);
       }
 
       if (computer) {
@@ -748,6 +749,7 @@ const AppHumans = (props) => {
           setOn(false);
           setAndDisplayMessage(undefined, 0, 2000);
           setGameStateTimer(timerDelay);
+          cancelAnimationFrame(frameId);
           restartTimer(2500);
           socket.emit('startTimer', roomCode, cookies.playerId);
         }
@@ -834,7 +836,8 @@ const AppHumans = (props) => {
 
         reverse = reverseChange;
         let playersNext = applyPlayers(sortUsernames(players, i), ['turn', 'active']);
-        setGameStateTimer(timerDelay);
+        setGameStateTimer(gameStateTimer => timerDelay);
+        cancelAnimationFrame(frameId);
         restartTimer(0);
         setTotal(total);
         syncTotal = total;
@@ -859,9 +862,9 @@ const AppHumans = (props) => {
           setOverMessage('You lose.');
           setTimeout(() => { setNewRoundDisplay(newRoundDisplay => false) }, 10500);
         } else {
-
+          cancelAnimationFrame(frameId);
           restartTimer(10500);
-          setGameStateTimer(timerDelay);
+          setGameStateTimer(gameStateTimer => timerDelay);
           setAndDisplayMessage(username, strikes, 10000);
         }
         setTimeout(() => {
@@ -942,13 +945,12 @@ const AppHumans = (props) => {
           syncTotal = gotTotal || 0;
           setTotal(gotTotal || 0);
           if (gotCountdown > -1) {
-            syncCountdown = gotCountdown;
-            setGameStateTimer(gotCountdown);
+            cancelAnimationFrame(frameId);
+            restartTimer(0, gotCountdown);
+            setGameStateTimer(gameStateTimer => gotCountdown);
           } else {
-            setGameStateTimer(syncCountdown);
+            setGameStateTimer(gameStateTimer => syncCountdown);
           }
-          setDisplayCountdown(true);
-          timer();
         }
       })
 
