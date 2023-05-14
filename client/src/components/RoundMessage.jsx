@@ -90,8 +90,6 @@ let RoundMessageComponent = ({ displayMessage, message }) => {
 
       if (remainingTime >= 1000 && syncCountdown > 0) {
         requestAnimationFrame(showTime);
-      } else if (syncCountdown === 0) {
-        syncCountdown = 11;
       }
     }
 
@@ -99,16 +97,14 @@ let RoundMessageComponent = ({ displayMessage, message }) => {
   }
 
   useEffect(() => {
-      // setTimeout(() => setAnimate(true), 500);
-      setCountdown(countdown => 11);
-      syncCountdown = 11;
-
       if (message !== 'Begin!' && displayMessage) {
         timer();
       }
       return () => {
-        syncCountdown = 11;
-        setCountdown(countdown => 11);
+        setTimeout(() => {
+          syncCountdown = 11;
+          setCountdown(countdown => 11);
+        }, 1000);
       }
     }, [displayMessage, message]);
 

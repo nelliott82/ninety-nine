@@ -404,7 +404,6 @@ const AppHumans = (props) => {
         }
       }
     }
-    console.log('applyPlayers: ', syncUsernames);
     setUsernames(usernames => [...syncUsernames]);
     return syncUsernames;
   }
@@ -873,18 +872,13 @@ const AppHumans = (props) => {
       });
 
       socket.on('gameOver', (players, i) => {
-        // clearTimeout(timerId);
         setDisplayCountdown(false);
         setNewRoundDisplay(newRoundDisplay => true);
         players = applyPlayers(sortUsernames(players, i));
-        console.log('gameOver: ', players)
-        // setTotal(0);
-        // syncTotal = 0;
         finalStrikes = players[0].strikes;
         setOverMessage(finalStrikes === 3 ? 'You lose.' : 'Congrats! You win!');
         setOver(true);
         setGameOver(true);
-        // played = [];
       });
 
       socket.on('enterCheck', (message, first, newHand, username) => {
@@ -1013,10 +1007,6 @@ const AppHumans = (props) => {
         null}
       <RoomModal on={on} />
       <RoundMessageComponent displayMessage={displayMessage} message={message} />
-      {/* <RoundMessageModal displayMessage={displayMessage} />
-      <RoundMessage displayMessage={displayMessage} >
-        {message}
-      </RoundMessage> */}
       <OverMessageModal over={over} />
       <OverMessage over={over}>
         {overMessage}
