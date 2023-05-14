@@ -39,7 +39,7 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
               players,
               gameOver } = Rooms.forcePlay(forcedPlayer, roomCode, syncTotal, reverse);
 
-        let formattedPlayers = Utils.formatPlayers(players, room.players[forcedPlayer].playerId);
+        let oldForcedPlayer = forcedPlayer;
 
         forcedPlayer = newPlayer;
         if (room.players[forcedPlayer].active) {
@@ -61,6 +61,7 @@ function forcePlayCard(nextPlayer, roomCode, syncTotal, reverse, timeout, keepPl
 
         setTimeout(() => {
           forcePlayCard(forcedPlayer, roomCode, total, reverse, false, keepPlaying);
+          let formattedPlayers = Utils.formatPlayers(players, room.players[oldForcedPlayer].playerId);
 
           if (newRound) {
             clearTimeout(room.playTimer);

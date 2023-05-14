@@ -317,8 +317,8 @@ let ComputerComponentMap = ({ strikes,
                                                                                index={i + 2}
                                                                                botsCount={botsCount}
                                                                                src={newRoundDisplay ? `/assets/cards/${card[0]}.png` : '/assets/cards/back.jpg'}
-                                                                               alt={`The ${card[0]?.slice(0, card[0].length - 1)} of ${card[0]?.slice(card[0].length - 1)}.`}
-                                                                               title={`The ${card[0]?.slice(0, card[0].length - 1)} of ${card[0]?.slice(card[0].length - 1)}.`}
+                                                                               alt={newRoundDisplay ? `The ${card[0]?.slice(0, card[0].length - 1)} of ${card[0]?.slice(card[0].length - 1)}.` : 'Back of playing card.'}
+                                                                               title={newRoundDisplay ? `The ${card[0]?.slice(0, card[0].length - 1)} of ${card[0]?.slice(card[0].length - 1)}.` : 'Back of playing card.'}
                                                                                />
                                                             </Holder>)
                              : placeHolder.map(holder => <Holder key={holder} index={holder} botsCount={botsCount}/>)}

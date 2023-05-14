@@ -122,6 +122,7 @@ return (
             {deck.length ?
               <CardStack
                   src='/assets/cards/back.jpg'
+                  alt={'Back of playing card.'}
                   botsCount={botsCount}
                   />
             : null}
