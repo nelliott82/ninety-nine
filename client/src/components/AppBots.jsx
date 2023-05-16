@@ -1,296 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import nikkoBot from '../helperFiles/computer.js';
+import React, { useContext, useState, useEffect } from 'react';
+import { useOutletContext, useParams, useLocation, useNavigate } from 'react-router-dom';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
-import styled, { createGlobalStyle, keyframes } from 'styled-components';
-import ComputerComponent from './Computer.jsx';
-import PlayingArea from './PlayingArea.jsx';
-import PlayerOneComponent from './PlayerOne.jsx';
-import DropDownComponent from './DropDown.jsx';
-import StartComponent from './Start.jsx';
-import TotalComponent from './Total.jsx';
+import nikkoBot from '../helperFiles/computer.js';
 
-const GlobalStyle = createGlobalStyle`
-  body {
-    overflow-x: hidden;
-    background: #C0DCC0;
-    position: relative;
-  }
-`;
-
-const MainContainer = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 5fr;
-  justify-items: center;
-  align-items: center;
-  @media (max-width: 1000px) {
-    width: 90vw;
-  }
-`;
-
-const GameArea = styled.div`
-  grid-column: 1;
-  grid-row: 1;
-`;
-
-const PlayerArea1 = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr;
-  gap: 5px;
-`;
-
-const PlayerArea2 = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr;
-  gap: 5px;
-  @media (max-width: 1240px) {
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 0.1fr;
-  }
-`;
-
-const Opponent = styled.div`
-  width: 100%;
-  height: 195%;
-  grid-column: 2;
-  grid-row: 1;
-  @media (max-width: 1240px) {
-    width: 90vw;
-    height: 1%;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    grid-template-rows: ${({botsCount}) => {
-      if (botsCount > 1) {
-        return '0.5fr '.repeat(botsCount).trim();
-      } else {
-        return '1fr';
-      }
-    }};
-    ${({botsCount}) => {
-      if (botsCount) {
-        return 'margin-top: 20px; margin-bottom: -5px;';
-      }
-    }}
-  }
-`;
-
-const BotAreaMobile = styled.div`
-  display: none;
-  @media (max-width: 1240px) {
-    display: unset;
-    width: 90vw;
-    height: 60%;
-    grid-column: 1;
-    grid-row: ${({row}) => row};
-  }
-`;
-const BotArea = styled.div`
-  @media (max-width: 1240px) {
-    display: none;
-  }
-`;
-
-const Player = styled.div`
-  width: 100%;
-  height: 195%;
-  grid-column: 2;
-  grid-row: 1;
-  @media (max-width: 1240px) {
-    width: 90vw;
-  }
-`;
-
-const ForfeitButton = styled.button`
-  width: 5rem;
-  height: 2rem;
-  font-size: 1em;
-  grid-column: 3;
-  grid-row: 1;
-  justify-self: left;
-  align-self: center;
-  @media (max-width: 1240px) {
-    justify-self: center;
-    grid-column: 2;
-    grid-row: 2;
-  }
-`
-
-const CenterRowArea = styled.div`
-  width: 100%;
-  height: 15rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr;
-  @media (max-width: 1000px) {
-    width: 90vw;
-    height: 11.5rem;
-    margin-top: 5px;
-  }
-`
-
-const DeckArea = styled.div`
-  width: 100%;
-  height: 195%;
-  grid-column: ${({column}) => column};
-  grid-row: 1;
-  @media (max-width: 1240px) {
-    width: 95vw;
-  }
-`
-
-const OpponentArea = styled.div`
-  width: 100%;
-  height: 195%;
-  grid-column: ${({column}) => column};
-  grid-row: 1;
-  @media (max-width: 1240px) {
-    display: none;
-  }
-`
-
-const Attribution = styled.div`
-  grid-column: 1;
-  grid-row: 2;
-  justify-self: start;
-`;
-
-const StartModal = styled.div`
-  z-index: auto;
-  display: ${({ started }) => (started ? 'none' : 'block')};
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  background: rgba(0,0,0,0.5);
-`;
-
-const fadeIn = keyframes`
-  from {
-    transform: scale(1) translate(-50%);;
-    opacity: 1;
-  }
-
-  to {
-    transform: scale(1) translate(-50%);;
-    opacity: 1;
-  }
-`;
-
-const fadeOut = keyframes`
-  from {
-    transform: scale(1) translate(-50%);;
-    opacity: 1;
-  }
-
-  to {
-    transform: scale(.25) translate(-50%);;
-    opacity: 0;
-  }
-`;
-
-const fadeInModal = keyframes`
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 1;
-  }
-`;
-
-const fadeOutModal = keyframes`
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-`;
-
-const RoundMessageModal = styled.div`
-  z-index: auto;
-  visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
-  animation: ${({displayMessage}) => displayMessage ? fadeInModal : fadeOutModal} 0.5s linear;
-  transition: visibility 0.5s linear;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  background: rgba(0,0,0,0.5);
-`;
-
-const RoundMessage = styled.div`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%);
-  visibility: ${({displayMessage}) => displayMessage ? 'visible' : 'hidden'};
-  animation: ${({displayMessage}) => displayMessage ? fadeIn : fadeOut} 0.5s linear;
-  transition: visibility 0.5s linear;
-  color: red;
-  font-size: 3em;
-`;
-
-const OverMessageModal = styled.div`
-  z-index: auto;
-  visibility: ${({over}) => over ? 'visible' : 'hidden'};
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  background: rgba(0,0,0,0.5);
-`;
-
-const OverMessage = styled.div`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%);
-  visibility: ${({over}) => over ? 'visible' : 'hidden'};
-  color: red;
-  font-size: 3em;
-  text-align: center;
-`;
-
+let navigated = false;
+let timerDelay = 15;
 let syncTotal = 0;
+let syncCountdown = timerDelay;
+let syncUsernames = new Array(2).fill('')
+                                .map(() => { return { username: 'Waiting...',
+                                                      strikes: 0,
+                                                      active: false,
+                                                      hand: [],
+                                                      turn: false } });
 
-let roundMessages = ['Begin!', 'Computer won! New round!', 'You won! New round!'];
 let message;
-let winner = 0;
 let deck = shuffleDeck(createDeck());
 let played = [];
 let reverse = false;
+let chosenName = 'Waiting...';
+let count = 4;
+let playerId = '';
+let finalStrikes = 0;
+let frameId;
+let endGame = false;
 
-const AppBots = ({ setStarted }) => {
-  let [hands, setHands] = useState({
-    0: [],
-    1: [],
-    2: [],
-    3: []
-  })
+const AppBots = (props) => {
+  const navigate = useNavigate();
 
-  let [turn, setTurn] = useState(true);
-  let [thinking, setThinking] = useState(false);
-  let [total, setTotal] = useState(0);
-  let [strikes, setStrikes] = useState([0, 0, 0, 0]);
-  let [over, setOver] = useState(false);
-  let [displayMessage, setDisplayMessage] = useState(false);
-  let [round, setRound] = useState(0);
-  let [players, setPlayers] = useState([0, 1]);
-  let [botsArray, setBotsArray] = useState([{ turn: false }]);
+  const [display, setDisplay] = useState(false);
+  const [on, setOn] = useState(true);
+  const [human, setHuman] = useState(false);
+  const [computer, setComputer] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [over, setOver] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [displayMessage, setDisplayMessage] = useState(false);
+  const [overMessage, setOverMessage] = useState(false);
+  const [waitingCount, setWaitingCount] = useState(4);
+  const [displayCountdown, setDisplayCountdown] = useState(false);
+  const [password, setPassword] = useState('');
+  const [gameStateTimer, setGameStateTimer] = useState(timerDelay);
+  const [enterPassword, setEnterPassword] = useState(false);
+  const [usernameChoice, setUsernameChoice] = useState(true);
+  const [usernameMessage, setUsernameMessage] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+  const [usernames, setUsernames] = useState(syncUsernames);
+  const [start, setStart] = useState(false);
+  const [newRoundDisplay, setNewRoundDisplay] = useState(false);
+  const [created, setCreated] = useState(false);
+  const [creator, setCreator] = useState(false);
+  const [setStarted, started] = useOutletContext();
+
+  function setIndex(j, change) {
+    j = j + change;
+    if (j < 0) {
+      j = syncUsernames.length - 1;
+    } else if (j === syncUsernames.length) {
+      j = 0;
+    }
+    return j;
+  }
+
+  function calculateNextPlayer (i) {
+    let setNextPlayer = false;
+    let change = reverse ? -1 : 1;
+    let j = setIndex(i, change);
+
+    while (!setNextPlayer) {
+      if (syncUsernames[j].strikes < 3) {
+        setNextPlayer = true;
+      } else {
+        j = setIndex(j, change);
+      }
+    }
+
+    syncUsernames[i].turn = false;
+    syncUsernames[j].turn = true;
+    setUsernames(usernames => [...syncUsernames]);
+
+    return syncUsernames[j].index;
+  }
+
+  function setNewRound(player, playerId) {
+    syncUsernames[player].strikes += 1;
+    setUsernames([...syncUsernames]);
+
+    let countDone = syncUsernames.length;
+
+    if (syncUsernames[player].strikes === 3) {
+      for (let i = 1; i <syncUsernames.length; i++) {
+        if (syncUsernames[i].strikes === 3) {
+          countDone -= 1;
+        }
+      }
+    }
+    setNewRoundDisplay(newRoundDisplay => true);
+
+    if (countDone === 1 || syncUsernames[0].strikes === 3) {
+      setOver(true);
+      setGameOver(true);
+      let message = countDone === 1 ? 'You win!' : 'You lose!'
+      setOverMessage(`Game over!\n\n${message}`);
+    } else {
+      setAndDisplayMessage(player, syncUsernames[player].strikes, 10000);
+      setTimeout(() => {
+        calculateNextPlayer(player);
+
+        deck = shuffleDeck(createDeck());
+        played = [];
+
+        setTotal(total => 0);
+        syncTotal = 0;
+
+        syncUsernames.forEach(player => {
+          player.turn = false;
+          player.hand = [];
+        });
+        setUsernames(usernames => [...syncUsernames]);
+
+        startGame(true);
+      }, 10000);
+    }
+
+    return true;
+  }
+
+  function bot(bot) {
+    let time = syncTotal < 80 ? 3000 : 4000;
+    let thinkingTime = Math.random() * time + 1000;
+    setTimeout(() => {
+      playCard(nikkoBot.chooseCard(syncUsernames[bot].hand, syncTotal), bot);
+    }, thinkingTime);
+  }
 
   function playCard(cardObj, player) {
     let newRound = false;
-    setTurn(false);
 
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
@@ -301,8 +146,7 @@ const AppBots = ({ setStarted }) => {
 
     } else {
       if (syncTotal + cardObj[1] > 99) {
-        gameOver(player);
-        newRound = true;
+        newRound = setNewRound(player, cookies.playerId);
       } else {
         setTotal(total => total += cardObj[1]);
         syncTotal += cardObj[1];
@@ -311,249 +155,331 @@ const AppBots = ({ setStarted }) => {
     }
 
     if (!newRound) {
-      calculateNextPlayer(player);
+      let nextPlayer = calculateNextPlayer(player);
+      played.push(cardObj);
 
-      let tempHands = hands;
-      tempHands[player] = [...hands[player].filter(inHand => inHand[0] !== cardObj[0]), deck.shift()]
-      setHands(hands => tempHands);
+      if (nextPlayer > 0) {
+        bot(nextPlayer);
+      }
 
-      played = [...played, cardObj];
+      syncUsernames[player].hand = [...syncUsernames[player].hand.filter(inHand => inHand[0] !== cardObj[0]), deck.shift()];
+
+      setUsernames(usernames => [...syncUsernames]);
 
       if (!deck.length) {
         deck = shuffleDeck(played);
         played = [];
       }
+
     }
   }
 
-  function calculateNextPlayer (player) {
-    let nextPlayer = player;
-    let moveOn = true;
-
-    while (moveOn) {
-      if (nextPlayer === 0) {
-        nextPlayer = reverse ? players.length - 1 : nextPlayer + 1;
-
-      } else if (players.length > nextPlayer + 1) {
-        nextPlayer = reverse ? nextPlayer - 1 : nextPlayer + 1;
-
-      } else {
-        nextPlayer = reverse ? nextPlayer - 1 : 0;
-
-      }
-      if (strikes[nextPlayer] !== 3) {
-        moveOn = false;
-      }
-    }
-
-    let tempBotsArray = botsArray;
-    let botsTurn = false;
-    for (let i = 0; i < tempBotsArray.length; i++) {
-      tempBotsArray[i].turn = (i === (nextPlayer - 1));
-      if (i === (nextPlayer - 1)) {
-        botsTurn = true;
-      }
-    }
-    setBotsArray(botsArray => [...tempBotsArray]);
-
-    if (nextPlayer !== 0) {
-      computer(nextPlayer);
-    } else {
-      setTurn(true);
-    }
-  }
-
-  function computer(bot) {
-    let thinkingTime = syncTotal < 80 ? Math.random() * 3000 + 1000 : Math.random() * 4000 + 1000;
-    setTimeout(() => {
-      playCard(nikkoBot.chooseCard(hands[bot], syncTotal), bot);
-    }, thinkingTime);
-  }
-
-  function deal(strikesArr = strikes) {
+  function deal() {
     let deals = 3;
-    let tempHands = {
-      0: [],
-      1: [],
-      2: [],
-      3: []
-    };
+
     while (deals) {
-      players.forEach(player => {
-        if (strikesArr[player] < 3) {
-          tempHands[player] = [...tempHands[player], deck.shift()]
-          setHands(hands => tempHands);
+      syncUsernames.forEach((player, i) => {
+        if (player.strikes < 3) {
+          player.hand = [...player.hand, deck.shift()];
+        }
+        if (player.hand.length > 3) {
+          player.hand = player.hand.slice(player.hand.length - 3);
         }
       })
       deals--;
     }
+
+    syncUsernames[0].turn = true;
+    setUsernames(usernames => [...syncUsernames]);
   }
 
-  function startGame(player = undefined, strikesArr = strikes) {
-    setAndDisplayMessage(player);
-    deal(strikesArr);
-    setStarted(true);
+  function startGame(newRound) {
+    syncUsernames.forEach((player, i) => player.index = i);
+    !newRound && setAndDisplayMessage(undefined, 0, 2000);
+    setOn(false);
+    deal();
   }
 
-  function gameOver(player) {
-    let tempStrikes = strikes;
-    let countDone = 0;
-
-    if (strikes[player] === 2) {
-      tempStrikes[player] = 3;
-      setStrikes(strikes => [...tempStrikes]);
-      for (let i = 1; i < tempStrikes.length; i++) {
-        if (tempStrikes[i] === 3) {
-          countDone++;
-        }
-      }
-    }
-
-    if (countDone === players.length - 1 || tempStrikes[0] === 3) {
-      setOver(true);
-    } else {
-
-      setRound(round => round + 1);
-
-      if (tempStrikes[player] < 3) {
-        tempStrikes[player] += 1;
-      }
-
-      setStrikes(strikes => [...tempStrikes]);
-
-      if (player === 0) {
-        winner = 1;
-      } else {
-        winner = 0;
-      }
-
-      deck = shuffleDeck(createDeck());
-      played = [];
-
-      setTotal(total => 0);
-      syncTotal = 0;
-
-      setTurn(turn => turn = 0);
-
-      startGame(player, tempStrikes);
-    }
-  }
-
-  function selectBots(e) {
+  function selectOpponents(e) {
     let num = parseInt(e.target.value);
-    setBotsArray(botsArray => [...Array(num).fill('').map(() => {
-                                                          return { turn: false }
-                                                        })]);
-    setPlayers(players => [...Array(num + 1).keys()]);
+    syncUsernames = [...syncUsernames.slice(0, 1), ...Array(num).fill('')
+                                                                .map(() => { return { username: 'Waiting...',
+                                                                                      strikes: 0,
+                                                                                      active: false,
+                                                                                      hand: [],
+                                                                                      turn: false } })]
+
+    setUsernames(usernames => [...syncUsernames]);
   }
 
-  function setAndDisplayMessage(player = undefined) {
-    let strikeOrLost = strikes[player] < 3 ? 'got a strike' : 'lost';
-    if (player === 0) {
-      message = `You ${strikeOrLost}! New round!`;
+  function setAndDisplayMessage(player, strikes, delay) {
+    let strikeOrLost = strikes < 3 ? 'got a strike' : 'lost';
+    let integer = Number.isInteger(player);
+    if (player === chosenName || (integer && !player)) {
+      message = `You ${strikeOrLost}! New round will start in: `;
     } else if (player) {
-      message = `Computer ${player} ${strikeOrLost}! New round!`;
+      let append = integer ? 'Computer ' : '';
+      message = `${append + player}\n\n${strikeOrLost}!\n\nNew round will start in: `;
     } else {
       message = 'Begin!';
     }
     setDisplayMessage(displayMessage => true);
     setTimeout(() => {
       setDisplayMessage(displayMessage => false);
-    }, 2000)
+      setNewRoundDisplay(newRoundDisplay => false);
+    }, delay)
   }
+
+  function setHands(players) {
+    return players.map((player, i) => {
+      if (i && player.strikes < 3 &&
+          chosenName !== 'Waiting...') {
+        player.hand = [1, 2, 3];
+      }
+      return player;
+    })
+  }
+
+  function replay() {
+    if (!endGame) {
+      setNewRoundDisplay(newRoundDisplay => false);
+      setOver(false);
+      setGameOver(false);
+      syncUsernames.forEach(player => {
+        player.strikes = 0;
+        player.turn = false;
+        player.hand = [];
+      });
+      deck = shuffleDeck(createDeck());
+      setUsernames(usernames => [...syncUsernames]);
+      startGame();
+    }
+    setTotal(0);
+    syncTotal = 0;
+    played = [];
+  }
+
+  function endGameFunc() {
+    endGame = true;
+    const refreshKey = Math.random().toString(36).substring(2);
+    navigate('/select', { state: { refreshKey } });
+  }
+
+  function resetState() {
+    reverse = false;
+    finalStrikes = 0;
+    syncTotal = 0;
+    played = [];
+    syncUsernames = new Array(2).fill('')
+                                .map(() => { return { username: 'Waiting...',
+                                                      strikes: 0,
+                                                      active: false,
+                                                      hand: [],
+                                                      turn: false } });
+    setDisplay(false);
+    setStarted(false);
+    setOn(true);
+    setHuman(false);
+    setComputer(false);
+    setTotal(0);
+    setOver(false);
+    setGameOver(false);
+    setEndGame(false);
+    setDisplayMessage(false);
+    setOverMessage(false);
+    setWaitingCount(4);
+    setDisplayCountdown(false);
+    setPassword('');
+    setGameStateTimer(timerDelay);
+    setEnterPassword(false);
+    setUsernameChoice(true);
+    setUsernameMessage(false);
+    setWaiting(false);
+    setUsernames(syncUsernames);
+    setStart(false);
+    setNewRoundDisplay(false);
+    setCreated(false);
+    setCreator(false);
+  }
+
+  useEffect(() => {
+    setComputer(true);
+    setDisplay(true);
+    setStart(true);
+    setCreator(true);
+    setUsernameChoice(false);
+    setOn(true);
+    setStarted(true);
+
+    return () => {
+      resetState();
+    }
+  }, []);
 
   return (
     <>
-    <StartComponent startGame={startGame} selectBots={selectBots} opponents={'Computer'} />
-    <RoundMessageModal displayMessage={displayMessage} />
-    <RoundMessage displayMessage={displayMessage} >
-      {message}
-    </RoundMessage>
+    <DropDownComponent opponents={human ? 'humans' : 'computers'} />
+    {usernameChoice ?
+      <UsernameComponent saveUsername={saveUsername} usernameMessage={usernameMessage} /> :
+      null}
+    {start && !created ?
+      <StartComponent startGame={startGame} selectBots={selectBots} opponents={human ? 'Human' : 'Computer'} /> :
+      null}
+    {waiting ?
+      <WaitingComponent waiting={waiting}
+                        players={waitingCount}
+                        creator={creator}
+                        roomCode={roomCode}
+                        password={state.setPassword} />
+      :
+      null}
+    <RoomModal on={on} />
+    <RoundMessageComponent displayMessage={displayMessage} message={message} />
     <OverMessageModal over={over} />
     <OverMessage over={over}>
-      {strikes[0] === 3 ?
-      <div>You lose.</div>
-      :
-      <div>Congrats! You win!</div>}
+      {overMessage}
     </OverMessage>
+    <GameOverButton gameOver={gameOver && creator && !endGame}
+                    top={'50%'}
+                    margin={1}
+                    onClick={() => replay()} >Replay</GameOverButton>
+    <GameOverButton gameOver={gameOver && creator && !endGame}
+                    top={'55%'}
+                    margin={2}
+                    onClick={() => endGameFunc()} >End Game</GameOverButton>
     <MainContainer>
       <GameArea>
         <PlayerArea1>
-          <Opponent botsCount={botsArray.length} >
-          {botsArray[1] ?
+          <Opponent botsCount={usernames.length - 1} >
+          {usernames[2] ?
               <>
-              {botsArray.map((bot, i) =>
+              {usernames.slice(1).map((bot, i) => {
+                return (
                 <BotAreaMobile row={i + 1} key={i}>
-                  <ComputerComponent strikes={strikes}
-                                     computerHand={hands[i + 1]}
-                                     thinking={thinking}
-                                     over={over}
-                                     turn={bot.turn}
-                                     player={i + 1}
-                                     botsCount={botsArray.length} />
+                  <ComputerComponentMap strikes={usernames[i + 1].strikes}
+                                        key={i}
+                                        hand={usernames[i + 1].hand}
+                                        human={human}
+                                        computer={computer}
+                                        over={over}
+                                        turn={usernames[i + 1].turn}
+                                        player={i + 1}
+                                        botsCount={usernames.length - 1}
+                                        username={usernames[i + 1].username}
+                                        displayCountdown={displayCountdown}
+                                        gameStateTimer={gameStateTimer}
+                                        active={usernames[i + 1].active}
+                                        newRoundDisplay={newRoundDisplay}
+                                        on={on}
+                                        />
                 </BotAreaMobile>
-              )}
+                )
+              })}
               <BotArea>
-                <ComputerComponent strikes={strikes}
-                                   computerHand={hands[2]}
-                                   thinking={thinking}
-                                   over={over}
-                                   turn={botsArray[1].turn}
-                                   player={2} />
+                <ComputerComponent strikes={usernames[2].strikes}
+                                    hand={usernames[2].hand}
+                                    human={human}
+                                    computer={computer}
+                                    over={over}
+                                    turn={usernames[2].turn}
+                                    player={2}
+                                    username={usernames[2].username}
+                                    displayCountdown={displayCountdown}
+                                    gameStateTimer={gameStateTimer}
+                                    active={usernames[2].active}
+                                    newRoundDisplay={newRoundDisplay}
+                                    on={on}
+                                    />
               </BotArea>
               </>
               :
-              <ComputerComponent strikes={strikes}
-                                 computerHand={hands[1]}
-                                 thinking={thinking}
-                                 over={over}
-                                 turn={botsArray[0].turn}
-                                 player={1} /> }
+              <ComputerComponent strikes={usernames[1].strikes}
+                                  hand={usernames[1].hand}
+                                  human={human}
+                                  computer={computer}
+                                  over={over}
+                                  turn={usernames[1].turn}
+                                  player={1}
+                                  username={usernames[1].username}
+                                  displayCountdown={displayCountdown}
+                                  gameStateTimer={gameStateTimer}
+                                  active={usernames[1].active}
+                                  newRoundDisplay={newRoundDisplay}
+                                  on={on}
+                                  /> }
           </Opponent>
         </PlayerArea1>
-        <CenterRowArea>
+        <CenterRowArea botsCount={usernames.length - 1}>
           <OpponentArea column={1}>
-            {botsArray[1] ?
-              <ComputerComponent strikes={strikes}
-                                 computerHand={hands[1]}
-                                 thinking={thinking}
-                                 over={over}
-                                 turn={botsArray[0].turn}
-                                 player={1} /> :
-                                 null}
+            {usernames[2] ?
+              <ComputerComponent strikes={usernames[1].strikes}
+                                  hand={usernames[1].hand}
+                                  human={human}
+                                  computer={computer}
+                                  over={over}
+                                  turn={usernames[1].turn}
+                                  player={1}
+                                  username={usernames[1].username}
+                                  displayCountdown={displayCountdown}
+                                  gameStateTimer={gameStateTimer}
+                                  active={usernames[1].active}
+                                  newRoundDisplay={newRoundDisplay}
+                                  on={on}
+                                  /> :
+                                  null}
           </OpponentArea>
           <DeckArea column={2}>
-            <PlayingArea played={played} deck={deck} />
+            <PlayingArea played={played}
+                          deck={deck}
+                          botsCount={usernames.length - 1}
+                          turn={usernames[0].turn}
+                          displayCountdown={displayCountdown}
+                          gameStateTimer={gameStateTimer}
+                          playCard={playCard}
+                          hand={usernames[0].hand}
+                          over={over}
+                          />
           </DeckArea>
           <OpponentArea column={3}>
-            {botsArray[2] ?
-                <ComputerComponent strikes={strikes}
-                                   computerHand={hands[3]}
-                                   thinking={thinking}
-                                   over={over}
-                                   turn={botsArray[2].turn}
-                                   player={3} /> :
-                                   null}
+            {usernames[3] ?
+                <ComputerComponent strikes={usernames[3].strikes}
+                                    hand={usernames[3].hand}
+                                    human={human}
+                                    computer={computer}
+                                    over={over}
+                                    turn={usernames[3].turn}
+                                    player={3}
+                                    username={usernames[3].username}
+                                    displayCountdown={displayCountdown}
+                                    gameStateTimer={gameStateTimer}
+                                    active={usernames[3].active}
+                                    newRoundDisplay={newRoundDisplay}
+                                    on={on}
+                                    /> :
+                                    null}
           </OpponentArea>
         </CenterRowArea>
         <TotalComponent total={total} />
         <PlayerArea2>
           <Player>
-            <PlayerOneComponent strikes={strikes}
-                                playerOneHand={hands[0]}
-                                gameOver={gameOver}
-                                turn={turn}
-                                playCard={playCard} />
+            <PlayerOneComponent strikes={usernames[0].strikes}
+                                hand={usernames[0].hand}
+                                turn={usernames[0].turn}
+                                playCard={playCard}
+                                username={usernames[0].username}
+                                human={human}
+                                />
           </Player>
-          <ForfeitButton onClick={() => {if (turn === 0) { gameOver(0) }}} >Forfeit</ForfeitButton>
+          <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0, cookies.playerId) }}} >Forfeit</ForfeitButton>
         </PlayerArea2>
       </GameArea>
       <Attribution>
-        <a href="https://www.vecteezy.com/free-vector/playing-card-back">Playing Card Back Vectors by Vecteezy</a>
+        <a href='https://www.vecteezy.com/free-vector/playing-card-back'>Playing Card Back Vectors by Vecteezy</a>
       </Attribution>
     </MainContainer>
     </>
   )
+
 }
 
 export default AppBots;
