@@ -253,7 +253,6 @@ let syncCountdown = 15;
 let ComputerComponent = ({ strikes,
                            hand,
                            human,
-                           computer,
                            over,
                            turn,
                            player,

@@ -442,12 +442,8 @@ const AppHumans = (props) => {
     syncUsernames[player].strikes += 1;
     setUsernames([...syncUsernames]);
 
-    if (human) {
-      let nextPlayer = calculateNextPlayer(player);
-      socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, playerId, reverse);
-    }
-
-    return true;
+    let nextPlayer = calculateNextPlayer(player);
+    socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, playerId, reverse);
   }
 
   function playCard(cardObj, player) {
@@ -466,7 +462,7 @@ const AppHumans = (props) => {
 
     } else {
       if (syncTotal + cardObj[1] > 99) {
-        newRound = setNewRound(player, cookies.playerId);
+        newRound = true;
       } else {
         setTotal(total => total += cardObj[1]);
         syncTotal += cardObj[1];
@@ -478,12 +474,13 @@ const AppHumans = (props) => {
       let nextPlayer = calculateNextPlayer(player);
       played.push(cardObj);
 
-      if (human) {
-        socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId);
-        cancelAnimationFrame(frameId);
-        restartTimer(0);
-        setGameStateTimer(gameStateTimer => timerDelay);
-      }
+      socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId);
+      cancelAnimationFrame(frameId);
+      restartTimer(0);
+      setGameStateTimer(gameStateTimer => timerDelay);
+
+    } else {
+      setNewRound(player, cookies.playerId);
     }
   }
 
@@ -545,20 +542,16 @@ const AppHumans = (props) => {
     })
   }
 
-  function replay() {
-    if (!endGame) {
-      let cookies = makeCookieObject();
+  function replayHuman() {
+    replay(() => {
       socket.emit('replay', roomCode, cookies.playerId);
-      setTotal(0);
-      syncTotal = 0;
-      played = [];
-    }
+    })
   }
 
-  function endGameFunc() {
-    setEndGame(true);
-    let cookies = makeCookieObject();
-    socket.emit('endGame', roomCode, cookies.playerId);
+  function endGameHuman() {
+    endGameFunc(() => {
+      socket.emit('endGame', roomCode, cookies.playerId);
+    })
   }
 
   function resetState() {
@@ -865,186 +858,12 @@ const AppHumans = (props) => {
     }
   }, []);
 
-  if (display) {
-    return (
-      <>
-      <DropDownComponent opponents={human ? 'humans' : 'computers'} />
-      {usernameChoice ?
-        <UsernameComponent saveUsername={saveUsername} usernameMessage={usernameMessage} /> :
-        null}
-      {start && !created ?
-        <StartComponent startGame={startGame} selectBots={selectBots} opponents={human ? 'Human' : 'Computer'} /> :
-        null}
-      {waiting ?
-        <WaitingComponent waiting={waiting}
-                          players={waitingCount}
-                          creator={creator}
-                          roomCode={roomCode}
-                          password={state.setPassword} />
-        :
-        null}
-      <RoomModal on={on} />
-      <RoundMessageComponent displayMessage={displayMessage} message={message} />
-      <OverMessageModal over={over} />
-      <OverMessage over={over}>
-        {overMessage}
-      </OverMessage>
-      <GameOverButton gameOver={gameOver && creator && !endGame}
-                      top={'50%'}
-                      margin={1}
-                      onClick={() => replay()} >Replay</GameOverButton>
-      <GameOverButton gameOver={gameOver && creator && !endGame}
-                      top={'55%'}
-                      margin={2}
-                      onClick={() => endGameFunc()} >End Game</GameOverButton>
-      <MainContainer>
-        <GameArea>
-          <PlayerArea1>
-            <Opponent botsCount={usernames.length - 1} >
-            {usernames[2] ?
-                <>
-                {usernames.slice(1).map((bot, i) => {
-                  return (
-                  <BotAreaMobile row={i + 1} key={i}>
-                    <ComputerComponentMap strikes={usernames[i + 1].strikes}
-                                          key={i}
-                                          hand={usernames[i + 1].hand}
-                                          human={human}
-                                          computer={computer}
-                                          over={over}
-                                          turn={usernames[i + 1].turn}
-                                          player={i + 1}
-                                          botsCount={usernames.length - 1}
-                                          username={usernames[i + 1].username}
-                                          displayCountdown={displayCountdown}
-                                          gameStateTimer={gameStateTimer}
-                                          active={usernames[i + 1].active}
-                                          newRoundDisplay={newRoundDisplay}
-                                          on={on}
-                                          />
-                  </BotAreaMobile>
-                  )
-                })}
-                <BotArea>
-                  <ComputerComponent strikes={usernames[2].strikes}
-                                     hand={usernames[2].hand}
-                                     human={human}
-                                     computer={computer}
-                                     over={over}
-                                     turn={usernames[2].turn}
-                                     player={2}
-                                     username={usernames[2].username}
-                                     displayCountdown={displayCountdown}
-                                     gameStateTimer={gameStateTimer}
-                                     active={usernames[2].active}
-                                     newRoundDisplay={newRoundDisplay}
-                                     on={on}
-                                     />
-                </BotArea>
-                </>
-                :
-                <ComputerComponent strikes={usernames[1].strikes}
-                                   hand={usernames[1].hand}
-                                   human={human}
-                                   computer={computer}
-                                   over={over}
-                                   turn={usernames[1].turn}
-                                   player={1}
-                                   username={usernames[1].username}
-                                   displayCountdown={displayCountdown}
-                                   gameStateTimer={gameStateTimer}
-                                   active={usernames[1].active}
-                                   newRoundDisplay={newRoundDisplay}
-                                   on={on}
-                                   /> }
-            </Opponent>
-          </PlayerArea1>
-          <CenterRowArea botsCount={usernames.length - 1}>
-            <OpponentArea column={1}>
-              {usernames[2] ?
-                <ComputerComponent strikes={usernames[1].strikes}
-                                   hand={usernames[1].hand}
-                                   human={human}
-                                   computer={computer}
-                                   over={over}
-                                   turn={usernames[1].turn}
-                                   player={1}
-                                   username={usernames[1].username}
-                                   displayCountdown={displayCountdown}
-                                   gameStateTimer={gameStateTimer}
-                                   active={usernames[1].active}
-                                   newRoundDisplay={newRoundDisplay}
-                                   on={on}
-                                   /> :
-                                   null}
-            </OpponentArea>
-            <DeckArea column={2}>
-              <PlayingArea played={played}
-                           deck={deck}
-                           botsCount={usernames.length - 1}
-                           turn={usernames[0].turn}
-                           displayCountdown={displayCountdown}
-                           gameStateTimer={gameStateTimer}
-                           playCard={playCard}
-                           hand={usernames[0].hand}
-                           over={over}
-                           />
-            </DeckArea>
-            <OpponentArea column={3}>
-              {usernames[3] ?
-                  <ComputerComponent strikes={usernames[3].strikes}
-                                     hand={usernames[3].hand}
-                                     human={human}
-                                     computer={computer}
-                                     over={over}
-                                     turn={usernames[3].turn}
-                                     player={3}
-                                     username={usernames[3].username}
-                                     displayCountdown={displayCountdown}
-                                     gameStateTimer={gameStateTimer}
-                                     active={usernames[3].active}
-                                     newRoundDisplay={newRoundDisplay}
-                                     on={on}
-                                     /> :
-                                     null}
-            </OpponentArea>
-          </CenterRowArea>
-          <TotalComponent total={total} />
-          <PlayerArea2>
-            <Player>
-              <PlayerOneComponent strikes={usernames[0].strikes}
-                                  hand={usernames[0].hand}
-                                  turn={usernames[0].turn}
-                                  playCard={playCard}
-                                  username={usernames[0].username}
-                                  human={human}
-                                  />
-            </Player>
-            <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0, cookies.playerId) }}} >Forfeit</ForfeitButton>
-          </PlayerArea2>
-        </GameArea>
-        <Attribution>
-          <a href='https://www.vecteezy.com/free-vector/playing-card-back'>Playing Card Back Vectors by Vecteezy</a>
-        </Attribution>
-      </MainContainer>
-      </>
-    )
-  } else {
-    return (
-    <>
-      {enterPassword ?
-        <>
-        <RoomModal on={on} />
-        <PasswordComponent roomCode={roomCode}
-                           setUsernameChoice={setUsernameChoice}
-                           setEnterPassword={setEnterPassword}
-                           socket={socket}
-                           playerId={playerId} />
-        </>
-        :
-        null}
-    </>)
-  }
+  return (
+    <AppCentral
+      endGameFunc={endGameHuman}
+      replay={replayHuman}
+    />
+  )
 
 }
 

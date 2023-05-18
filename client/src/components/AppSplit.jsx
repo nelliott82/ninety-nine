@@ -3,6 +3,14 @@ import { useOutletContext, useLocation } from 'react-router-dom';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
 
+let endGame = false;
+let syncUsernames = new Array(2).fill('')
+                                .map(() => { return { username: 'Waiting...',
+                                                      strikes: 0,
+                                                      active: false,
+                                                      hand: [],
+                                                      turn: false } });
+
 const AppSplit = () => {
   const location = useLocation();
 
@@ -30,12 +38,57 @@ const AppSplit = () => {
   const [creator, setCreator] = useState(false);
   const [setStarted, started] = useOutletContext();
 
+  function setIndex(j, change) {
+    j = j + change;
+    if (j < 0) {
+      j = syncUsernames.length - 1;
+    } else if (j === syncUsernames.length) {
+      j = 0;
+    }
+    return j;
+  }
+
+  function calculateNextPlayer (i) {
+    let setNextPlayer = false;
+    let change = reverse ? -1 : 1;
+    let j = setIndex(i, change);
+
+    while (!setNextPlayer) {
+      if (syncUsernames[j].strikes < 3) {
+        setNextPlayer = true;
+      } else {
+        j = setIndex(j, change);
+      }
+    }
+
+    syncUsernames[i].turn = false;
+    syncUsernames[j].turn = true;
+    setUsernames(usernames => [...syncUsernames]);
+
+    return syncUsernames[j].index;
+  }
+
+
+  function endGameFunc(callback) {
+    endGame = true;
+    callback()
+  }
+
+  function replay(callback) {
+    if (!endGame) {
+      callback();
+      setTotal(0);
+      syncTotal = 0;
+      played = [];
+    }
+  }
 
   function resetState() {
     reverse = false;
     finalStrikes = 0;
     syncTotal = 0;
     played = [];
+    endGame = false;
     syncUsernames = new Array(2).fill('')
                                 .map(() => { return { username: 'Waiting...',
                                                       strikes: 0,
@@ -50,7 +103,6 @@ const AppSplit = () => {
     setTotal(0);
     setOver(false);
     setGameOver(false);
-    setEndGame(false);
     setDisplayMessage(false);
     setOverMessage(false);
     setWaitingCount(4);

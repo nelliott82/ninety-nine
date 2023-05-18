@@ -312,7 +312,7 @@ let playerId = '';
 let finalStrikes = 0;
 let frameId;
 
-const AppHumans = (props) => {
+const AppCentral = (props) => {
   const location = useLocation();
   let { state } = location;
   if (!state) {
@@ -420,11 +420,11 @@ const AppHumans = (props) => {
       <GameOverButton gameOver={gameOver && creator && !endGame}
                       top={'50%'}
                       margin={1}
-                      onClick={() => replay()} >Replay</GameOverButton>
+                      onClick={() => replay(human ? replayCallback : undefined)} >Replay</GameOverButton>
       <GameOverButton gameOver={gameOver && creator && !endGame}
                       top={'55%'}
                       margin={2}
-                      onClick={() => endGameFunc()} >End Game</GameOverButton>
+                      onClick={() => endGameFunc(human ? endGameCallback : undefined)} >End Game</GameOverButton>
       <MainContainer>
         <GameArea>
           <PlayerArea1>
@@ -438,7 +438,6 @@ const AppHumans = (props) => {
                                           key={i}
                                           hand={usernames[i + 1].hand}
                                           human={human}
-                                          computer={computer}
                                           over={over}
                                           turn={usernames[i + 1].turn}
                                           player={i + 1}
@@ -457,7 +456,6 @@ const AppHumans = (props) => {
                   <ComputerComponent strikes={usernames[2].strikes}
                                      hand={usernames[2].hand}
                                      human={human}
-                                     computer={computer}
                                      over={over}
                                      turn={usernames[2].turn}
                                      player={2}
@@ -474,7 +472,6 @@ const AppHumans = (props) => {
                 <ComputerComponent strikes={usernames[1].strikes}
                                    hand={usernames[1].hand}
                                    human={human}
-                                   computer={computer}
                                    over={over}
                                    turn={usernames[1].turn}
                                    player={1}
@@ -493,7 +490,6 @@ const AppHumans = (props) => {
                 <ComputerComponent strikes={usernames[1].strikes}
                                    hand={usernames[1].hand}
                                    human={human}
-                                   computer={computer}
                                    over={over}
                                    turn={usernames[1].turn}
                                    player={1}
@@ -523,7 +519,6 @@ const AppHumans = (props) => {
                   <ComputerComponent strikes={usernames[3].strikes}
                                      hand={usernames[3].hand}
                                      human={human}
-                                     computer={computer}
                                      over={over}
                                      turn={usernames[3].turn}
                                      player={3}
@@ -576,4 +571,4 @@ const AppHumans = (props) => {
 
 }
 
-export default AppHumans;
+export default AppCentral;
