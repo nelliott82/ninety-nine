@@ -2,11 +2,9 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useOutletContext, useParams, useLocation, useNavigate } from 'react-router-dom';
 import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import nikkoBot from '../helperFiles/computer.js';
+import AppCentral from './AppCentral.jsx';
 
-let navigated = false;
-let timerDelay = 15;
 let syncTotal = 0;
-let syncCountdown = timerDelay;
 let syncUsernames = new Array(2).fill('')
                                 .map(() => { return { username: 'Waiting...',
                                                       strikes: 0,
@@ -15,7 +13,6 @@ let syncUsernames = new Array(2).fill('')
                                                       turn: false } });
 
 let deck = shuffleDeck(createDeck());
-let played = [];
 let reverse = false;
 let chosenName = 'Waiting...';
 let count = 4;
@@ -29,11 +26,14 @@ const AppBots = ({ display,
                    endGameFunc,
                    gameOver,
                    message,
+                   navigate,
                    newRoundDisplay,
                    on,
                    over,
                    overMessage,
                    playCard,
+                   played,
+                   replay,
                    selectOpponents,
                    setAndDisplayMessage,
                    setDisplay,
@@ -42,46 +42,16 @@ const AppBots = ({ display,
                    setOn,
                    setOver,
                    setOverMessage,
+                   setPlayed,
                    setStarted,
                    setTotal,
                    setUsernames,
-                   start,
                    syncUsernames,
                    total,
                    usernames
                   }) => {
 
-  function setIndex(j, change) {
-    j = j + change;
-    if (j < 0) {
-      j = syncUsernames.length - 1;
-    } else if (j === syncUsernames.length) {
-      j = 0;
-    }
-    return j;
-  }
-
-  function calculateNextPlayer (i) {
-    let setNextPlayer = false;
-    let change = reverse ? -1 : 1;
-    let j = setIndex(i, change);
-
-    while (!setNextPlayer) {
-      if (syncUsernames[j].strikes < 3) {
-        setNextPlayer = true;
-      } else {
-        j = setIndex(j, change);
-      }
-    }
-
-    syncUsernames[i].turn = false;
-    syncUsernames[j].turn = true;
-    setUsernames(usernames => [...syncUsernames]);
-
-    return syncUsernames[j].index;
-  }
-
-  function setNewRoundBot(nextPlayer, player) {
+  function setNewRoundBot(player, calculateNextPlayer) {
 
     let countDone = syncUsernames.length;
 
@@ -101,11 +71,14 @@ const AppBots = ({ display,
       setOverMessage(`Game over!\n\n${message}`);
     } else {
       setAndDisplayMessage(player, syncUsernames[player].strikes, 10000);
+      syncUsernames[player].turn = false;
+      setUsernames(usernames => [...syncUsernames]);
+
       setTimeout(() => {
         calculateNextPlayer(player);
 
         deck = shuffleDeck(createDeck());
-        played = [];
+        setPlayed([]);
 
         setTotal(total => 0);
         syncTotal = 0;
@@ -125,13 +98,14 @@ const AppBots = ({ display,
     let time = syncTotal < 80 ? 3000 : 4000;
     let thinkingTime = Math.random() * time + 1000;
     setTimeout(() => {
+      console.log(syncUsernames[bot].hand);
       playCardBot(nikkoBot.chooseCard(syncUsernames[bot].hand, syncTotal), bot);
     }, thinkingTime);
   }
 
   function playCardBot(cardObj, player) {
 
-    playCard(cardObj, player, (nextPlayer) => {
+    syncTotal = playCard(cardObj, player, (nextPlayer) => {
       if (nextPlayer > 0) {
         bot(nextPlayer);
       }
@@ -140,8 +114,9 @@ const AppBots = ({ display,
       setUsernames(usernames => [...syncUsernames]);
 
       if (!deck.length) {
-        deck = shuffleDeck(played);
-        played = [];
+        let tempPlayed = played.slice(0);
+        deck = shuffleDeck(tempPlayed);
+        setPlayed([]);
       }
     }, setNewRoundBot)
   }
@@ -200,7 +175,6 @@ const AppBots = ({ display,
     reverse = false;
     finalStrikes = 0;
     syncTotal = 0;
-    played = [];
     syncUsernames = new Array(2).fill('')
                                 .map(() => { return { username: chosenName,
                                                       strikes: 0,
@@ -221,7 +195,6 @@ const AppBots = ({ display,
     setWaitingCount(4);
     setDisplayCountdown(false);
     setPassword('');
-    setGameStateTimer(timerDelay);
     setEnterPassword(false);
     setUsernameChoice(true);
     setUsernameMessage(false);
@@ -245,7 +218,6 @@ const AppBots = ({ display,
   return (
     <AppCentral
       creator={true}
-      deck={deck}
       display={true}
       displayMessage={displayMessage}
       endGame={endGame}

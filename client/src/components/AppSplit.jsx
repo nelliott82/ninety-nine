@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext, useLocation } from 'react-router-dom';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
 
 let chosenName = 'Waiting...'
-let played = [];
 let reverse = false;
 let syncEndGame = false;
 let syncTotal = 0;
@@ -19,11 +18,6 @@ const AppSplit = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [password, setPassword] = useState('');
-  const [usernameMessage, setUsernameMessage] = useState(false);
-  const [waiting, setWaiting] = useState(false);
-  const [usernames, setUsernames] = useState(syncUsernames);
-
   const [display, setDisplay] = useState(false);
   const [displayMessage, setDisplayMessage] = useState(false);
   const [endGame, setEndGame] = useState(false);
@@ -33,8 +27,9 @@ const AppSplit = () => {
   const [on, setOn] = useState(true);
   const [over, setOver] = useState(false);
   const [overMessage, setOverMessage] = useState(false);
-  const [start, setStart] = useState(false);
+  const [played, setPlayed] = useState([]);
   const [total, setTotal] = useState(0);
+  const [usernames, setUsernames] = useState(syncUsernames);
 
   const [setStarted, started] = useOutletContext();
 
@@ -80,7 +75,8 @@ const AppSplit = () => {
 
     } else {
       if (syncTotal + cardObj[1] > 99) {
-        newRound = false;
+        syncTotal = 0;
+        newRound = true;
       } else {
         setTotal(total => total += cardObj[1]);
         syncTotal += cardObj[1];
@@ -88,10 +84,13 @@ const AppSplit = () => {
 
     }
 
-    let nextPlayer = calculateNextPlayer(player);
 
     if (!newRound) {
-      played.push(cardObj);
+      let nextPlayer = calculateNextPlayer(player);
+
+      let tempPlayed = played.slice();
+      tempPlayed.push(cardObj);
+      setPlayed([...tempPlayed])
 
       nextTurnCallback(nextPlayer);
 
@@ -99,8 +98,9 @@ const AppSplit = () => {
       syncUsernames[player].strikes += 1;
       setUsernames(usernames => [...syncUsernames]);
 
-      setNewRoundCallback(nextPlayer, player);
+      setNewRoundCallback(player, calculateNextPlayer);
     }
+    return syncTotal;
   }
 
   function selectOpponents(e) {
@@ -143,7 +143,7 @@ const AppSplit = () => {
     if (!syncEndGame) {
       setTotal(0);
       syncTotal = 0;
-      played = [];
+      setPlayed([]);
       callback();
     }
   }
@@ -153,7 +153,7 @@ const AppSplit = () => {
     reverse = false;
     finalStrikes = 0;
     syncTotal = 0;
-    played = [];
+    setPlayed([]);
     syncEndGame = false;
     syncUsernames = new Array(2).fill('')
                                 .map(() => { return { username: chosenName,
@@ -174,6 +174,7 @@ const AppSplit = () => {
     setWaitingCount(4);
     setDisplayCountdown(false);
     setPassword('');
+    setPlayed([]);
     setGameStateTimer(timerDelay);
     setEnterPassword(false);
     setUsernameChoice(true);
@@ -203,11 +204,14 @@ const AppSplit = () => {
           endGameFunc={endGameFunc}
           gameOver={gameOver}
           message={message}
+          navigate={navigate}
           newRoundDisplay={newRoundDisplay}
           on={on}
           over={over}
           overMessage={overMessage}
           playCard={playCard}
+          played={played}
+          replay={replay}
           selectOpponents={selectOpponents}
           setAndDisplayMessage={setAndDisplayMessage}
           setDisplay={setDisplay}
@@ -216,10 +220,10 @@ const AppSplit = () => {
           setOn={setOn}
           setOver={setOver}
           setOverMessage={setOverMessage}
+          setPlayed={setPlayed}
           setStarted={setStarted}
           setTotal={setTotal}
           setUsernames={setUsernames}
-          start={start}
           syncUsernames={syncUsernames}
           total={total}
           usernames={usernames}
@@ -233,11 +237,14 @@ const AppSplit = () => {
           gameOver={gameOver}
           location={location}
           message={message}
+          navigate={navigate}
           newRoundDisplay={newRoundDisplay}
           on={on}
           over={over}
           overMessage={overMessage}
           playCard={playCard}
+          played={played}
+          replay={replay}
           selectOpponents={selectOpponents}
           setAndDisplayMessage={setAndDisplayMessage}
           setDisplay={setDisplay}
@@ -246,11 +253,11 @@ const AppSplit = () => {
           setOn={setOn}
           setOver={setOver}
           setOverMessage={setOverMessage}
+          setPlayed={setPlayed}
           setStart={setStart}
           setStarted={setStarted}
           setTotal={setTotal}
           setUsernames={setUsernames}
-          start={start}
           syncUsernames={syncUsernames}
           total={total}
           usernames={usernames}

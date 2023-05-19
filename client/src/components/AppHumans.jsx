@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useOutletContext, useParams, useLocation, useNavigate } from 'react-router-dom';
 import socket from '../helperFiles/socket.js';
-import { getCookie, setCookies, deleteCookies, makeCookieObject } from '../helperFiles/cookies.js';
+import { setCookies, makeCookieObject } from '../helperFiles/cookies.js';
+import AppCentral from './AppCentral.jsx';
 
 let navigated = false;
 let timerDelay = 15;
@@ -14,8 +15,6 @@ let syncUsernames = new Array(2).fill('')
                                                       hand: [],
                                                       turn: false } });
 
-let deck = [1];
-let played = [];
 let reverse = false;
 let chosenName = 'Waiting...';
 let count = 4;
@@ -23,24 +22,40 @@ let playerId = '';
 let finalStrikes = 0;
 let frameId;
 
-const AppHumans = (props) => {
+const AppHumans = ({ display,
+                     displayMessage,
+                     endGame,
+                     endGameFunc,
+                     gameOver,
+                     location,
+                     message,
+                     navigate,
+                     newRoundDisplay,
+                     on,
+                     over,
+                     overMessage,
+                     playCard,
+                     played,
+                     selectOpponents,
+                     setAndDisplayMessage,
+                     setDisplay,
+                     setGameOver,
+                     setNewRoundDisplay,
+                     setOn,
+                     setOver,
+                     setOverMessage,
+                     setPlayed,
+                     setStarted,
+                     setTotal,
+                     setUsernames,
+                     syncUsernames,
+                     total,
+                     usernames
+                    }) => {
   let { state } = location;
   if (!state) {
     state = {};
   }
-  const navigate = useNavigate();
-
-  const [display, setDisplay] = useState(false);
-  const [computer, setComputer] = useState(false);
-  const [displayMessage, setDisplayMessage] = useState(false);
-  const [overMessage, setOverMessage] = useState(false);
-  const [waitingCount, setWaitingCount] = useState(4);
-  const [password, setPassword] = useState('');
-  const [usernameChoice, setUsernameChoice] = useState(true);
-  const [waiting, setWaiting] = useState(false);
-  const [usernames, setUsernames] = useState(syncUsernames);
-  const [start, setStart] = useState(false);
-  const [newRoundDisplay, setNewRoundDisplay] = useState(false);
 
   const [created, setCreated] = useState(false);
   const [creator, setCreator] = useState(false);
@@ -48,6 +63,7 @@ const AppHumans = (props) => {
   const [enterPassword, setEnterPassword] = useState(false);
   const [gameStateTimer, setGameStateTimer] = useState(timerDelay);
   const [human, setHuman] = useState(false);
+  const [start, setStart] = useState(false);
   const [usernameChoice, setUsernameChoice] = useState(true);
   const [usernameTaken, setUsernameTaken] = useState(false);
   const [waiting, setWaiting] = useState(false);
@@ -145,8 +161,11 @@ const AppHumans = (props) => {
     return syncUsernames[j].index;
   }
 
-  function setNewRoundHuman(nextPlayer) {
-    socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, cookies.playerId, reverse);
+  function setNewRoundHuman(player, calculateNextPlayer) {
+    syncUsernames[player].turn = false;
+    setUsernames(usernames => [...syncUsernames]);
+
+    socket.emit('newRound', roomCode, syncUsernames[0].index, calculateNextPlayer(player), cookies.playerId, reverse);
   }
 
   function playCardHuman(cardObj, player) {
@@ -204,7 +223,6 @@ const AppHumans = (props) => {
     reverse = false;
     finalStrikes = 0;
     syncTotal = 0;
-    played = [];
     syncUsernames = new Array(2).fill('')
                                 .map(() => { return { username: chosenName,
                                                       strikes: 0,
@@ -331,7 +349,7 @@ const AppHumans = (props) => {
         setOver(true);
         finalStrikes < 3 && setOverMessage('Congrats! You win!');
         setGameOver(true);
-        played = [];
+        setPlayed([]);
       }
     })
 
@@ -341,7 +359,7 @@ const AppHumans = (props) => {
 
       setTimeout(() => {
         syncTotal = 0;
-        played = [];
+        setPlayed([]);
         window.history.replaceState({}, document.title);
 
         const refreshKey = Math.random().toString(36).substring(2);
@@ -369,7 +387,9 @@ const AppHumans = (props) => {
       restartTimer(0);
       setTotal(total);
       syncTotal = total;
-      played.push(cardObj);
+      let tempPlayed = played.slice(0);
+      tempPlayed.push(cardObj);
+      setPlayed([...tempPlayed]);
     });
 
     socket.on('newRound', (players, oldHands, i, username, strikes, newHand, currentStrikes) => {
@@ -398,7 +418,7 @@ const AppHumans = (props) => {
       setTimeout(() => {
         setTotal(0);
         syncTotal = 0;
-        played = [];
+        setPlayed([]);
       }, 10500);
     });
 
@@ -469,7 +489,7 @@ const AppHumans = (props) => {
     socket.on('gotGameState', (gotCountdown, gotTotal, gotReverse, gotPlayed, waiting) => {
       if (!waiting) {
         reverse = gotReverse;
-        played = gotPlayed ? gotPlayed : [];
+        gotPlayed ? setPlayed([...gotPlayed]) : setPlayed([]);
         syncTotal = gotTotal || 0;
         setTotal(gotTotal || 0);
         if (gotCountdown > -1) {
@@ -508,7 +528,6 @@ const AppHumans = (props) => {
     <AppCentral
       created={created}
       creator={creator}
-      deck={deck}
       display={display}
       displayCountdown={displayCountdown}
       displayMessage={displayMessage}
@@ -532,6 +551,7 @@ const AppHumans = (props) => {
       selectOpponents={selectOpponents}
       setEnterPassword={setEnterPassword}
       setNewRound={setNewRoundHuman}
+      setPassword={state.setPassword}
       setUsernameChoice={setUsernameChoice}
       socket={socket}
       start={start}

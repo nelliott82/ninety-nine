@@ -129,7 +129,7 @@ return (
             </CardArea>
           </DeckContainer>
           <TimerContainer turn={turn && displayCountdown && !over} >
-            {countdown.toString()}
+            {countdown?.toString()}
           </TimerContainer>
           <DiscardName>Discard Pile</DiscardName>
           <PlayedContainer>
@@ -137,7 +137,7 @@ return (
             {played.length ?
               <CardStack
                   src={`/assets/cards/${lastCard[0]}.png`}
-                  alt={`This card is the ${lastCard[0].slice(0, lastCard[0].length - 1)} of ${lastCard[0].slice(lastCard[0].length - 1)}.`}
+                  alt={`This card is the ${lastCard[0].slice(0, lastCard[0].length - 1)} of ${lastCard[0].slice(lastCard[0].length - 1)}`}
                   botsCount={botsCount}
                   />
             : null}

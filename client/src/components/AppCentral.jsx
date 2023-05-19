@@ -288,10 +288,10 @@ const OverMessage = styled.div`
   width: 100vw;
 `;
 
+let deck = [1];
 
 const AppCentral = ({ created,
                       creator,
-                      deck,
                       display,
                       displayCountdown,
                       displayMessage,
@@ -314,6 +314,7 @@ const AppCentral = ({ created,
                       selectOpponents,
                       setEnterPassword,
                       setNewRound,
+                      setPassword,
                       setUsernameChoice,
                       socket,
                       start,
@@ -341,7 +342,7 @@ const AppCentral = ({ created,
                           players={waitingCount}
                           creator={creator}
                           roomCode={roomCode}
-                          password={state.setPassword} />
+                          password={setPassword} />
         :
         null}
       <RoomModal on={on} />
