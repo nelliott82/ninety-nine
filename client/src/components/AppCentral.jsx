@@ -401,7 +401,7 @@ const AppCentral = (props) => {
         <UsernameComponent saveUsername={saveUsername} usernameMessage={usernameMessage} /> :
         null}
       {start && !created ?
-        <StartComponent startGame={startGame} selectBots={selectBots} opponents={human ? 'Human' : 'Computer'} /> :
+        <StartComponent startGame={startGame} selectOpponents={selectOpponents} opponents={human ? 'Human' : 'Computer'} /> :
         null}
       {waiting ?
         <WaitingComponent waiting={waiting}

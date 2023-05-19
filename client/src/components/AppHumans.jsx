@@ -438,50 +438,18 @@ const AppHumans = (props) => {
     return syncUsernames[j].index;
   }
 
-  function setNewRound(player, playerId) {
-    syncUsernames[player].strikes += 1;
-    setUsernames([...syncUsernames]);
-
-    let nextPlayer = calculateNextPlayer(player);
-    socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, playerId, reverse);
+  function setNewRoundHuman(nextPlayer) {
+    socket.emit('newRound', roomCode, syncUsernames[0].index, nextPlayer, cookies.playerId, reverse);
   }
 
-  function playCard(cardObj, player) {
-    let newRound = false;
+  function playCardHuman(cardObj, player) {
 
-    if (!syncUsernames[player].turn) {
-      return;
-    }
-
-    if (cardObj[0][0] === '4') {
-      reverse = !reverse;
-
-    } else if (cardObj[0][0] === 'K') {
-      setTotal(total => 99);
-      syncTotal = 99;
-
-    } else {
-      if (syncTotal + cardObj[1] > 99) {
-        newRound = true;
-      } else {
-        setTotal(total => total += cardObj[1]);
-        syncTotal += cardObj[1];
-      }
-
-    }
-
-    if (!newRound) {
-      let nextPlayer = calculateNextPlayer(player);
-      played.push(cardObj);
-
+    playCard(cardObj, player, (nextPlayer) => {
       socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId);
       cancelAnimationFrame(frameId);
       restartTimer(0);
       setGameStateTimer(gameStateTimer => timerDelay);
-
-    } else {
-      setNewRound(player, cookies.playerId);
-    }
+    }, setNewRoundHuman);
   }
 
   function startGame(newRound) {
@@ -499,24 +467,6 @@ const AppHumans = (props) => {
                                                                                       turn: false } })]
 
     setUsernames(usernames => [...syncUsernames]);
-  }
-
-  function setAndDisplayMessage(player, strikes, delay) {
-    let strikeOrLost = strikes < 3 ? 'got a strike' : 'lost';
-    let integer = Number.isInteger(player);
-    if (player === chosenName || (integer && !player)) {
-      message = `You ${strikeOrLost}! New round will start in: `;
-    } else if (player) {
-      let append = integer ? 'Computer ' : '';
-      message = `${append + player}\n\n${strikeOrLost}!\n\nNew round will start in: `;
-    } else {
-      message = 'Begin!';
-    }
-    setDisplayMessage(displayMessage => true);
-    setTimeout(() => {
-      setDisplayMessage(displayMessage => false);
-      setNewRoundDisplay(newRoundDisplay => false);
-    }, delay)
   }
 
   function saveUsername(username) {
@@ -555,12 +505,13 @@ const AppHumans = (props) => {
   }
 
   function resetState() {
+    chosenName = 'Waiting...'
     reverse = false;
     finalStrikes = 0;
     syncTotal = 0;
     played = [];
     syncUsernames = new Array(2).fill('')
-                                .map(() => { return { username: 'Waiting...',
+                                .map(() => { return { username: chosenName,
                                                       strikes: 0,
                                                       active: false,
                                                       hand: [],
@@ -860,8 +811,12 @@ const AppHumans = (props) => {
 
   return (
     <AppCentral
+      displayMessage={displayMessage}
       endGameFunc={endGameHuman}
+      message={message}
+      playCard={playCardHuman}
       replay={replayHuman}
+      selectOpponents={selectOpponents}
     />
   )
 

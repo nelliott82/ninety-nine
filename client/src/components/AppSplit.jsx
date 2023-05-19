@@ -3,9 +3,14 @@ import { useOutletContext, useLocation } from 'react-router-dom';
 import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
 
+let chosenName = 'Waiting...'
 let endGame = false;
+let message;
+let played = [];
+let reverse = false;
+let syncTotal = 0;
 let syncUsernames = new Array(2).fill('')
-                                .map(() => { return { username: 'Waiting...',
+                                .map(() => { return { username: chosenName,
                                                       strikes: 0,
                                                       active: false,
                                                       hand: [],
@@ -68,6 +73,70 @@ const AppSplit = () => {
     return syncUsernames[j].index;
   }
 
+  function playCard(cardObj, player, nextTurnCallback, setNewRoundCallback) {
+    let newRound = false;
+
+    if (cardObj[0][0] === '4') {
+      reverse = !reverse;
+
+    } else if (cardObj[0][0] === 'K') {
+      setTotal(total => 99);
+      syncTotal = 99;
+
+    } else {
+      if (syncTotal + cardObj[1] > 99) {
+        newRound = false;
+      } else {
+        setTotal(total => total += cardObj[1]);
+        syncTotal += cardObj[1];
+      }
+
+    }
+
+    let nextPlayer = calculateNextPlayer(player);
+
+    if (!newRound) {
+      played.push(cardObj);
+
+      nextTurnCallback(nextPlayer);
+
+    } else {
+      syncUsernames[player].strikes += 1;
+      setUsernames(usernames => [...syncUsernames]);
+
+      setNewRoundCallback(nextPlayer, player);
+    }
+  }
+
+  function selectOpponents(e) {
+    let num = parseInt(e.target.value);
+    syncUsernames = [...syncUsernames.slice(0, 1), ...Array(num).fill('')
+                                                                .map(() => { return { username: chosenName,
+                                                                                      strikes: 0,
+                                                                                      active: false,
+                                                                                      hand: [],
+                                                                                      turn: false } })]
+
+    setUsernames(usernames => [...syncUsernames]);
+  }
+
+  function setAndDisplayMessage(player, strikes, delay) {
+    let strikeOrLost = strikes < 3 ? 'got a strike' : 'lost';
+    let integer = Number.isInteger(player);
+    if (player === chosenName || (integer && !player)) {
+      message = `You ${strikeOrLost}! New round will start in: `;
+    } else if (player) {
+      let append = integer ? 'Computer ' : '';
+      message = `${append + player}\n\n${strikeOrLost}!\n\nNew round will start in: `;
+    } else {
+      message = 'Begin!';
+    }
+    setDisplayMessage(displayMessage => true);
+    setTimeout(() => {
+      setDisplayMessage(displayMessage => false);
+      setNewRoundDisplay(newRoundDisplay => false);
+    }, delay)
+  }
 
   function endGameFunc(callback) {
     endGame = true;
@@ -84,13 +153,14 @@ const AppSplit = () => {
   }
 
   function resetState() {
+    chosenName = 'Waiting...'
     reverse = false;
     finalStrikes = 0;
     syncTotal = 0;
     played = [];
     endGame = false;
     syncUsernames = new Array(2).fill('')
-                                .map(() => { return { username: 'Waiting...',
+                                .map(() => { return { username: chosenName,
                                                       strikes: 0,
                                                       active: false,
                                                       hand: [],
@@ -130,9 +200,27 @@ const AppSplit = () => {
   return (
     <>
       {location.pathname === '/computers' ?
-        <AppBots />
+        <AppBots
+          displayMessage={displayMessage}
+          message={message}
+          playCard={playCard}
+          selectOpponents={selectOpponents}
+          setAndDisplayMessage={setAndDisplayMessage}
+          setUsernames={setUsernames}
+          syncUsernames={syncUsernames}
+          usernames={usernames}
+        />
         :
-        <AppHumans />}
+        <AppHumans
+          displayMessage={displayMessage}
+          message={message}
+          playCard={playCard}
+          selectOpponents={selectOpponents}
+          setAndDisplayMessage={setAndDisplayMessage}
+          setUsernames={setUsernames}
+          syncUsernames={syncUsernames}
+          usernames={usernames}
+        />}
     </>
   )
 }

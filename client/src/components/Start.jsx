@@ -40,7 +40,7 @@ const StartButton = styled.button`
   font-size: 1.5em;
 `;
 
-const StartComponent = ({ selectBots, startGame, opponents }) => {
+const StartComponent = ({ selectOpponents, startGame, opponents }) => {
   const [display, setDisplay] = useState(true);
 
   function handleClick () {
@@ -51,7 +51,7 @@ const StartComponent = ({ selectBots, startGame, opponents }) => {
   return (
     <StartContainer display={display} >
       <BotsDropDownLabel>Set # Of {opponents} Opponents:</BotsDropDownLabel>
-      <BotsDropDown onChange={(e) => selectBots(e)}>
+      <BotsDropDown onChange={(e) => selectOpponents(e)}>
         <option value='1' >1</option>
         <option value='2' >2</option>
         <option value='3' >3</option>
