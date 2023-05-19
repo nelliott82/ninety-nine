@@ -14,43 +14,42 @@ let syncUsernames = new Array(2).fill('')
                                                       hand: [],
                                                       turn: false } });
 
-let message;
 let deck = shuffleDeck(createDeck());
 let played = [];
 let reverse = false;
 let chosenName = 'Waiting...';
 let count = 4;
-let playerId = '';
 let finalStrikes = 0;
 let frameId;
 let endGame = false;
 
-const AppBots = (props) => {
-  const navigate = useNavigate();
-
-  const [display, setDisplay] = useState(false);
-  const [on, setOn] = useState(true);
-  const [human, setHuman] = useState(false);
-  const [computer, setComputer] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [over, setOver] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [displayMessage, setDisplayMessage] = useState(false);
-  const [overMessage, setOverMessage] = useState(false);
-  const [waitingCount, setWaitingCount] = useState(4);
-  const [displayCountdown, setDisplayCountdown] = useState(false);
-  const [password, setPassword] = useState('');
-  const [gameStateTimer, setGameStateTimer] = useState(timerDelay);
-  const [enterPassword, setEnterPassword] = useState(false);
-  const [usernameChoice, setUsernameChoice] = useState(true);
-  const [usernameMessage, setUsernameMessage] = useState(false);
-  const [waiting, setWaiting] = useState(false);
-  const [usernames, setUsernames] = useState(syncUsernames);
-  const [start, setStart] = useState(false);
-  const [newRoundDisplay, setNewRoundDisplay] = useState(false);
-  const [created, setCreated] = useState(false);
-  const [creator, setCreator] = useState(false);
-  const [setStarted, started] = useOutletContext();
+const AppBots = ({ display,
+                   displayMessage,
+                   endGame,
+                   endGameFunc,
+                   gameOver,
+                   message,
+                   newRoundDisplay,
+                   on,
+                   over,
+                   overMessage,
+                   playCard,
+                   selectOpponents,
+                   setAndDisplayMessage,
+                   setDisplay,
+                   setGameOver,
+                   setNewRoundDisplay,
+                   setOn,
+                   setOver,
+                   setOverMessage,
+                   setStarted,
+                   setTotal,
+                   setUsernames,
+                   start,
+                   syncUsernames,
+                   total,
+                   usernames
+                  }) => {
 
   function setIndex(j, change) {
     j = j + change;
@@ -120,8 +119,6 @@ const AppBots = (props) => {
         startGame(true);
       }, 10000);
     }
-
-    return true;
   }
 
   function bot(bot) {
@@ -173,16 +170,6 @@ const AppBots = (props) => {
     !newRound && setAndDisplayMessage(undefined, 0, 2000);
     setOn(false);
     deal();
-  }
-
-  function setHands(players) {
-    return players.map((player, i) => {
-      if (i && player.strikes < 3 &&
-          chosenName !== 'Waiting...') {
-        player.hand = [1, 2, 3];
-      }
-      return player;
-    })
   }
 
   function replayBots() {
@@ -247,11 +234,6 @@ const AppBots = (props) => {
   }
 
   useEffect(() => {
-    setComputer(true);
-    setDisplay(true);
-    setStart(true);
-    setCreator(true);
-    setUsernameChoice(false);
     setOn(true);
     setStarted(true);
 
@@ -262,12 +244,28 @@ const AppBots = (props) => {
 
   return (
     <AppCentral
+      creator={true}
+      deck={deck}
+      display={true}
       displayMessage={displayMessage}
+      endGame={endGame}
       endGameFunc={endGameBots}
+      gameOver={gameOver}
       message={message}
+      newRoundDisplay={newRoundDisplay}
+      on={on}
+      over={over}
+      overMessage={overMessage}
       playCard={playCardBot}
+      played={played}
       replay={replayBots}
       selectOpponents={selectOpponents}
+      setNewRound={setNewRoundBot}
+      start={true}
+      startGame={startGame}
+      total={total}
+      usernames={usernames}
+      usernameChoice={false}
     />
   )
 

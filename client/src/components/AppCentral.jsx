@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useOutletContext, useParams, useLocation, useNavigate } from 'react-router-dom';
-import {shuffleDeck, createDeck} from '../helperFiles/deck.js';
 import styled, { keyframes } from 'styled-components';
 import ComputerComponentMap from './ComputerMap.jsx';
 import ComputerComponent from './Computer.jsx';
@@ -13,9 +12,6 @@ import WaitingComponent from './Waiting.jsx';
 import PasswordComponent from './Password.jsx';
 import TotalComponent from './Total.jsx';
 import RoundMessageComponent from './RoundMessage.jsx';
-import nikkoBot from '../helperFiles/computer.js';
-import socket from '../helperFiles/socket.js';
-import { getCookie, setCookies, deleteCookies, makeCookieObject } from '../helperFiles/cookies.js';
 
 const MainContainer = styled.div`
   width: 100vw;
@@ -292,113 +288,50 @@ const OverMessage = styled.div`
   width: 100vw;
 `;
 
-let timerDelay = 15;
-let syncTotal = 0;
-let syncCountdown = timerDelay;
-let syncUsernames = new Array(2).fill('')
-                                .map(() => { return { username: 'Waiting...',
-                                                      strikes: 0,
-                                                      active: false,
-                                                      hand: [],
-                                                      turn: false } });
 
-let message;
-let deck = shuffleDeck(createDeck());
-let played = [];
-let reverse = false;
-let chosenName = 'Waiting...';
-let count = 4;
-let playerId = '';
-let finalStrikes = 0;
-let frameId;
-
-const AppCentral = (props) => {
-  const location = useLocation();
-  let { state } = location;
-  if (!state) {
-    state = {};
-  }
-  const navigate = useNavigate();
-
-  const [display, setDisplay] = useState(false);
-  const [on, setOn] = useState(true);
-  const [human, setHuman] = useState(false);
-  const [computer, setComputer] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [over, setOver] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [endGame, setEndGame] = useState(false);
-  const [displayMessage, setDisplayMessage] = useState(false);
-  const [overMessage, setOverMessage] = useState(false);
-  const [waitingCount, setWaitingCount] = useState(4);
-  const [displayCountdown, setDisplayCountdown] = useState(false);
-  const [password, setPassword] = useState('');
-  const [gameStateTimer, setGameStateTimer] = useState(timerDelay);
-  const [enterPassword, setEnterPassword] = useState(false);
-  const [usernameChoice, setUsernameChoice] = useState(true);
-  const [usernameMessage, setUsernameMessage] = useState(false);
-  const [waiting, setWaiting] = useState(false);
-  const [usernames, setUsernames] = useState(syncUsernames);
-  const [start, setStart] = useState(false);
-  const [newRoundDisplay, setNewRoundDisplay] = useState(false);
-  const [created, setCreated] = useState(false);
-  const [creator, setCreator] = useState(false);
-  const [setStarted, started] = useOutletContext();
-  let { roomCode } = useParams();
-
-
-  function resetState() {
-    reverse = false;
-    finalStrikes = 0;
-    syncTotal = 0;
-    played = [];
-    syncUsernames = new Array(2).fill('')
-                                .map(() => { return { username: 'Waiting...',
-                                                      strikes: 0,
-                                                      active: false,
-                                                      hand: [],
-                                                      turn: false } });
-    setDisplay(false);
-    setStarted(false);
-    setOn(true);
-    setHuman(false);
-    setComputer(false);
-    setTotal(0);
-    setOver(false);
-    setGameOver(false);
-    setEndGame(false);
-    setDisplayMessage(false);
-    setOverMessage(false);
-    setWaitingCount(4);
-    setDisplayCountdown(false);
-    setPassword('');
-    setGameStateTimer(timerDelay);
-    setEnterPassword(false);
-    setUsernameChoice(true);
-    setUsernameMessage(false);
-    setWaiting(false);
-    setUsernames(syncUsernames);
-    setStart(false);
-    setNewRoundDisplay(false);
-    setCreated(false);
-    setCreator(false);
-  }
-
-  // useEffect(() => {
-
-  //   if (location.pathname !== '/computers') {
-  //   } else {
-
-  //   }
-  // })
-
+const AppCentral = ({ created,
+                      creator,
+                      deck,
+                      display,
+                      displayCountdown,
+                      displayMessage,
+                      endGame,
+                      endGameFunc,
+                      gameOver,
+                      gameStateTimer,
+                      human,
+                      message,
+                      newRoundDisplay,
+                      on,
+                      over,
+                      overMessage,
+                      playCard,
+                      played,
+                      playerId,
+                      replay,
+                      roomCode,
+                      saveUsername,
+                      selectOpponents,
+                      setEnterPassword,
+                      setNewRound,
+                      setUsernameChoice,
+                      socket,
+                      start,
+                      startGame,
+                      total,
+                      usernameChoice,
+                      usernameMessage,
+                      usernames,
+                      waiting,
+                      waitingCount
+                      }) => {
 
   if (display) {
     return (
       <>
       <DropDownComponent opponents={human ? 'humans' : 'computers'} />
       {usernameChoice ?
-        <UsernameComponent saveUsername={saveUsername} usernameMessage={usernameMessage} /> :
+        <UsernameComponent saveUsername={saveUsername} usernameTaken={usernameTaken} /> :
         null}
       {start && !created ?
         <StartComponent startGame={startGame} selectOpponents={selectOpponents} opponents={human ? 'Human' : 'Computer'} /> :
@@ -420,11 +353,11 @@ const AppCentral = (props) => {
       <GameOverButton gameOver={gameOver && creator && !endGame}
                       top={'50%'}
                       margin={1}
-                      onClick={() => replay(human ? replayCallback : undefined)} >Replay</GameOverButton>
+                      onClick={() => replay()} >Replay</GameOverButton>
       <GameOverButton gameOver={gameOver && creator && !endGame}
                       top={'55%'}
                       margin={2}
-                      onClick={() => endGameFunc(human ? endGameCallback : undefined)} >End Game</GameOverButton>
+                      onClick={() => endGameFunc()} >End Game</GameOverButton>
       <MainContainer>
         <GameArea>
           <PlayerArea1>
@@ -543,7 +476,7 @@ const AppCentral = (props) => {
                                   human={human}
                                   />
             </Player>
-            <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0, cookies.playerId) }}} >Forfeit</ForfeitButton>
+            <ForfeitButton onClick={() => {if (usernames[0].turn) { setNewRound(0, playerId) }}} >Forfeit</ForfeitButton>
           </PlayerArea2>
         </GameArea>
         <Attribution>

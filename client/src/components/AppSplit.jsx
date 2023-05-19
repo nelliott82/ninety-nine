@@ -4,10 +4,9 @@ import AppBots from './AppBots.jsx';
 import AppHumans from './AppHumans.jsx';
 
 let chosenName = 'Waiting...'
-let endGame = false;
-let message;
 let played = [];
 let reverse = false;
+let syncEndGame = false;
 let syncTotal = 0;
 let syncUsernames = new Array(2).fill('')
                                 .map(() => { return { username: chosenName,
@@ -18,29 +17,25 @@ let syncUsernames = new Array(2).fill('')
 
 const AppSplit = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const [display, setDisplay] = useState(false);
-  const [on, setOn] = useState(true);
-  const [human, setHuman] = useState(false);
-  const [computer, setComputer] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [over, setOver] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [displayMessage, setDisplayMessage] = useState(false);
-  const [overMessage, setOverMessage] = useState(false);
-  const [waitingCount, setWaitingCount] = useState(4);
-  const [displayCountdown, setDisplayCountdown] = useState(false);
   const [password, setPassword] = useState('');
-  const [gameStateTimer, setGameStateTimer] = useState(timerDelay);
-  const [enterPassword, setEnterPassword] = useState(false);
-  const [usernameChoice, setUsernameChoice] = useState(true);
   const [usernameMessage, setUsernameMessage] = useState(false);
   const [waiting, setWaiting] = useState(false);
   const [usernames, setUsernames] = useState(syncUsernames);
-  const [start, setStart] = useState(false);
+
+  const [display, setDisplay] = useState(false);
+  const [displayMessage, setDisplayMessage] = useState(false);
+  const [endGame, setEndGame] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [message, setMessage] = useState('');
   const [newRoundDisplay, setNewRoundDisplay] = useState(false);
-  const [created, setCreated] = useState(false);
-  const [creator, setCreator] = useState(false);
+  const [on, setOn] = useState(true);
+  const [over, setOver] = useState(false);
+  const [overMessage, setOverMessage] = useState(false);
+  const [start, setStart] = useState(false);
+  const [total, setTotal] = useState(0);
+
   const [setStarted, started] = useOutletContext();
 
   function setIndex(j, change) {
@@ -124,12 +119,12 @@ const AppSplit = () => {
     let strikeOrLost = strikes < 3 ? 'got a strike' : 'lost';
     let integer = Number.isInteger(player);
     if (player === chosenName || (integer && !player)) {
-      message = `You ${strikeOrLost}! New round will start in: `;
+      setMessage(`You ${strikeOrLost}! New round will start in: `);
     } else if (player) {
       let append = integer ? 'Computer ' : '';
-      message = `${append + player}\n\n${strikeOrLost}!\n\nNew round will start in: `;
+      setMessage(`${append + player}\n\n${strikeOrLost}!\n\nNew round will start in: `);
     } else {
-      message = 'Begin!';
+      setMessage('Begin!');
     }
     setDisplayMessage(displayMessage => true);
     setTimeout(() => {
@@ -139,16 +134,17 @@ const AppSplit = () => {
   }
 
   function endGameFunc(callback) {
-    endGame = true;
+    syncEndGame = true;
+    setEndGame(true);
     callback()
   }
 
   function replay(callback) {
-    if (!endGame) {
-      callback();
+    if (!syncEndGame) {
       setTotal(0);
       syncTotal = 0;
       played = [];
+      callback();
     }
   }
 
@@ -158,7 +154,7 @@ const AppSplit = () => {
     finalStrikes = 0;
     syncTotal = 0;
     played = [];
-    endGame = false;
+    syncEndGame = false;
     syncUsernames = new Array(2).fill('')
                                 .map(() => { return { username: chosenName,
                                                       strikes: 0,
@@ -201,24 +197,62 @@ const AppSplit = () => {
     <>
       {location.pathname === '/computers' ?
         <AppBots
+          display={display}
           displayMessage={displayMessage}
+          endGame={endGame}
+          endGameFunc={endGameFunc}
+          gameOver={gameOver}
           message={message}
+          newRoundDisplay={newRoundDisplay}
+          on={on}
+          over={over}
+          overMessage={overMessage}
           playCard={playCard}
           selectOpponents={selectOpponents}
           setAndDisplayMessage={setAndDisplayMessage}
+          setDisplay={setDisplay}
+          setGameOver={setGameOver}
+          setNewRoundDisplay={setNewRoundDisplay}
+          setOn={setOn}
+          setOver={setOver}
+          setOverMessage={setOverMessage}
+          setStarted={setStarted}
+          setTotal={setTotal}
           setUsernames={setUsernames}
+          start={start}
           syncUsernames={syncUsernames}
+          total={total}
           usernames={usernames}
         />
         :
         <AppHumans
+          display={display}
           displayMessage={displayMessage}
+          endGame={endGame}
+          endGameFunc={endGameFunc}
+          gameOver={gameOver}
+          location={location}
           message={message}
+          newRoundDisplay={newRoundDisplay}
+          on={on}
+          over={over}
+          overMessage={overMessage}
           playCard={playCard}
           selectOpponents={selectOpponents}
           setAndDisplayMessage={setAndDisplayMessage}
+          setDisplay={setDisplay}
+          setGameOver={setGameOver}
+          setNewRoundDisplay={setNewRoundDisplay}
+          setOn={setOn}
+          setOver={setOver}
+          setOverMessage={setOverMessage}
+          setStart={setStart}
+          setStarted={setStarted}
+          setTotal={setTotal}
           setUsernames={setUsernames}
+          start={start}
           syncUsernames={syncUsernames}
+          total={total}
           usernames={usernames}
         />}
     </>

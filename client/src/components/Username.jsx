@@ -27,7 +27,7 @@ const UsernameInput = styled.div`
 
 const Message = styled.div`
   grid-row: 2;
-  visibility: ${({ usernameMessage }) => usernameMessage ? 'visible' : 'hidden' };
+  visibility: ${({ usernameTaken }) => usernameTaken ? 'visible' : 'hidden' };
   justify-items: center;
   align-items: center;
 `;
@@ -39,7 +39,7 @@ const UsernameButton = styled.button`
   font-size: 1.5em;
 `;
 
-const UsernameComponent = ({ saveUsername, usernameMessage }) => {
+const UsernameComponent = ({ saveUsername, usernameTaken }) => {
   const [username, setUsername] = useState('');
 
   function handleChange (e) {
@@ -48,7 +48,7 @@ const UsernameComponent = ({ saveUsername, usernameMessage }) => {
 
   return (
     <UsernameContainer>
-      <Message usernameMessage={usernameMessage}>
+      <Message usernameTaken={usernameTaken}>
        <p>Username already taken</p>
       </Message>
       <UsernameInput>
