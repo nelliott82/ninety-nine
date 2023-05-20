@@ -6,6 +6,7 @@ import AppCentral from './AppCentral.jsx';
 
 let navigated = false;
 let timerDelay = 15;
+let syncCreator = false;
 let syncTotal = 0;
 let syncCountdown = timerDelay;
 let syncUsernames = new Array(2).fill('')
@@ -170,7 +171,7 @@ const AppHumans = ({ display,
 
   function playCardHuman(cardObj, player) {
 
-    playCard(cardObj, player, (nextPlayer) => {
+    syncTotal = playCard(cardObj, player, syncTotal, (nextPlayer) => {
       socket.emit('playCard', cardObj, roomCode, reverse, syncTotal, syncUsernames[0].index, nextPlayer, cookies.playerId);
       cancelAnimationFrame(frameId);
       restartTimer(0);
@@ -186,7 +187,7 @@ const AppHumans = ({ display,
   function saveUsername(username) {
     chosenName = username;
 
-    if (!creator) {
+    if (!syncCreator) {
       socket.emit('username', roomCode, username, cookies.playerId);
     } else {
       setUsernameChoice(false);
@@ -204,6 +205,11 @@ const AppHumans = ({ display,
       }
       return player;
     })
+  }
+
+  function selectOpponentsHuman(e) {
+    setWaitingCount(e.target.value);
+    selectOpponents(e);
   }
 
   function replayHuman() {
@@ -233,7 +239,6 @@ const AppHumans = ({ display,
     setStarted(false);
     setOn(true);
     setHuman(false);
-    setComputer(false);
     setTotal(0);
     setOver(false);
     setGameOver(false);
@@ -261,6 +266,7 @@ const AppHumans = ({ display,
 
     if (cookies.playerId) {
       let hasPassword = !state.hasOwnProperty('setPassword') ? false : true;
+      console.log('emitting enter')
       socket.emit('enter', roomCode, cookies.playerId, hasPassword);
     } else {
       setUsernameChoice(false);
@@ -271,7 +277,7 @@ const AppHumans = ({ display,
 
     socket.on('players', (players, i, restart, newHand, creating) => {
       setNewRoundDisplay(newRoundDisplay => false);
-
+      console.log('players: ', players)
       if (creating) {
         setCreated(true);
       }
@@ -433,11 +439,13 @@ const AppHumans = ({ display,
     });
 
     socket.on('enterCheck', (message, first, newHand, username) => {
-
+      console.log(first)
+      console.log(message)
       if (message === 'OK') {
 
         if (first) {
           setCreator(true);
+          syncCreator = true;
         } else {
           setCreator(false);
           setCreated(true);
@@ -548,7 +556,7 @@ const AppHumans = ({ display,
       replay={replayHuman}
       roomCode={roomCode}
       saveUsername={saveUsername}
-      selectOpponents={selectOpponents}
+      selectOpponents={selectOpponentsHuman}
       setEnterPassword={setEnterPassword}
       setNewRound={setNewRoundHuman}
       setPassword={state.setPassword}

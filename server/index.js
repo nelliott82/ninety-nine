@@ -288,6 +288,7 @@ io.on('connection', (socket) => {
 
     if (room.players) {
       let exists = room.players.filter(player => player.username === username);
+
       if (!exists.length) {
         io.to(socket.id).emit('usernameCheck', false, username);
         let players = Utils.formatPlayers(Rooms.addOrFindPlayer(roomCode, playerId, socket.id, username), playerId);

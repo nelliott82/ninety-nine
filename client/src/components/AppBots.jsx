@@ -98,14 +98,13 @@ const AppBots = ({ display,
     let time = syncTotal < 80 ? 3000 : 4000;
     let thinkingTime = Math.random() * time + 1000;
     setTimeout(() => {
-      console.log(syncUsernames[bot].hand);
       playCardBot(nikkoBot.chooseCard(syncUsernames[bot].hand, syncTotal), bot);
     }, thinkingTime);
   }
 
   function playCardBot(cardObj, player) {
 
-    syncTotal = playCard(cardObj, player, (nextPlayer) => {
+    syncTotal = playCard(cardObj, player, syncTotal, (nextPlayer) => {
       if (nextPlayer > 0) {
         bot(nextPlayer);
       }

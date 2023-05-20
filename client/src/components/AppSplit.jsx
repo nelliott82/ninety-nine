@@ -63,8 +63,9 @@ const AppSplit = () => {
     return syncUsernames[j].index;
   }
 
-  function playCard(cardObj, player, nextTurnCallback, setNewRoundCallback) {
+  function playCard(cardObj, player, lowerComponentsTotal, nextTurnCallback, setNewRoundCallback) {
     let newRound = false;
+    syncTotal = lowerComponentsTotal;
 
     if (cardObj[0][0] === '4') {
       reverse = !reverse;
@@ -165,7 +166,6 @@ const AppSplit = () => {
     setStarted(false);
     setOn(true);
     setHuman(false);
-    setComputer(false);
     setTotal(0);
     setOver(false);
     setGameOver(false);
@@ -254,7 +254,6 @@ const AppSplit = () => {
           setOver={setOver}
           setOverMessage={setOverMessage}
           setPlayed={setPlayed}
-          setStart={setStart}
           setStarted={setStarted}
           setTotal={setTotal}
           setUsernames={setUsernames}
