@@ -21,7 +21,7 @@ const StartContainer = styled.div`
 const Customization = () => {
 
   return (
-    <StartContainer display={display} >
+    <StartContainer>
       Hello world.
     </StartContainer>
     )
