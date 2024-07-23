@@ -458,6 +458,10 @@ app.get('/computers', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
+app.get('/site-customization', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
 httpServer.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
