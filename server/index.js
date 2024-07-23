@@ -459,7 +459,7 @@ app.get('/computers', (req, res) => {
 });
 
 app.get('/site-customization', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../client/dist/index2.html'));
 });
 
 httpServer.listen(port, () => {
